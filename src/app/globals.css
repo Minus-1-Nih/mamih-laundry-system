@@ -1,25 +1,82 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #2A6F56;
+  /* Brand */
+  --color-primary: #2a6f56;
   --color-primary-hover: #225945;
   --color-primary-light: #39886b;
-  --color-secondary: #E8F3EE;
+
+  --color-secondary: #e8f3ee;
   --color-secondary-hover: #d9ebe2;
   --color-secondary-dark: #bcdacb;
-  --color-brand-bg: #FAF9F6;
-  --color-brand-text: #1E2421;
+
+  /* Surface & text */
+  --color-canvas: #faf9f6;
+  --color-surface: #ffffff;
+  --color-ink: #1e2421;
+  --color-muted: #5a6b63;
+  --color-border: #e4e7e2;
+  --color-track: #eeefe9;
+
+  /* Legacy aliases for the existing scaffold pages */
+  --color-brand-bg: #faf9f6;
+  --color-brand-text: #1e2421;
+
+  /* Status */
+  --color-waiting-bg: #fef3c7;
+  --color-waiting-fg: #92400e;
+  --color-washing-bg: #dbeafe;
+  --color-washing-fg: #1d4ed8;
+  --color-ready-bg: #f3e8ff;
+  --color-ready-fg: #7e22ce;
+  --color-done-bg: #dcfce7;
+  --color-done-fg: #15803d;
+  --color-danger-bg: #fee2e2;
+  --color-danger-hover: #fecaca;
+  --color-danger-fg: #b91c1c;
+
+  /* Radius */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-pill: 100px;
+
+  /* Type scale additions */
+  --text-13: 13px;
+}
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-driver: var(--font-pjs), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 }
 
 :root {
-  --background: #FAF9F6;
-  --foreground: #1E2421;
-  --primary: #2A6F56;
-  --secondary: #E8F3EE;
+  --background: #faf9f6;
+  --foreground: #1e2421;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
   min-height: 100vh;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+dialog::backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
