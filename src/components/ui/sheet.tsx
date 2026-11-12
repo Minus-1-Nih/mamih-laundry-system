@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/cn";
 
@@ -10,8 +10,10 @@ export interface SheetProps {
   title: string;
   description?: string;
   side?: "right" | "bottom";
+  size?: "md" | "lg";
   className?: string;
-  children: React.ReactNode;
+  footer?: ReactNode;
+  children: ReactNode;
 }
 
 export function Sheet({
@@ -20,7 +22,9 @@ export function Sheet({
   title,
   description,
   side = "right",
+  size = "md",
   className,
+  footer,
   children,
 }: SheetProps) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -43,7 +47,7 @@ export function Sheet({
       className={cn(
         "m-0 max-h-none border-0 bg-transparent p-0 text-ink",
         side === "right"
-          ? "ml-auto h-dvh w-full max-w-md"
+          ? cn("ml-auto h-dvh w-full", size === "lg" ? "max-w-xl" : "max-w-md")
           : "mx-auto mt-auto h-auto max-h-[85dvh] w-full max-w-xl rounded-t-2xl",
       )}
     >
@@ -71,6 +75,9 @@ export function Sheet({
           </button>
         </div>
         <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
+        {footer ? (
+          <div className="border-t border-border bg-surface px-5 py-4">{footer}</div>
+        ) : null}
       </div>
     </dialog>
   );

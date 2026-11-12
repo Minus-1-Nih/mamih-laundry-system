@@ -1,4 +1,4 @@
-import { DEMO_NOW, DEMO_NOW_ISO } from "@/lib/demo-date";
+import { DEMO_MINUTES, DEMO_NOW, DEMO_NOW_ISO } from "@/lib/demo-date";
 import type { Order, SessionType, User, ZoneId } from "@/lib/types";
 
 const TZ = "Asia/Jakarta";
@@ -128,6 +128,10 @@ export function parseOrderCode(
   };
 }
 
+export function orderSequence(code: string): number {
+  return parseOrderCode(code)?.seq ?? 0;
+}
+
 export function nextOrderCode(
   zoneId: ZoneId,
   orders: Order[],
@@ -194,4 +198,24 @@ export function scheduleWindow(schedule: string, minutes = 60): string {
       value % 60,
     ).padStart(2, "0")}`;
   return `${format(start)}–${format(end)}`;
+}
+
+export function timeToMinutes(value: string): number {
+  const [hour, minute] = value.replace(".", ":").split(":").map(Number);
+  return hour * 60 + (minute || 0);
+}
+
+export function isSessionActive(
+  start: string,
+  end: string,
+  nowMinutes: number = DEMO_MINUTES,
+): boolean {
+  return nowMinutes >= timeToMinutes(start) && nowMinutes < timeToMinutes(end);
+}
+
+export function isSessionNext(
+  start: string,
+  nowMinutes: number = DEMO_MINUTES,
+): boolean {
+  return nowMinutes < timeToMinutes(start);
 }
