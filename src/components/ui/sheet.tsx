@@ -48,12 +48,12 @@ export function Sheet({
         "m-0 max-h-none border-0 bg-transparent p-0 text-ink",
         side === "right"
           ? cn("ml-auto h-dvh w-full", size === "lg" ? "max-w-xl" : "max-w-md")
-          : "mx-auto mt-auto h-auto max-h-[85dvh] w-full max-w-xl rounded-t-2xl",
+          : "inset-x-0 bottom-0 top-auto mx-auto h-auto max-h-[85dvh] w-full max-w-xl rounded-t-2xl",
       )}
     >
       <div
         className={cn(
-          "flex h-full flex-col bg-surface",
+          "flex flex-col bg-surface",
           side === "right" ? "h-dvh" : "max-h-[85dvh] rounded-t-2xl",
           className,
         )}

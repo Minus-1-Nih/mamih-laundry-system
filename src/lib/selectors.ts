@@ -46,6 +46,24 @@ export function driverHistory(
     );
 }
 
+function completedAt(order: Order): number {
+  const last = [...order.history]
+    .reverse()
+    .find((event) => event.status === "selesai");
+  return new Date(last?.at ?? order.createdAt).getTime();
+}
+
+export function driverZoneHistory(
+  orders: Order[],
+  zoneIds: ZoneId[],
+): Order[] {
+  return visibleOrders(orders)
+    .filter(
+      (order) => zoneIds.includes(order.zoneId) && order.status === "selesai",
+    )
+    .sort((a, b) => completedAt(b) - completedAt(a));
+}
+
 export function countStatus(orders: Order[], status: OrderStatus): number {
   return orders.filter((order) => order.status === status).length;
 }
