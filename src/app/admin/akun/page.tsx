@@ -1,10 +1,10 @@
-import { ComingSoon } from "@/components/ui/coming-soon";
+import { AccountsClient } from "@/components/admin/accounts-client";
+import { RoleGuard } from "@/components/auth/role-guard";
 
 export default function AdminAccountsPage() {
   return (
-    <ComingSoon
-      title="Manajemen akun"
-      description="Owner dapat menambah, mengubah, dan menonaktifkan akun Admin serta Driver dari halaman ini."
-    />
+    <RoleGuard role="admin" adminLevel="owner">
+      <AccountsClient />
+    </RoleGuard>
   );
 }

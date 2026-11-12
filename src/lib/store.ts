@@ -95,6 +95,14 @@ function actorName(users: User[], currentUserId: string | null): string {
   return users.find((user) => user.id === currentUserId)?.name ?? "Sistem";
 }
 
+function ownerGuard(users: User[], currentUserId: string | null): string | null {
+  const actor = users.find((user) => user.id === currentUserId);
+  if (!actor || actor.role !== "admin" || actor.adminLevel !== "owner") {
+    return "Hanya Owner yang dapat mengelola akun Admin dan Driver.";
+  }
+  return null;
+}
+
 function usernameTaken(users: User[], username: string, exceptId?: string): boolean {
   return users.some(
     (user) =>
@@ -206,7 +214,12 @@ export const useAppStore = create<AppState>()(
       },
 
       createUser: ({ name, username, phone, password, role, zoneIds }) => {
+        const guard = ownerGuard(get().users, get().currentUserId);
+        if (guard) return { ok: false, error: guard };
         if (!name.trim()) return { ok: false, error: "Nama wajib diisi." };
+        if (role !== "admin" && role !== "driver") {
+          return { ok: false, error: "Akun baru hanya dapat berupa Admin atau Driver." };
+        }
         if (!/^[a-z0-9._-]{3,}$/i.test(username)) {
           return {
             ok: false,
@@ -250,8 +263,8 @@ export const useAppStore = create<AppState>()(
         if (patch.email && emailTaken(get().users, patch.email, id)) {
           return { ok: false, error: "Email sudah dipakai." };
         }
-        if (target.role === "admin" && patch.active === false) {
-          return { ok: false, error: "Akun admin tidak dapat dinonaktifkan dari sini." };
+        if (target.adminLevel === "owner" && patch.active === false) {
+          return { ok: false, error: "Akun Owner tidak dapat dinonaktifkan." };
         }
 
         set((state) => ({
@@ -264,13 +277,18 @@ export const useAppStore = create<AppState>()(
 
       deactivateUser: (id) => {
         const state = get();
+        const guard = ownerGuard(state.users, state.currentUserId);
+        if (guard) return { ok: false, error: guard };
         if (id === state.currentUserId) {
           return { ok: false, error: "Tidak dapat menonaktifkan akun yang sedang dipakai." };
         }
         const target = state.users.find((user) => user.id === id);
         if (!target) return { ok: false, error: "Akun tidak ditemukan." };
-        if (target.role === "admin") {
-          return { ok: false, error: "Akun Owner/Admin tidak dapat dinonaktifkan." };
+        if (target.adminLevel === "owner") {
+          return { ok: false, error: "Akun Owner tidak dapat dinonaktifkan." };
+        }
+        if (target.role === "customer") {
+          return { ok: false, error: "Akun Pelanggan dikelola dari halaman Pelanggan." };
         }
         set((current) => ({
           users: current.users.map((user) =>
@@ -281,6 +299,8 @@ export const useAppStore = create<AppState>()(
       },
 
       activateUser: (id) => {
+        const guard = ownerGuard(get().users, get().currentUserId);
+        if (guard) return { ok: false, error: guard };
         set((state) => ({
           users: state.users.map((user) =>
             user.id === id ? { ...user, active: true } : user,
@@ -290,6 +310,8 @@ export const useAppStore = create<AppState>()(
       },
 
       resetPassword: (id, password) => {
+        const guard = ownerGuard(get().users, get().currentUserId);
+        if (guard) return { ok: false, error: guard };
         if (password.length < 6) {
           return { ok: false, error: "Kata sandi minimal 6 karakter." };
         }
