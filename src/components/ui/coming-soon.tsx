@@ -19,10 +19,13 @@ export function ComingSoon({
       <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-primary">
         <Construction className="h-5 w-5" />
       </div>
-      <h1 className="text-xl font-bold text-ink">{title}</h1>
-      <p className="mt-2 text-sm text-muted">
+      <span className="rounded-pill bg-secondary px-2.5 py-1 text-xs font-medium text-primary">
+        Segera datang
+      </span>
+      <h1 className="mt-3 text-xl font-bold text-ink">{title}</h1>
+      <p className="mt-2 text-sm leading-relaxed text-muted">
         {description ??
-          "Halaman ini belum tersedia di prototipe. Alur utamanya sudah bisa dicoba dari menu yang ada."}
+          "Fitur ini belum termasuk dalam cakupan prototipe. Alur utama tetap bisa dicoba dari menu yang ada."}
       </p>
       <Link
         href={backHref}

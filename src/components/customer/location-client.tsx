@@ -69,7 +69,7 @@ function MapCanvas({
   const selected = addresses[selectedIndex];
 
   return (
-    <div className="relative h-[540px] overflow-hidden rounded-xl border border-border bg-[#eef3e8]">
+    <div className="relative h-[540px] overflow-hidden rounded-xl border border-border bg-map-ground">
       <div
         className="absolute inset-0 transition-transform duration-200"
         style={{ transform: `scale(${zoom})` }}
@@ -79,26 +79,26 @@ function MapCanvas({
           <div className="absolute -left-10 top-[48%] h-4 w-[120%] rotate-3 rounded-full bg-white/90" />
           <div className="absolute left-[26%] top-[-10%] h-[130%] w-3 rotate-12 rounded-full bg-white/80" />
           <div className="absolute left-[62%] top-[-10%] h-[130%] w-2.5 -rotate-6 rounded-full bg-white/70" />
-          <div className="absolute -right-8 top-0 h-full w-24 rotate-6 bg-[#cfe4ee]" />
-          <div className="absolute left-[8%] top-[62%] h-32 w-40 rounded-[45%] bg-[#dfeacb]" />
-          <div className="absolute left-[40%] top-[6%] h-28 w-36 rounded-[45%] bg-[#dfeacb]" />
-          <div className="absolute left-[70%] top-[70%] h-24 w-28 rounded-[45%] bg-[#e3edcf]" />
+          <div className="absolute -right-8 top-0 h-full w-24 rotate-6 bg-map-water" />
+          <div className="absolute left-[8%] top-[62%] h-32 w-40 rounded-[45%] bg-map-park" />
+          <div className="absolute left-[40%] top-[6%] h-28 w-36 rounded-[45%] bg-map-park" />
+          <div className="absolute left-[70%] top-[70%] h-24 w-28 rounded-[45%] bg-map-park-soft" />
           <div className="absolute left-[10%] top-[6%] h-[86%] w-[80%] rounded-[38%] border-2 border-dashed border-primary/25" />
         </div>
 
-        <p className="absolute left-[34%] top-[34%] text-13 font-medium tracking-[0.14em] text-[#7c8a74]">
+        <p className="absolute left-[34%] top-[34%] text-13 font-medium tracking-[0.14em] text-map-label">
           SUKABIRUS
         </p>
-        <p className="absolute right-[6%] top-[46%] text-13 font-medium tracking-[0.14em] text-[#7c8a74]">
+        <p className="absolute right-[6%] top-[46%] text-13 font-medium tracking-[0.14em] text-map-label">
           CITEUREUP
         </p>
-        <p className="absolute left-[54%] top-[20%] text-13 text-[#7c8a74]">
+        <p className="absolute left-[54%] top-[20%] text-13 text-map-label">
           Taman Telkom
         </p>
-        <p className="absolute bottom-[22%] left-[38%] -rotate-3 text-13 text-[#8a9682]">
+        <p className="absolute bottom-[22%] left-[38%] -rotate-3 text-13 text-map-label-soft">
           Jl. Terusan Buah Batu
         </p>
-        <p className="absolute left-[10%] top-[46%] -rotate-90 text-13 text-[#8a9682]">
+        <p className="absolute left-[10%] top-[46%] -rotate-90 text-13 text-map-label-soft">
           Jl. Sukabirus
         </p>
 

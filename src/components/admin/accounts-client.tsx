@@ -404,7 +404,7 @@ export function AccountsClient() {
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-ink">
-            Owner adalah tingkat akses tertinggi Admin
+            Owner adalah tingkat akses tertinggi dari Admin
           </p>
           <p className="mt-0.5 text-13 text-muted">
             Sistem tetap memiliki tiga peran: Admin, Driver, dan Pelanggan.

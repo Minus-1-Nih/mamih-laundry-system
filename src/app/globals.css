@@ -22,6 +22,14 @@
   --color-brand-bg: #faf9f6;
   --color-brand-text: #1e2421;
 
+  /* Map */
+  --color-map-ground: #eef3e8;
+  --color-map-water: #cfe4ee;
+  --color-map-park: #dfeacb;
+  --color-map-park-soft: #e3edcf;
+  --color-map-label: #7c8a74;
+  --color-map-label-soft: #8a9682;
+
   /* Status */
   --color-waiting-bg: #fef3c7;
   --color-waiting-fg: #92400e;
@@ -64,6 +72,11 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+html,
+body {
+  overflow-x: clip;
+}
+
 body {
   min-height: 100vh;
   background-color: var(--color-canvas);
@@ -80,4 +93,15 @@ dialog::backdrop {
 :focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }
