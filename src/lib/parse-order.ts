@@ -166,7 +166,7 @@ export function validateParsedOrder(
 
   for (const field of required) {
     if (!data[field]) {
-      errors[field] = "Tidak ditemukan di pesan — isi manual.";
+      errors[field] = "Tidak ditemukan di pesan, isi manual.";
     }
   }
 
@@ -177,7 +177,7 @@ export function validateParsedOrder(
     data.customerName &&
     (data.customerName.length < 2 || data.customerName.length > 80)
   ) {
-    errors.customerName = "Nama pelanggan perlu 2–80 karakter.";
+    errors.customerName = "Nama pelanggan perlu 2-80 karakter.";
   }
   if (data.landmark && data.landmark.length < 5) {
     errors.landmark = "Patokan alamat terlalu singkat.";

@@ -197,7 +197,7 @@ export function scheduleWindow(schedule: string, minutes = 60): string {
     `${String(Math.floor(value / 60) % 24).padStart(2, "0")}.${String(
       value % 60,
     ).padStart(2, "0")}`;
-  return `${format(start)}–${format(end)}`;
+  return `${format(start)}-${format(end)}`;
 }
 
 export function timeToMinutes(value: string): number {
