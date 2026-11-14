@@ -47,9 +47,9 @@ function nextStatus(action: DriverAction): OrderStatus {
 
 function SectionHeading({ title, count }: { title: string; count: number }) {
   return (
-    <div className="mt-5 flex items-baseline justify-between first:mt-0">
+    <div className="mt-6 flex items-baseline justify-between gap-3 border-t-2 border-ink pt-2.5 first:mt-0">
       <h2 className="text-base font-semibold text-ink">{title}</h2>
-      <span className="text-13 text-muted">{count} pesanan</span>
+      <span className="small-print text-muted">{count} pesanan</span>
     </div>
   );
 }
@@ -58,28 +58,32 @@ function TaskCard({ order, onOpen }: { order: Order; onOpen: () => void }) {
   const pickup = order.status === "menunggu";
 
   return (
-    <article className="rounded-2xl border border-border bg-surface p-4">
-      <div className="flex items-start justify-between gap-3">
-        <p className="font-mono text-[15px] font-semibold tracking-tight text-ink">
+    <article className="border-2 border-ink bg-paper shadow-[4px_4px_0_var(--color-paper-3)]">
+      <div className="flex items-start justify-between gap-3 border-b border-rule px-4 py-2.5">
+        <p className="font-outlier text-sm font-semibold text-ink">
           {order.code}
         </p>
         <StatusBadge status={order.status} overdue={isOverdue(order)} />
       </div>
 
-      <h3 className="mt-3 text-[17px] font-semibold leading-snug text-ink">
-        {order.customerName}
-      </h3>
-      <p className="mt-1 text-sm text-muted">
-        {pickup ? `${order.service}, ${order.phone}` : `${order.service} · ${order.weight}`}
-      </p>
+      <div className="px-4 py-3.5">
+        <h3 className="text-base font-semibold leading-snug text-ink">
+          {order.customerName}
+        </h3>
+        <p className="mt-1 text-13 text-muted">
+          {pickup
+            ? `${order.service}, ${order.phone}`
+            : `${order.service}, ${order.weight}`}
+        </p>
 
-      <p className="mt-2.5 flex items-start gap-2 text-sm text-muted">
-        <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted" />
-        <span>{order.landmark}</span>
-      </p>
+        <p className="mt-3 flex items-start gap-2 border-t border-rule pt-3 text-13 text-muted">
+          <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+          <span>{order.landmark}</span>
+        </p>
+      </div>
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-        <span className="text-sm text-ink">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-rule px-4 py-3">
+        <span className="text-sm font-medium text-ink">
           {pickup ? "Jemput" : "Antar"} {scheduleWindow(order.schedule)}
         </span>
         {pickup ? (
@@ -90,7 +94,7 @@ function TaskCard({ order, onOpen }: { order: Order; onOpen: () => void }) {
             )}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex h-9 items-center gap-1.5 rounded-pill border border-border px-3 text-13 font-medium text-ink transition-colors hover:border-primary hover:text-primary"
+            className="inline-flex h-9 items-center gap-1.5 rounded-pill border border-ink px-3 text-13 font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:border-accent hover:text-accent"
           >
             <MessageCircle className="h-4 w-4" />
             WhatsApp Kurir
@@ -98,9 +102,11 @@ function TaskCard({ order, onOpen }: { order: Order; onOpen: () => void }) {
         ) : null}
       </div>
 
-      <Button className="mt-3.5 w-full" onClick={onOpen}>
-        Perbarui Status
-      </Button>
+      <div className="px-4 pb-4">
+        <Button className="w-full" onClick={onOpen}>
+          Perbarui Status
+        </Button>
+      </div>
     </article>
   );
 }
@@ -113,40 +119,46 @@ function HistoryCard({ order, onOpen }: { order: Order; onOpen: () => void }) {
     .find((event) => event.status === "selesai");
 
   return (
-    <article className="rounded-2xl border border-border bg-surface p-4">
-      <div className="flex items-start justify-between gap-3">
-        <p className="font-mono text-[15px] font-semibold tracking-tight text-ink">
+    <article className="border border-rule bg-paper">
+      <div className="flex items-start justify-between gap-3 border-b border-rule px-4 py-2.5">
+        <p className="font-outlier text-sm font-semibold text-ink">
           {order.code}
         </p>
         <StatusBadge status="selesai" />
       </div>
-      <h3 className="mt-2.5 text-[17px] font-semibold text-ink">
-        {order.customerName}
-      </h3>
-      <p className="mt-1 text-sm text-muted">
-        {order.service} · {order.weight}
-      </p>
-      <p className="mt-1 text-13 text-muted">
-        Zona {order.zoneId}, {zone?.name ?? "Zona"}
-      </p>
+      <div className="px-4 py-3">
+        <h3 className="text-sm font-semibold text-ink">
+          {order.customerName}
+        </h3>
+        <p className="mt-1 text-13 text-muted">
+          {order.service}, {order.weight}
+        </p>
+        <p className="mt-1 text-13 text-muted">
+          Zona {order.zoneId}, {zone?.name ?? "Zona"}
+        </p>
+      </div>
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3">
-        <span className="text-13 text-muted">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-rule px-4 py-2.5">
+        <span className="small-print text-muted">
           Selesai{" "}
           {completion
             ? `${formatDateShort(completion.at)} ${formatTime(completion.at)} WIB`
-            : "—"}
+            : "-"}
         </span>
-        <span className="text-13 text-muted">{sessionLabel(order.session)}</span>
+        <span className="small-print text-muted">
+          {sessionLabel(order.session)}
+        </span>
       </div>
 
-      <button
-        type="button"
-        onClick={onOpen}
-        className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary-hover"
-      >
-        Lihat Rincian Pesanan
-      </button>
+      <div className="border-t border-rule px-4 py-2.5">
+        <button
+          type="button"
+          onClick={onOpen}
+          className="inline-flex items-center gap-1 text-sm font-medium text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"
+        >
+          Lihat Rincian Pesanan
+        </button>
+      </div>
     </article>
   );
 }
@@ -155,7 +167,7 @@ function ZoneMini({ order }: { order: Order }) {
   const zones = useAppStore((state) => state.zones);
   const zone = zones.find((item) => item.id === order.zoneId);
   return (
-    <span className="text-13 text-muted">
+    <span className="small-print text-muted">
       {order.zoneId}, {zone?.name ?? "Zona"}
     </span>
   );
@@ -163,9 +175,9 @@ function ZoneMini({ order }: { order: Order }) {
 
 function DetailRow({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <div className="py-3.5 first:pt-0 last:pb-0">
-      <dt className="text-13 text-muted">{label}</dt>
-      <dd className="mt-1 text-base text-ink">{value}</dd>
+    <div className="border-b border-rule py-3 first:pt-0 last:border-b-0 last:pb-0">
+      <dt className="small-print text-muted">{label}</dt>
+      <dd className="mt-1 text-sm font-medium text-ink">{value}</dd>
       {hint ? <p className="mt-0.5 text-13 text-muted">{hint}</p> : null}
     </div>
   );
@@ -213,7 +225,7 @@ export function DriverClient() {
   const zoneSummary =
     zoneIds.length === 0
       ? "Belum ada zona tugas"
-      : `Zona ${zoneIds.join("–")}, ${zoneNames.join("–")}`;
+      : `Zona ${zoneIds.join(", ")}, ${zoneNames.join(", ")}`;
   const zoneNote =
     zoneIds.length === 0
       ? "Hubungi Owner untuk penugasan zona."
@@ -256,18 +268,18 @@ export function DriverClient() {
   return (
     <div className="font-driver">
       {!driverOnline ? (
-        <div className="bg-waiting-bg px-5 py-3 text-sm font-semibold leading-snug text-waiting-fg">
-          Mode offline — koneksi terputus. Tugas yang diselesaikan akan disimpan
+        <div className="border-b-2 border-ink bg-waiting-bg px-5 py-2.5 text-13 font-semibold leading-snug text-waiting-fg">
+          Mode offline. Koneksi terputus. Tugas yang diselesaikan akan disimpan
           sementara.
         </div>
       ) : null}
 
-      <header className="sticky top-0 z-20 border-b border-border bg-surface/95 backdrop-blur">
-        <div className="flex items-center justify-between gap-3 px-5 py-3.5">
-          <p className="text-[22px] font-extrabold tracking-tight text-primary">
-            laundria
-            <span className="ml-1.5 text-sm font-medium tracking-normal text-muted">
-              / Driver
+      <header className="sticky top-0 z-20 border-b-2 border-ink bg-paper">
+        <div className="flex items-center justify-between gap-3 px-5 py-3">
+          <p className="font-display text-2xl leading-none text-ink">
+            Laundria
+            <span className="ml-2 font-outlier text-13 text-muted">
+              DRIVER
             </span>
           </p>
           <button
@@ -282,10 +294,10 @@ export function DriverClient() {
             }}
             aria-pressed={driverOnline}
             className={cn(
-              "inline-flex h-8 items-center gap-1.5 rounded-pill px-3 text-13 font-medium transition-colors",
+              "inline-flex h-8 items-center gap-1.5 rounded-pill border px-3 text-13 font-medium transition-colors duration-[var(--dur-micro)]",
               driverOnline
-                ? "bg-secondary text-primary hover:bg-secondary-hover"
-                : "bg-track text-muted hover:text-ink",
+                ? "border-accent bg-accent text-accent-ink"
+                : "border-rule bg-paper text-muted hover:border-ink hover:text-ink",
             )}
           >
             {driverOnline ? (
@@ -301,49 +313,61 @@ export function DriverClient() {
       <section className="px-5 pt-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h1 className="text-[26px] font-bold leading-tight tracking-tight text-ink">
+            <p className="small-print text-accent">Hari ini</p>
+            <h1 className="mt-2 font-display text-3xl leading-[1.02] text-ink">
               Halo, {user.name}
             </h1>
-            <p className="mt-1 text-sm text-muted">{DEMO_DATE_LONG}</p>
+            <p className="mt-2 text-13 text-muted">{DEMO_DATE_LONG}</p>
           </div>
           <button
             type="button"
             onClick={() => setAccountOpen(true)}
             aria-label="Buka menu akun"
-            className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border bg-canvas text-sm font-semibold text-primary transition-colors hover:border-primary"
+            className="relative flex h-12 w-12 shrink-0 items-center justify-center border-2 border-ink bg-paper text-sm font-semibold text-accent transition-colors duration-[var(--dur-micro)] hover:border-accent"
           >
             {initials(user.name)}
             <span
+              aria-hidden="true"
               className={cn(
-                "absolute right-0 top-0 h-2.5 w-2.5 rounded-full ring-2 ring-surface",
+                "absolute -right-1 -top-1 h-2.5 w-2.5 border border-paper",
                 driverOnline ? "bg-done-fg" : "bg-danger-fg",
               )}
             />
           </button>
         </div>
 
-        <p className="mt-3 text-sm text-muted">{zoneSummary}</p>
+        <p className="mt-3 border-t border-rule pt-3 text-13 text-muted">
+          {zoneSummary}
+        </p>
 
-        <div className="mt-3 grid grid-cols-2 gap-2.5">
-          <div className="rounded-pill bg-canvas px-3 py-2.5 text-center text-sm text-ink">
-            Jemput: <span className="font-semibold">{pickupTasks.length} Pesanan</span>
+        <div className="mt-3 grid grid-cols-2 border-y border-ink">
+          <div className="border-r border-rule py-2.5 pr-3">
+            <p className="small-print text-muted">Jemput</p>
+            <p className="mt-0.5 font-display text-2xl leading-none text-ink">
+              {pickupTasks.length}
+              <span className="ml-1.5 text-13">pesanan</span>
+            </p>
           </div>
-          <div className="rounded-pill bg-canvas px-3 py-2.5 text-center text-sm text-ink">
-            Antar: <span className="font-semibold">{deliveryTasks.length} Pesanan</span>
+          <div className="py-2.5 pl-3">
+            <p className="small-print text-muted">Antar</p>
+            <p className="mt-0.5 font-display text-2xl leading-none text-ink">
+              {deliveryTasks.length}
+              <span className="ml-1.5 text-13">pesanan</span>
+            </p>
           </div>
         </div>
       </section>
 
-      <div className="mx-5 mt-4 grid grid-cols-2 rounded-xl bg-track p-1">
+      <div className="mx-5 mt-5 grid grid-cols-2 border-2 border-ink">
         <button
           type="button"
           onClick={() => setTab("active")}
           aria-pressed={tab === "active"}
           className={cn(
-            "rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+            "px-3 py-2.5 text-13 font-medium transition-colors duration-[var(--dur-micro)]",
             tab === "active"
-              ? "bg-surface text-primary shadow-sm"
-              : "text-muted hover:text-ink",
+              ? "bg-accent text-accent-ink"
+              : "bg-paper text-muted hover:text-ink",
           )}
         >
           Daftar Tugas Aktif ({tasks.length})
@@ -353,10 +377,10 @@ export function DriverClient() {
           onClick={() => setTab("history")}
           aria-pressed={tab === "history"}
           className={cn(
-            "rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+            "border-l-2 border-ink px-3 py-2.5 text-13 font-medium transition-colors duration-[var(--dur-micro)]",
             tab === "history"
-              ? "bg-surface text-primary shadow-sm"
-              : "text-muted hover:text-ink",
+              ? "bg-accent text-accent-ink"
+              : "bg-paper text-muted hover:text-ink",
           )}
         >
           Riwayat Tugas Selesai
@@ -364,7 +388,7 @@ export function DriverClient() {
       </div>
 
       {tab === "active" ? (
-        <div className="px-5 pb-8 pt-4">
+        <div className="px-5 pb-8 pt-5">
           <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
             {(
               [
@@ -379,10 +403,10 @@ export function DriverClient() {
                 onClick={() => setFilter(item.key)}
                 aria-pressed={filter === item.key}
                 className={cn(
-                  "inline-flex h-[38px] shrink-0 items-center rounded-pill border px-3.5 text-sm font-medium transition-colors",
+                  "inline-flex h-9 shrink-0 items-center rounded-pill border px-3.5 text-13 font-medium transition-colors duration-[var(--dur-micro)]",
                   filter === item.key
-                    ? "border-primary bg-surface text-primary"
-                    : "border-border bg-surface text-muted hover:border-primary hover:text-primary",
+                    ? "border-accent bg-accent text-accent-ink"
+                    : "border-rule bg-paper text-muted hover:border-ink hover:text-ink",
                 )}
               >
                 {item.label}
@@ -421,12 +445,12 @@ export function DriverClient() {
           ) : null}
 
           {tasks.length === 0 ? (
-            <div className="mt-4 rounded-2xl border border-dashed border-border bg-surface px-5 py-10 text-center">
-              <PackageCheck className="mx-auto h-7 w-7 text-primary" />
-              <p className="mt-2 text-sm font-semibold text-ink">
+            <div className="mt-4 border border-dashed border-rule bg-paper-2 px-5 py-10 text-center">
+              <PackageCheck className="mx-auto h-7 w-7 text-accent" />
+              <p className="mt-3 text-sm font-semibold text-ink">
                 Tidak ada tugas aktif
               </p>
-              <p className="mt-1 text-sm text-muted">
+              <p className="mt-1 text-13 text-muted">
                 Tugas baru akan muncul di sini sesuai zona Anda.
               </p>
             </div>
@@ -435,24 +459,25 @@ export function DriverClient() {
           <p className="mt-6 text-center text-13 text-muted">{zoneNote}</p>
         </div>
       ) : (
-        <div className="px-5 pb-8 pt-4">
-          <div className="rounded-xl bg-secondary px-4 py-4">
-            <p className="text-sm font-semibold text-primary">
-              Riwayat Tugas Selesai
+        <div className="px-5 pb-8 pt-5">
+          <div className="border-2 border-ink bg-paper-2 px-4 py-3.5">
+            <p className="small-print text-accent">Riwayat Tugas Selesai</p>
+            <p className="mt-1 font-display text-3xl leading-none text-ink">
+              {history.length}
+              <span className="ml-2 text-13">pesanan selesai</span>
             </p>
-            <p className="mt-1 text-base font-semibold text-ink">
-              {history.length} pesanan selesai
+            <p className="mt-1.5 border-t border-rule pt-1.5 text-13 text-muted">
+              {zoneSummary}
             </p>
-            <p className="mt-0.5 text-13 text-muted">{zoneSummary}</p>
           </div>
 
           {history.length === 0 ? (
-            <div className="mt-4 rounded-2xl border border-dashed border-border bg-surface px-5 py-10 text-center">
-              <PackageCheck className="mx-auto h-7 w-7 text-primary" />
-              <p className="mt-2 text-sm font-semibold text-ink">
+            <div className="mt-4 border border-dashed border-rule bg-paper px-5 py-10 text-center">
+              <PackageCheck className="mx-auto h-7 w-7 text-accent" />
+              <p className="mt-3 text-sm font-semibold text-ink">
                 Belum ada riwayat
               </p>
-              <p className="mt-1 text-sm text-muted">
+              <p className="mt-1 text-13 text-muted">
                 Pesanan yang selesai di zona Anda akan tercatat di sini.
               </p>
             </div>
@@ -486,14 +511,14 @@ export function DriverClient() {
       >
         {statusOrder ? (
           <div className="space-y-4">
-            <div className="rounded-xl bg-secondary p-4">
+            <div className="border-2 border-ink bg-paper-2 p-4">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <span className="font-mono text-[15px] font-semibold text-ink">
+                <span className="font-outlier text-sm font-semibold text-ink">
                   {statusOrder.code}
                 </span>
                 <ZoneMini order={statusOrder} />
               </div>
-              <p className="mt-2 text-base font-semibold text-ink">
+              <p className="mt-2 text-sm font-semibold text-ink">
                 {statusOrder.customerName}
               </p>
               <div className="mt-2">
@@ -519,7 +544,7 @@ export function DriverClient() {
                   enabled: statusOrder.status === "siap",
                 },
               ]
-            ).map((option) => {
+            ).map((option, index) => {
               const selected = action === option.key;
               return (
                 <button
@@ -529,25 +554,28 @@ export function DriverClient() {
                   onClick={() => setAction(option.key)}
                   aria-pressed={selected}
                   className={cn(
-                    "flex w-full items-start gap-3 rounded-xl border p-4 text-left transition-colors",
+                    "flex w-full items-start gap-3 border p-4 text-left transition-colors duration-[var(--dur-micro)]",
                     selected
-                      ? "border-primary bg-secondary"
-                      : "border-border bg-surface",
+                      ? "border-accent bg-accent-soft shadow-[inset_2px_0_0_var(--color-accent)]"
+                      : "border-rule bg-paper",
                     option.enabled
-                      ? "hover:border-primary"
+                      ? "hover:border-accent"
                       : "cursor-not-allowed opacity-50",
                   )}
                 >
+                  <span className="small-print w-5 shrink-0 pt-0.5 text-muted">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
                   {selected ? (
-                    <CircleDot className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                    <CircleDot className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
                   ) : (
                     <Circle className="mt-0.5 h-5 w-5 shrink-0 text-muted" />
                   )}
-                  <span>
+                  <span className="min-w-0">
                     <span className="block text-sm font-semibold text-ink">
                       {option.title}
                     </span>
-                    <span className="mt-1 block text-sm leading-snug text-muted">
+                    <span className="mt-1 block text-13 leading-snug text-muted">
                       {option.body}
                     </span>
                     {!option.enabled ? (
@@ -583,9 +611,9 @@ export function DriverClient() {
       >
         {detailOrder ? (
           <div>
-            <dl className="divide-y divide-border">
+            <dl>
               <DetailRow label="Nama pelanggan" value={detailOrder.customerName} />
-              <DetailRow label="Nomor WhatsApp" value={detailOrder.phone || "—"} />
+              <DetailRow label="Nomor WhatsApp" value={detailOrder.phone || "-"} />
               <DetailRow
                 label="Alamat lengkap & patokan"
                 value={detailOrder.landmark}
@@ -594,15 +622,13 @@ export function DriverClient() {
               <DetailRow
                 label="Jenis layanan & berat"
                 value={detailOrder.service}
-                hint={`${detailOrder.weight} · ${sessionLabel(detailOrder.session)}`}
+                hint={`${detailOrder.weight}, ${sessionLabel(detailOrder.session)}`}
               />
             </dl>
 
-            <div className="mt-4 rounded-xl bg-secondary p-4">
-              <p className="text-13 font-semibold text-primary">
-                Riwayat penyelesaian
-              </p>
-              <p className="mt-1 text-base text-ink">
+            <div className="mt-4 border-2 border-ink bg-paper-2 p-4">
+              <p className="small-print text-accent">Riwayat penyelesaian</p>
+              <p className="mt-1.5 text-sm font-medium text-ink">
                 {detailCompletion
                   ? `Selesai ${sessionLabel(detailOrder.session).toLowerCase()} oleh ${detailCompletion.by} pada ${formatTime(detailCompletion.at)} WIB`
                   : "Belum ada catatan penyelesaian."}
@@ -633,7 +659,7 @@ export function DriverClient() {
         }
       >
         <div>
-          <dl className="divide-y divide-border">
+          <dl>
             <DetailRow label="Nama" value={user.name} />
             <DetailRow label="Username" value={`@${user.username}`} />
             <DetailRow label="Peran" value="Driver" />
