@@ -47,7 +47,7 @@ export function PublicTrackingForm() {
           spellCheck={false}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? errorId : undefined}
-          className="font-mono uppercase"
+          className="font-outlier "
         />
         <Button type="submit" className="shrink-0">
           Lacak
@@ -55,11 +55,11 @@ export function PublicTrackingForm() {
         </Button>
       </div>
       {error ? (
-        <p id={errorId} className="mt-2 text-xs text-danger-fg">
+        <p id={errorId} className="mt-2 text-13 text-danger-fg">
           {error}
         </p>
       ) : (
-        <p className="mt-2 text-xs text-muted">
+        <p className="mt-2 text-13 text-muted">
           Tanpa masuk akun. Kode juga bisa dibuka lewat tautan WhatsApp.
         </p>
       )}

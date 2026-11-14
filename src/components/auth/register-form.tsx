@@ -70,7 +70,7 @@ export function RegisterForm() {
       {error ? (
         <div
           role="alert"
-          className="flex items-start gap-2 rounded-lg border border-danger-fg/20 bg-danger-bg px-3 py-2.5 text-sm text-danger-fg"
+          className="flex items-start gap-2 border border-danger-fg bg-danger-bg px-3 py-2.5 text-sm text-danger-fg"
         >
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <span>{error}</span>
@@ -161,7 +161,7 @@ export function RegisterForm() {
         />
       </Field>
 
-      <Button type="submit" className="w-full">
+      <Button type="submit" size="lg" className="w-full">
         Daftar
       </Button>
 
@@ -169,13 +169,13 @@ export function RegisterForm() {
         Sudah punya akun?{" "}
         <Link
           href="/masuk"
-          className="font-medium text-primary hover:text-primary-hover"
+          className="font-medium text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"
         >
           Masuk
         </Link>
       </p>
 
-      <div className="rounded-xl border border-border bg-surface px-4 py-3.5">
+      <div className="border border-rule bg-paper-2 px-4 py-3.5">
         <p className="text-13 text-muted">
           Akun Admin dan Driver dibuat oleh Owner. Pendaftaran ini khusus untuk
           akun Pelanggan.

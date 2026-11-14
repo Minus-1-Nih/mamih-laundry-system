@@ -90,7 +90,7 @@ export function LoginForm({ mode, next }: LoginFormProps) {
       {error ? (
         <div
           role="alert"
-          className="flex items-start gap-2 rounded-lg border border-danger-fg/20 bg-danger-bg px-3 py-2.5 text-sm text-danger-fg"
+          className="flex items-start gap-2 border border-danger-fg bg-danger-bg px-3 py-2.5 text-sm text-danger-fg"
         >
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <span>{error}</span>
@@ -148,20 +148,20 @@ export function LoginForm({ mode, next }: LoginFormProps) {
             type="checkbox"
             checked={remember}
             onChange={(event) => setRemember(event.target.checked)}
-            className="h-4 w-4 rounded border-border accent-primary"
+            className="h-4 w-4 border-muted accent-accent"
           />
           Ingat saya
         </label>
         <button
           type="button"
           onClick={handleForgot}
-          className="font-medium text-primary hover:text-primary-hover"
+          className="-my-3 inline-flex min-h-11 items-center font-medium text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"
         >
           Lupa kata sandi?
         </button>
       </div>
 
-      <Button type="submit" className="w-full">
+      <Button type="submit" size="lg" className="w-full">
         Masuk
       </Button>
 
@@ -171,7 +171,7 @@ export function LoginForm({ mode, next }: LoginFormProps) {
             Belum memiliki akun?{" "}
             <Link
               href="/daftar"
-              className="font-medium text-primary hover:text-primary-hover"
+              className="font-medium text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"
             >
               Daftar sekarang
             </Link>
@@ -179,9 +179,9 @@ export function LoginForm({ mode, next }: LoginFormProps) {
 
           <Link
             href="/tracking"
-            className="flex items-center gap-3 rounded-xl bg-secondary px-4 py-3.5 transition-colors hover:bg-secondary-hover"
+            className="flex items-center gap-3 border border-rule bg-paper-2 px-4 py-3.5 transition-colors duration-[var(--dur-micro)] hover:border-accent"
           >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface text-primary">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center bg-accent text-accent-ink">
               <Box className="h-4 w-4" />
             </span>
             <span className="min-w-0 flex-1">
@@ -195,7 +195,7 @@ export function LoginForm({ mode, next }: LoginFormProps) {
           </Link>
         </>
       ) : (
-        <div className="rounded-xl border border-border bg-surface px-4 py-3.5">
+        <div className="border border-rule bg-paper-2 px-4 py-3.5">
           <p className="text-13 text-muted">
             Akun Admin dan Driver dibuat oleh Owner. Akun Pelanggan dibuat
             melalui pendaftaran mandiri.
@@ -203,7 +203,7 @@ export function LoginForm({ mode, next }: LoginFormProps) {
         </div>
       )}
 
-      <div className="border-t border-border pt-4">
+      <div className="border-t border-rule pt-4">
         <p className="text-13 text-muted">
           Masuk sebagai{" "}
           {roleLinks.map((role, index) => (
@@ -213,7 +213,7 @@ export function LoginForm({ mode, next }: LoginFormProps) {
                 href={role.href}
                 className={
                   role.mode === mode
-                    ? "font-medium text-primary"
+                    ? "font-medium text-accent"
                     : "hover:text-ink"
                 }
               >

@@ -50,8 +50,8 @@ export function RoleGuard({ role, adminLevel, children }: RoleGuardProps) {
   if (!authorized) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 text-muted">
-        <Loader2 className="h-5 w-5 animate-spin text-primary" />
-        <p className="text-sm">Memeriksa akses...</p>
+        <Loader2 className="h-5 w-5 animate-spin motion-reduce:animate-none text-accent" />
+        <p className="text-sm">Memeriksa akses…</p>
       </div>
     );
   }
