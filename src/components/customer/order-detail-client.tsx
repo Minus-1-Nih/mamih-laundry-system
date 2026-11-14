@@ -14,7 +14,6 @@ import {
   Truck,
   Wallet,
 } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { formatDateLong, formatDateShort, formatRupiah, formatTime, initials } from "@/lib/format";
@@ -45,7 +44,7 @@ function lastEventLabel(order: Order): string {
   const event = order.history[order.history.length - 1];
   return event
     ? `${formatDateShort(event.at)}, ${formatTime(event.at)} WIB`
-    : "—";
+    : "Belum ada pembaruan";
 }
 
 export function OrderDetailClient() {
@@ -71,7 +70,7 @@ export function OrderDetailClient() {
         action={
           <Link
             href="/akun/riwayat"
-            className="text-sm font-medium text-primary hover:text-primary-hover"
+            className="text-sm font-medium text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"
           >
             Kembali ke riwayat pesanan
           </Link>
@@ -94,18 +93,16 @@ export function OrderDetailClient() {
         <span className="text-ink">Detail Pesanan</span>
       </nav>
 
-      <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-[28px] font-bold tracking-tight text-ink">
-              Detail pesanan
-            </h1>
-            <span className="font-mono text-sm font-semibold text-muted">
+      <div className="mt-4 flex flex-wrap items-start justify-between gap-4 border-b border-rule pb-5">
+        <div className="min-w-0">
+          <p className="small-print text-accent">Detail pesanan</p>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <h1 className="font-display text-3xl leading-tight sm:text-4xl">
               {order.code}
-            </span>
+            </h1>
             <StatusBadge status={order.status} />
           </div>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-2 text-sm text-muted">
             Dibuat {formatDateLong(order.createdAt)}, {formatTime(order.createdAt)} WIB
           </p>
         </div>
@@ -115,16 +112,16 @@ export function OrderDetailClient() {
           )}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex h-11 items-center gap-2 rounded-lg border border-border bg-surface px-4 text-sm font-medium text-ink transition-colors hover:border-primary hover:text-primary"
+          className="inline-flex h-11 items-center gap-2 rounded-pill border border-ink px-4 text-sm font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
         >
           Hubungi Laundria
           <MessageCircle className="h-4 w-4" />
         </a>
       </div>
 
-      <Card className="mt-5 flex flex-wrap items-center justify-between gap-4 bg-secondary p-5">
+      <section className="mt-5 flex flex-wrap items-center justify-between gap-4 border-2 border-ink bg-paper-2 p-5">
         <div className="flex items-start gap-3.5">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-surface text-primary">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center bg-accent text-accent-ink">
             {order.status === "selesai" ? (
               <CircleCheck className="h-5 w-5" />
             ) : (
@@ -132,39 +129,41 @@ export function OrderDetailClient() {
             )}
           </span>
           <div>
-            <p className="text-lg font-semibold text-ink">
+            <p className="text-lg font-medium leading-snug text-ink">
               {order.status === "selesai"
                 ? "Cucian sudah kembali ke rumah."
                 : "Bersihnya segera kembali ke rumah."}
             </p>
-            <p className="mt-0.5 text-sm text-muted">
+            <p className="mt-1 text-sm text-muted">
               {order.status === "selesai"
                 ? `Selesai diantar ${lastEventLabel(order)}`
-                : `Estimasi tiba ${orderArrivalLabel(order)}, Sesi pengantaran, 17.00–22.00 WIB`}
+                : `Estimasi tiba ${orderArrivalLabel(order)}, Sesi pengantaran, 17.00-22.00 WIB`}
             </p>
           </div>
         </div>
         <Link
           href="/sesi"
-          className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary-hover"
+          className="inline-flex items-center gap-1 text-sm font-medium text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"
         >
           Lihat sesi operasional
           <ArrowUpRight className="h-4 w-4" />
         </Link>
-      </Card>
+      </section>
 
-      <div className="mt-5 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_400px]">
-        <div className="space-y-5">
-          <Card className="p-6">
+      <div className="mt-6 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
+        <div className="space-y-6">
+          <section className="border border-rule bg-paper p-6">
             <div className="flex items-start justify-between gap-3">
-              <h2 className="text-lg font-semibold text-ink">Rincian layanan</h2>
-              <span className="rounded-pill bg-secondary px-2.5 py-1 text-13 font-medium text-primary">
+              <h2 className="font-display text-2xl leading-tight">
+                Rincian layanan
+              </h2>
+              <span className="small-print shrink-0 border border-rule px-2 py-1 text-muted">
                 Reguler, 2 hari
               </span>
             </div>
 
-            <div className="mt-4 flex items-start gap-3.5">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-canvas text-primary">
+            <div className="mt-5 flex items-start gap-3.5">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center bg-paper-2 text-accent">
                 <Shirt className="h-5 w-5" />
               </span>
               <div className="min-w-0 flex-1">
@@ -174,14 +173,14 @@ export function OrderDetailClient() {
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-lg font-semibold text-ink">{order.weight}</p>
-                <p className="text-13 text-muted">{formatRupiah(rate)} / kg</p>
+                <p className="text-lg font-medium text-ink">{order.weight}</p>
+                <p className="small-print text-muted">{formatRupiah(rate)} / kg</p>
               </div>
             </div>
 
             {order.note ? (
-              <div className="mt-4 flex gap-2.5 rounded-lg bg-canvas p-3.5">
-                <NotebookPen className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <div className="mt-5 flex gap-2.5 border-l-2 border-gold bg-paper-2 p-3.5">
+                <NotebookPen className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
                 <div>
                   <p className="text-13 font-medium text-ink">
                     Catatan untuk tim Laundria
@@ -190,33 +189,33 @@ export function OrderDetailClient() {
                 </div>
               </div>
             ) : null}
-          </Card>
+          </section>
 
-          <Card className="p-6">
+          <section className="border border-rule bg-paper p-6">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <h2 className="text-lg font-semibold text-ink">
+              <h2 className="font-display text-2xl leading-tight">
                 Perjalanan pesanan
               </h2>
-              <p className="text-13 text-muted">
+              <p className="small-print text-muted">
                 Diperbarui {lastEventLabel(order)}
               </p>
             </div>
             <CustomerOrderProgress
               order={order}
-              className="mt-4"
+              className="mt-5"
               showStage={false}
             />
-          </Card>
+          </section>
         </div>
 
-        <div className="space-y-5">
-          <Card className="p-6">
-            <h2 className="text-lg font-semibold text-ink">
+        <div className="space-y-6">
+          <section className="border border-rule bg-paper p-6">
+            <h2 className="font-display text-2xl leading-tight">
               Pelanggan dan alamat
             </h2>
 
-            <div className="mt-4 flex items-center gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary text-13 font-semibold text-primary">
+            <div className="mt-5 flex items-center gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center bg-accent-soft text-13 font-semibold text-accent">
                 {initials(order.customerName)}
               </span>
               <div className="min-w-0">
@@ -228,11 +227,11 @@ export function OrderDetailClient() {
               </div>
             </div>
 
-            <div className="mt-4 border-t border-border pt-4">
+            <div className="mt-5 border-t border-rule pt-4">
               <div className="flex flex-wrap items-center gap-2">
-                <MapPin className="h-4 w-4 text-primary" />
+                <MapPin className="h-4 w-4 text-accent" />
                 <span className="text-sm font-medium text-ink">Rumah</span>
-                <span className="rounded-pill bg-secondary px-2 py-0.5 text-13 font-medium text-primary">
+                <span className="small-print border border-rule px-2 py-0.5 text-muted">
                   {order.zoneId}, {zone?.name ?? "Zona"}
                 </span>
               </div>
@@ -244,30 +243,30 @@ export function OrderDetailClient() {
               </p>
               <Link
                 href="/lokasi"
-                className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary-hover"
+                className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"
               >
                 Lihat lokasi dan detail alamat
                 <ArrowUpRight className="h-3.5 w-3.5" />
               </Link>
             </div>
 
-            <p className="mt-4 flex items-center gap-2 border-t border-border pt-4 text-13 text-muted">
-              <CircleCheck className="h-4 w-4 text-primary" />
+            <p className="mt-4 flex items-center gap-2 border-t border-rule pt-4 text-13 text-muted">
+              <CircleCheck className="h-4 w-4 text-accent" />
               Alamat penjemputan dan pengantaran sama.
             </p>
-          </Card>
+          </section>
 
-          <Card className="p-6">
-            <h2 className="text-lg font-semibold text-ink">Ringkasan biaya</h2>
+          <section className="border border-rule bg-paper p-6">
+            <h2 className="font-display text-2xl leading-tight">Ringkasan biaya</h2>
 
-            <dl className="mt-4 space-y-3">
-              <div className="flex items-start justify-between gap-3 text-sm">
+            <dl className="mt-4 border-t border-ink">
+              <div className="flex items-start justify-between gap-3 border-b border-rule py-2.5 text-sm">
                 <dt className="text-muted">{rateLine}</dt>
                 <dd className="shrink-0 font-medium text-ink">
                   {formatRupiah(order.total - PICKUP_FEE)}
                 </dd>
               </div>
-              <div className="flex items-start justify-between gap-3 text-sm">
+              <div className="flex items-start justify-between gap-3 border-b border-rule py-2.5 text-sm">
                 <dt className="text-muted">Antar jemput, {order.zoneId}</dt>
                 <dd className="shrink-0 font-medium text-ink">
                   {formatRupiah(PICKUP_FEE)}
@@ -275,14 +274,14 @@ export function OrderDetailClient() {
               </div>
             </dl>
 
-            <div className="mt-4 flex items-baseline justify-between gap-3 border-t border-border pt-4">
+            <div className="mt-4 flex items-baseline justify-between gap-3 border-t-2 border-ink pt-4">
               <p className="text-sm font-semibold text-ink">Total pembayaran</p>
-              <p className="text-xl font-bold text-primary">
+              <p className="font-display text-2xl text-accent">
                 {formatRupiah(order.total)}
               </p>
             </div>
 
-            <div className="mt-4 flex gap-2.5 rounded-lg bg-waiting-bg p-3.5">
+            <div className="mt-4 flex gap-2.5 border border-waiting-fg/30 bg-waiting-bg p-3.5">
               <Wallet className="mt-0.5 h-4 w-4 shrink-0 text-waiting-fg" />
               <div>
                 <p className="text-13 font-semibold text-waiting-fg">
@@ -293,10 +292,10 @@ export function OrderDetailClient() {
                 </p>
               </div>
             </div>
-          </Card>
+          </section>
 
-          <div className="flex items-center gap-2 rounded-xl bg-canvas px-4 py-3 text-13 text-muted">
-            <Clock className="h-4 w-4 shrink-0 text-primary" />
+          <div className="flex items-center gap-2 border border-rule bg-paper-2 px-4 py-3 text-13 text-muted">
+            <Clock className="h-4 w-4 shrink-0 text-accent" />
             Butuh perubahan? Hubungi Laundria sebelum penjemputan.
           </div>
         </div>

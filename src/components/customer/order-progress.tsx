@@ -93,7 +93,7 @@ export function CustomerOrderProgress({
         stamp(ready) ??
         (reachedWash
           ? "Menunggu penjadwalan"
-          : `Estimasi ${orderArrivalLabel(order)}, 17.00–22.00 WIB`),
+          : `Estimasi ${orderArrivalLabel(order)}, 17.00-22.00 WIB`),
       state: reachedDone
         ? ("done" as const)
         : order.status === "siap"
@@ -109,64 +109,58 @@ export function CustomerOrderProgress({
   ];
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={className}>
       {showStage ? (
-        <p className="mb-4 text-right text-13 text-muted">
-          Tahap {stage} dari 5
-        </p>
+        <div className="mb-3 flex items-center justify-between gap-3 border-b border-rule pb-2">
+          <p className="small-print text-muted">Almanak pesanan</p>
+          <p className="small-print text-accent">Tahap {stage} dari 5</p>
+        </div>
       ) : null}
 
-      <div
-        aria-hidden="true"
-        className="absolute bottom-5 left-[15px] top-[calc(1rem+1.25rem)] w-px bg-border"
-      />
-      <ol className="space-y-0">
+      <ol aria-label="Tahapan pesanan" className="border-t border-ink">
         {steps.map((step, index) => {
           const done = step.state === "done";
           const current = step.state === "current";
+
           return (
-            <li key={step.label} className="relative flex gap-4 pb-5 last:pb-0">
-              {index < steps.length - 1 ? (
+            <li
+              key={step.label}
+              className={cn(
+                "grid grid-cols-[3.25rem_minmax(0,1fr)] items-start gap-x-3 border-b border-rule py-3.5",
+                current &&
+                  "bg-accent-soft shadow-[inset_2px_0_0_var(--color-accent)]",
+              )}
+            >
+              <div className="flex items-center gap-2 pt-1">
                 <span
                   aria-hidden="true"
-                  className="absolute left-[15px] top-8 h-[calc(100%-2rem)] w-px bg-border"
-                />
-              ) : null}
-              <span
-                className={cn(
-                  "relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-13 font-semibold",
-                  done && "border-primary bg-primary text-white",
-                  current && "border-primary bg-surface text-primary",
-                  step.state === "pending" &&
-                    "border-border bg-surface text-muted",
-                )}
-              >
-                {done ? (
-                  <Check className="h-4 w-4" />
-                ) : current ? (
-                  <span className="h-2.5 w-2.5 rounded-full bg-primary" />
-                ) : (
-                  <span className="h-1.5 w-1.5 rounded-full bg-muted/40" />
-                )}
-              </span>
+                  className={cn(
+                    "flex h-2.5 w-2.5 shrink-0 items-center justify-center",
+                    done && "bg-accent text-accent-ink",
+                    current && "border-2 border-accent bg-paper",
+                    step.state === "pending" && "border border-rule bg-paper",
+                  )}
+                >
+                  {done ? <Check className="h-2 w-2" strokeWidth={3} /> : null}
+                </span>
+                <span className="small-print text-muted">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+              </div>
 
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5 pr-2">
                   <p
                     className={cn(
                       "text-sm font-semibold",
-                      current
-                        ? "text-primary"
-                        : done
-                          ? "text-ink"
-                          : "text-muted",
+                      current ? "text-accent" : done ? "text-ink" : "text-muted",
                     )}
                   >
                     {step.label}
                   </p>
-                  <p className="text-13 text-muted">{step.time}</p>
+                  <p className="small-print text-muted">{step.time}</p>
                 </div>
-                <p className="mt-0.5 text-sm leading-snug text-muted">
+                <p className="mt-1 text-13 leading-snug text-muted">
                   {step.description}
                 </p>
               </div>

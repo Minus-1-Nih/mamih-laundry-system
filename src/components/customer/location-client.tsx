@@ -15,7 +15,6 @@ import {
   Store,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -69,44 +68,44 @@ function MapCanvas({
   const selected = addresses[selectedIndex];
 
   return (
-    <div className="relative h-[540px] overflow-hidden rounded-xl border border-border bg-map-ground">
+    <div className="relative h-[540px] overflow-hidden border border-rule bg-map-ground">
       <div
-        className="absolute inset-0 transition-transform duration-200"
+        className="absolute inset-0 transition-transform duration-[var(--dur-short)]"
         style={{ transform: `scale(${zoom})` }}
       >
         <div aria-hidden="true" className="absolute inset-0">
-          <div className="absolute -left-10 top-[18%] h-3 w-[120%] -rotate-6 rounded-full bg-white/80" />
-          <div className="absolute -left-10 top-[48%] h-4 w-[120%] rotate-3 rounded-full bg-white/90" />
-          <div className="absolute left-[26%] top-[-10%] h-[130%] w-3 rotate-12 rounded-full bg-white/80" />
-          <div className="absolute left-[62%] top-[-10%] h-[130%] w-2.5 -rotate-6 rounded-full bg-white/70" />
+          <div className="absolute -left-10 top-[18%] h-3 w-[120%] -rotate-6 bg-paper-hi" />
+          <div className="absolute -left-10 top-[48%] h-4 w-[120%] rotate-3 bg-paper-hi" />
+          <div className="absolute left-[26%] top-[-10%] h-[130%] w-3 rotate-12 bg-paper-hi" />
+          <div className="absolute left-[62%] top-[-10%] h-[130%] w-2.5 -rotate-6 bg-paper-hi/80" />
           <div className="absolute -right-8 top-0 h-full w-24 rotate-6 bg-map-water" />
           <div className="absolute left-[8%] top-[62%] h-32 w-40 rounded-[45%] bg-map-park" />
           <div className="absolute left-[40%] top-[6%] h-28 w-36 rounded-[45%] bg-map-park" />
           <div className="absolute left-[70%] top-[70%] h-24 w-28 rounded-[45%] bg-map-park-soft" />
-          <div className="absolute left-[10%] top-[6%] h-[86%] w-[80%] rounded-[38%] border-2 border-dashed border-primary/25" />
+          <div className="absolute left-[10%] top-[6%] h-[86%] w-[80%] rounded-[38%] border-2 border-dashed border-ink/20" />
         </div>
 
-        <p className="absolute left-[34%] top-[34%] text-13 font-medium tracking-[0.14em] text-map-label">
+        <p className="small-print absolute left-[34%] top-[34%] tracking-[0.14em] text-map-label">
           SUKABIRUS
         </p>
-        <p className="absolute right-[6%] top-[46%] text-13 font-medium tracking-[0.14em] text-map-label">
+        <p className="small-print absolute right-[6%] top-[46%] tracking-[0.14em] text-map-label">
           CITEUREUP
         </p>
-        <p className="absolute left-[54%] top-[20%] text-13 text-map-label">
+        <p className="small-print absolute left-[54%] top-[20%] text-map-label">
           Taman Telkom
         </p>
-        <p className="absolute bottom-[22%] left-[38%] -rotate-3 text-13 text-map-label-soft">
+        <p className="small-print absolute bottom-[22%] left-[38%] -rotate-3 text-map-label-soft">
           Jl. Terusan Buah Batu
         </p>
-        <p className="absolute left-[10%] top-[46%] -rotate-90 text-13 text-map-label-soft">
+        <p className="small-print absolute left-[10%] top-[46%] -rotate-90 text-map-label-soft">
           Jl. Sukabirus
         </p>
 
         <div className="absolute left-[22%] top-[30%] flex flex-col items-center">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-surface text-primary shadow">
+          <span className="flex h-9 w-9 items-center justify-center border border-ink bg-paper text-ink">
             <Store className="h-4 w-4" />
           </span>
-          <span className="mt-1 rounded bg-surface/90 px-1.5 py-0.5 text-13 text-muted">
+          <span className="small-print mt-1 border border-rule bg-paper px-1.5 py-0.5 text-muted">
             Laundria Sukabirus
           </span>
         </div>
@@ -126,10 +125,10 @@ function MapCanvas({
             >
               <span
                 className={cn(
-                  "flex items-center justify-center rounded-full transition-colors",
+                  "flex items-center justify-center border-2 transition-colors duration-[var(--dur-micro)]",
                   active
-                    ? "h-12 w-12 bg-primary text-white shadow-lg ring-8 ring-primary/15"
-                    : "h-9 w-9 bg-surface text-primary shadow ring-4 ring-white/70",
+                    ? "h-12 w-12 border-accent bg-accent text-accent-ink"
+                    : "h-9 w-9 border-ink bg-paper text-ink hover:border-accent hover:text-accent",
                 )}
               >
                 <Home className={active ? "h-5 w-5" : "h-4 w-4"} />
@@ -144,13 +143,13 @@ function MapCanvas({
               left: markerSpots[selectedIndex % markerSpots.length].left,
               top: `calc(${markerSpots[selectedIndex % markerSpots.length].top} + 40px)`,
             }}
-            className="absolute w-56 -translate-x-1/2 rounded-lg bg-surface p-3 shadow-lg"
+            className="absolute w-56 -translate-x-1/2 border-2 border-ink bg-paper p-3 shadow-[6px_6px_0_var(--color-paper-3)]"
           >
             <div className="flex items-start justify-between gap-2">
               <p className="text-sm font-semibold text-ink">
                 {selected.label} {ownerName}
               </p>
-              <Check className="h-4 w-4 shrink-0 text-primary" />
+              <Check className="h-4 w-4 shrink-0 text-accent" />
             </div>
             <p className="mt-0.5 text-13 leading-snug text-muted">
               {selected.address}
@@ -164,7 +163,7 @@ function MapCanvas({
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
           <Input
             placeholder="Cari jalan, area, atau alamat"
-            className="h-11 bg-surface pl-9 shadow-sm"
+            className="h-11 border-ink bg-paper pl-9"
             aria-label="Cari alamat"
           />
         </div>
@@ -180,7 +179,7 @@ function MapCanvas({
             if (match) onSelect(match.id);
           }}
           aria-label="Filter zona peta"
-          className="h-10 bg-surface shadow-sm"
+          className="h-10 border-ink bg-paper"
         >
           {(["Z1", "Z2", "Z3"] as ZoneId[]).map((zone) => (
             <option key={zone} value={zone}>
@@ -190,12 +189,12 @@ function MapCanvas({
         </Select>
       </div>
 
-      <div className="absolute bottom-4 right-4 flex flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
+      <div className="absolute bottom-4 right-4 flex flex-col border border-ink bg-paper">
         <button
           type="button"
           onClick={() => setZoom((value) => Math.min(1.35, value + 0.1))}
           aria-label="Perbesar peta"
-          className="flex h-9 w-9 items-center justify-center text-ink transition-colors hover:bg-secondary"
+          className="flex h-9 w-9 items-center justify-center text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
         >
           <Plus className="h-4 w-4" />
         </button>
@@ -203,7 +202,7 @@ function MapCanvas({
           type="button"
           onClick={() => setZoom((value) => Math.max(0.9, value - 0.1))}
           aria-label="Perkecil peta"
-          className="flex h-9 w-9 items-center justify-center border-t border-border text-ink transition-colors hover:bg-secondary"
+          className="flex h-9 w-9 items-center justify-center border-t border-rule text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
         >
           <Minus className="h-4 w-4" />
         </button>
@@ -211,20 +210,43 @@ function MapCanvas({
           type="button"
           onClick={() => setZoom(1)}
           aria-label="Kembalikan zoom peta"
-          className="flex h-9 w-9 items-center justify-center border-t border-border text-primary transition-colors hover:bg-secondary"
+          className="flex h-9 w-9 items-center justify-center border-t border-rule text-accent transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
         >
           <LocateFixed className="h-4 w-4" />
         </button>
       </div>
 
-      <div className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-13 text-ink shadow-sm">
-        <MapPin className="h-4 w-4 text-primary" />
+      <div className="absolute bottom-4 left-4 inline-flex flex-wrap items-center gap-2 border border-rule bg-paper px-3 py-2 text-13 text-ink">
+        <MapPin className="h-4 w-4 text-accent" />
         Alamat Anda
-        <span className="text-muted">·</span>
+        <span aria-hidden="true" className="h-3 w-px bg-rule" />
         <Store className="h-3.5 w-3.5 text-muted" />
         Gerai Laundria
         <span className="font-medium">100 m</span>
       </div>
+    </div>
+  );
+}
+
+function PageHead({
+  title,
+  subtitle,
+  action,
+}: {
+  title: string;
+  subtitle: string;
+  action?: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-wrap items-start justify-between gap-4 border-b border-rule pb-5">
+      <div className="min-w-0">
+        <p className="small-print text-accent">Lokasi dan alamat</p>
+        <h1 className="mt-2 font-display text-3xl leading-tight sm:text-4xl">
+          {title}
+        </h1>
+        <p className="mt-2 max-w-xl text-sm text-muted">{subtitle}</p>
+      </div>
+      {action}
     </div>
   );
 }
@@ -335,40 +357,36 @@ export function LocationClient() {
   if (!user) {
     return (
       <div>
-        <div>
-          <h1 className="text-[28px] font-bold tracking-tight text-ink">
-            Lokasi dan alamat
-          </h1>
-          <p className="mt-1 text-sm text-muted">
-            Laundria Sukabirus melayani antar jemput di tiga zona berikut.
-          </p>
-        </div>
+        <PageHead
+          title="Lokasi dan alamat"
+          subtitle="Laundria Sukabirus melayani antar jemput di tiga zona berikut."
+        />
 
-        <div className="mt-5 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_400px]">
-          <Card className="p-6">
+        <div className="mt-6 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
+          <section className="border border-rule bg-paper p-6">
             <div className="flex items-start gap-3.5">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary text-primary">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center bg-accent text-accent-ink">
                 <Store className="h-5 w-5" />
               </span>
               <div>
-                <p className="text-lg font-semibold text-ink">
+                <p className="font-display text-2xl leading-tight">
                   Gerai Laundria Sukabirus
                 </p>
-                <p className="mt-1 text-sm leading-relaxed text-muted">
+                <p className="mt-2 text-sm leading-relaxed text-muted">
                   Jl. Sukabirus, Bojongsoang, Kabupaten Bandung. Antar jemput
-                  tersedia setiap hari pukul 12.00–22.00 WIB.
+                  tersedia setiap hari pukul 12.00-22.00 WIB.
                 </p>
               </div>
             </div>
 
-            <ul className="mt-5 space-y-2.5 border-t border-border pt-5">
+            <ul className="mt-6 border-t border-ink">
               {zones.map((item) => (
                 <li
                   key={item.id}
-                  className="flex items-start justify-between gap-3 text-sm"
+                  className="flex items-start justify-between gap-3 border-b border-rule py-3 text-sm"
                 >
                   <span className="flex items-center gap-2 text-ink">
-                    <MapPin className="h-4 w-4 text-primary" />
+                    <MapPin className="h-4 w-4 text-accent" />
                     {item.id}, {item.name}
                   </span>
                   <span className="text-right text-13 text-muted">
@@ -377,31 +395,31 @@ export function LocationClient() {
                 </li>
               ))}
             </ul>
-          </Card>
+          </section>
 
-          <Card className="bg-secondary p-6">
-            <h2 className="text-lg font-semibold text-ink">
+          <section className="border border-rule bg-paper-2 p-6">
+            <h2 className="font-display text-2xl leading-tight">
               Simpan alamat Anda.
             </h2>
-            <p className="mt-1 text-sm leading-relaxed text-muted">
+            <p className="mt-2 text-sm leading-relaxed text-muted">
               Masuk ke akun untuk menyimpan alamat penjemputan, menandai
               patokan, dan memakai alamat yang sama setiap kali memesan.
             </p>
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-5 flex flex-wrap gap-2">
               <a
                 href="/masuk"
-                className="inline-flex h-11 flex-1 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-white transition-colors hover:bg-primary-hover"
+                className="inline-flex h-11 flex-1 items-center justify-center rounded-pill border border-accent bg-accent px-4 text-sm font-medium text-accent-ink transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-accent-hover hover:bg-accent-hover"
               >
                 Masuk akun
               </a>
               <a
                 href="/daftar"
-                className="inline-flex h-11 flex-1 items-center justify-center rounded-lg bg-surface px-4 text-sm font-medium text-primary transition-colors hover:bg-surface/80"
+                className="inline-flex h-11 flex-1 items-center justify-center rounded-pill border border-ink bg-paper px-4 text-sm font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
               >
                 Daftar
               </a>
             </div>
-          </Card>
+          </section>
         </div>
       </div>
     );
@@ -409,23 +427,18 @@ export function LocationClient() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-[28px] font-bold tracking-tight text-ink">
-            Lokasi dan detail alamat
-          </h1>
-          <p className="mt-1 text-sm text-muted">
-            Pilih penanda di peta untuk melihat detail alamat penjemputan dan
-            pengantaran.
-          </p>
-        </div>
-        <Button onClick={openAdd}>
-          Tambah alamat
-          <Plus className="h-4 w-4" />
-        </Button>
-      </div>
+      <PageHead
+        title="Lokasi dan detail alamat"
+        subtitle="Pilih penanda di peta untuk melihat detail alamat penjemputan dan pengantaran."
+        action={
+          <Button onClick={openAdd}>
+            Tambah alamat
+            <Plus className="h-4 w-4" />
+          </Button>
+        }
+      />
 
-      <div className="mt-5 grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_400px]">
+      <div className="mt-6 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
         <div>
           {selected ? (
             <MapCanvas
@@ -436,14 +449,14 @@ export function LocationClient() {
             />
           ) : null}
           <p className="mt-3 flex items-center gap-2 text-13 text-muted">
-            <Check className="h-4 w-4 text-primary" />
+            <Check className="h-4 w-4 text-accent" />
             Alamat {selected?.label ?? "Rumah"} termasuk jangkauan antar jemput{" "}
             {selected?.zoneId ?? "Z1"}, Rp5.000 per pesanan.
           </p>
 
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-xl bg-secondary px-5 py-4">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-4 border border-rule bg-paper-2 px-5 py-4">
             <div className="flex items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface text-primary">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center bg-paper text-accent">
                 <MapPin className="h-5 w-5" />
               </span>
               <div>
@@ -460,7 +473,7 @@ export function LocationClient() {
               href="https://wa.me/6281234567890"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary-hover"
+              className="inline-flex items-center gap-1 text-sm font-medium text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"
             >
               Bantuan alamat
               <ArrowUpRight className="h-4 w-4" />
@@ -468,15 +481,17 @@ export function LocationClient() {
           </div>
         </div>
 
-        <div className="space-y-5">
-          <Card className="p-5">
+        <div className="space-y-6">
+          <section className="border border-rule bg-paper p-5">
             <div className="flex items-baseline justify-between gap-2">
-              <h2 className="text-lg font-semibold text-ink">Alamat tersimpan</h2>
-              <span className="text-13 text-muted">
+              <h2 className="font-display text-2xl leading-tight">
+                Alamat tersimpan
+              </h2>
+              <span className="small-print text-muted">
                 {addresses.length} alamat
               </span>
             </div>
-            <div className="mt-3 space-y-2">
+            <div className="mt-4 space-y-2">
               {addresses.map((address) => {
                 const active = address.id === selected?.id;
                 return (
@@ -486,18 +501,18 @@ export function LocationClient() {
                     onClick={() => setSelectedId(address.id)}
                     aria-pressed={active}
                     className={cn(
-                      "flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-colors",
+                      "flex w-full items-start gap-3 border p-3 text-left transition-[background-color,border-color] duration-[var(--dur-micro)]",
                       active
-                        ? "border-primary bg-secondary"
-                        : "border-border bg-surface hover:border-primary/50",
+                        ? "border-accent bg-accent-soft shadow-[inset_2px_0_0_var(--color-accent)]"
+                        : "border-rule bg-paper hover:border-ink",
                     )}
                   >
                     <span
                       className={cn(
-                        "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md",
+                        "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center",
                         active
-                          ? "bg-surface text-primary"
-                          : "bg-canvas text-muted",
+                          ? "bg-paper text-accent"
+                          : "bg-paper-2 text-muted",
                       )}
                     >
                       <Home className="h-4 w-4" />
@@ -511,7 +526,7 @@ export function LocationClient() {
                       </span>
                     </span>
                     {active ? (
-                      <Check className="mt-1 h-4 w-4 shrink-0 text-primary" />
+                      <Check className="mt-1 h-4 w-4 shrink-0 text-accent" />
                     ) : (
                       <ArrowUpRight className="mt-1 h-4 w-4 shrink-0 text-muted" />
                     )}
@@ -519,16 +534,16 @@ export function LocationClient() {
                 );
               })}
             </div>
-          </Card>
+          </section>
 
           {selected ? (
-            <Card className="p-5">
+            <section className="border border-rule bg-paper p-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h2 className="text-lg font-semibold text-ink">
+                  <h2 className="font-display text-2xl leading-tight">
                     {selected.label}
                   </h2>
-                  <p className="mt-0.5 text-sm font-medium text-ink">
+                  <p className="mt-1 text-sm font-medium text-ink">
                     {user?.name ?? "Pelanggan"}
                   </p>
                   <p className="text-13 text-muted">
@@ -536,13 +551,13 @@ export function LocationClient() {
                   </p>
                 </div>
                 {selected.id === addresses[0]?.id ? (
-                  <span className="rounded-pill bg-secondary px-2.5 py-1 text-13 font-medium text-primary">
+                  <span className="small-print shrink-0 border border-rule px-2 py-1 text-accent">
                     Alamat utama
                   </span>
                 ) : null}
               </div>
 
-              <p className="mt-3 text-sm leading-relaxed text-ink">
+              <p className="mt-4 border-t border-rule pt-4 text-sm leading-relaxed text-ink">
                 {selected.address}
               </p>
               <p className="mt-1 text-13 text-muted">
@@ -550,28 +565,28 @@ export function LocationClient() {
               </p>
 
               {selected.note ? (
-                <p className="mt-3 flex gap-2 rounded-lg bg-canvas px-3 py-2.5 text-13 text-muted">
-                  <PencilLine className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <p className="mt-3 flex gap-2 border-l-2 border-gold bg-paper-2 px-3 py-2.5 text-13 text-muted">
+                  <PencilLine className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
                   {selected.note}
                 </p>
               ) : null}
 
-              <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-border pt-4">
+              <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-rule pt-4">
                 <div>
-                  <dt className="text-13 text-muted">Zona layanan</dt>
-                  <dd className="mt-0.5 text-sm font-medium text-ink">
+                  <dt className="small-print text-muted">Zona layanan</dt>
+                  <dd className="mt-1 text-sm font-medium text-ink">
                     {selected.zoneId}, {zone?.name ?? "Zona"}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-13 text-muted">Titik koordinat</dt>
-                  <dd className="mt-0.5 text-sm font-medium text-ink">
+                  <dt className="small-print text-muted">Titik koordinat</dt>
+                  <dd className="mt-1 font-outlier text-13 text-ink">
                     {coordinates[selected.zoneId]}
                   </dd>
                 </div>
               </dl>
 
-              <div className="mt-4 flex flex-wrap gap-2">
+              <div className="mt-5 flex flex-wrap gap-2">
                 <Button variant="secondary" className="flex-1" onClick={openEdit}>
                   <PencilLine className="h-4 w-4" />
                   Ubah alamat
@@ -580,13 +595,13 @@ export function LocationClient() {
                   href={`https://maps.google.com/?q=${encodeURIComponent(selected.address)}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white transition-colors hover:bg-primary-hover"
+                  className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-pill border border-accent bg-accent px-4 text-sm font-medium text-accent-ink transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-accent-hover hover:bg-accent-hover"
                 >
                   Petunjuk arah
                   <Navigation className="h-4 w-4" />
                 </a>
               </div>
-            </Card>
+            </section>
           ) : null}
         </div>
       </div>

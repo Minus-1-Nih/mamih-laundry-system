@@ -86,7 +86,7 @@ function buildSteps(order: Order, variant: TimelineVariant): TimelineStep[] {
         at: eventTime(ready),
         hint: reachedReady
           ? undefined
-          : "Estimasi 5 November 2026, 17.00–22.00 WIB",
+          : "Estimasi 5 November 2026, 17.00-22.00 WIB",
         state: reachedDone
           ? "done"
           : order.status === "siap"
@@ -163,62 +163,57 @@ export function OrderTimeline({
   const steps = buildSteps(order, variant);
 
   return (
-    <div className={cn("relative", className)}>
-      <div
-        aria-hidden="true"
-        className="absolute bottom-6 left-[13px] top-2 w-px bg-border"
-      />
-      <ol>
-        {steps.map((step, index) => {
-          const done = step.state === "done";
-          const current = step.state === "current";
+    <ol
+      aria-label="Riwayat status pesanan"
+      className={cn("border-t border-ink", className)}
+    >
+      {steps.map((step, index) => {
+        const done = step.state === "done";
+        const current = step.state === "current";
+        const meta = step.at ?? step.hint;
 
-          return (
-            <li
-              key={step.label}
-              className="relative flex gap-3.5 pb-5 last:pb-0"
-            >
+        return (
+          <li
+            key={step.label}
+            className={cn(
+              "grid grid-cols-[3.25rem_minmax(0,1fr)] items-start gap-x-3 border-b border-rule py-3",
+              current && "bg-accent-soft shadow-[inset_2px_0_0_var(--color-accent)]",
+            )}
+          >
+            <div className="flex items-center gap-2 pt-0.5">
               <span
+                aria-hidden="true"
                 className={cn(
-                  "relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-13 font-semibold",
-                  done && "border-primary bg-primary text-white",
-                  current && "border-primary bg-surface text-primary",
-                  step.state === "pending" &&
-                    "border-border bg-surface text-muted",
+                  "flex h-2.5 w-2.5 shrink-0 items-center justify-center",
+                  done && "bg-accent text-accent-ink",
+                  current && "border-2 border-accent bg-paper",
+                  step.state === "pending" && "border border-rule bg-paper",
                 )}
               >
-                {done ? (
-                  <Check className="h-3.5 w-3.5" />
-                ) : current ? (
-                  <span className="h-2.5 w-2.5 rounded-full bg-primary" />
-                ) : (
-                  index + 1
-                )}
+                {done ? <Check className="h-2 w-2" strokeWidth={3} /> : null}
               </span>
-              <div className="min-w-0 pt-0.5">
-                <p
-                  className={cn(
-                    "text-sm font-medium",
-                    current
-                      ? "text-primary"
-                      : done
-                        ? "text-ink"
-                        : "text-muted",
-                  )}
-                >
-                  {step.label}
-                  {step.actor ? `, ${step.actor}` : ""}
-                </p>
-                {step.at ? (
-                  <p className="mt-0.5 text-13 text-muted">{step.at}</p>
-                ) : step.hint ? (
-                  <p className="mt-0.5 text-13 text-muted">{step.hint}</p>
-                ) : null}
-              </div>
-            </li>
-          );
-        })}
-      </ol>
-    </div>
+              <span className="small-print text-muted">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+            </div>
+
+            <div className="flex min-w-0 flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5 pr-2">
+              <p
+                className={cn(
+                  "text-sm font-medium",
+                  current ? "text-accent" : done ? "text-ink" : "text-muted",
+                )}
+              >
+                {step.label}
+                {step.actor ? `, ${step.actor}` : ""}
+              </p>
+              {meta ? (
+                <p className="small-print text-muted">{meta}</p>
+              ) : null}
+            </div>
+          </li>
+        );
+      })}
+    </ol>
   );
 }
