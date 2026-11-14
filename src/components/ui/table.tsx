@@ -28,7 +28,7 @@ export function THead({
 }: HTMLAttributes<HTMLTableSectionElement>) {
   return (
     <thead
-      className={cn("border-b border-border text-13 text-muted", className)}
+      className={cn("border-y border-rule text-13 text-muted", className)}
       {...props}
     />
   );
@@ -48,7 +48,7 @@ export function TR({
   return (
     <tr
       className={cn(
-        "border-b border-border last:border-0 hover:bg-canvas",
+        "border-b border-rule last:border-0 hover:bg-paper-2/60",
         className,
       )}
       {...props}
@@ -72,5 +72,5 @@ export function TD({
   className,
   ...props
 }: TdHTMLAttributes<HTMLTableCellElement>) {
-  return <td className={cn("px-4 py-4 align-middle", className)} {...props} />;
+  return <td className={cn("px-4 py-3.5 align-middle", className)} {...props} />;
 }

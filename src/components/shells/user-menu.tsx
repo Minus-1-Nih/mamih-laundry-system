@@ -47,8 +47,8 @@ export function UserMenu({ className }: UserMenuProps) {
 
   return (
     <details className={cn("group relative", className)}>
-      <summary className="flex cursor-pointer list-none items-center gap-2.5 rounded-pill p-1 pr-2 transition-colors hover:bg-secondary [&::-webkit-details-marker]:hidden">
-        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-13 font-semibold text-primary">
+      <summary className="flex cursor-pointer list-none items-center gap-2.5 rounded-pill border border-transparent p-1 pr-2 transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-rule hover:bg-paper-2 [&::-webkit-details-marker]:hidden">
+        <span className="flex h-9 w-9 items-center justify-center border border-rule bg-accent-soft text-13 font-semibold text-accent">
           {initials(displayName)}
         </span>
         <span className="hidden text-left md:block">
@@ -59,20 +59,20 @@ export function UserMenu({ className }: UserMenuProps) {
             {roleLabel(user)}
           </span>
         </span>
-        <ChevronDown className="h-4 w-4 text-muted transition-transform group-open:rotate-180" />
+        <ChevronDown className="h-4 w-4 text-muted transition-transform duration-[var(--dur-short)] group-open:rotate-180" />
       </summary>
 
-      <div className="absolute right-0 z-50 mt-2 w-60 rounded-xl border border-border bg-surface p-1.5 shadow-lg">
-        <div className="border-b border-border px-3 py-2">
+      <div className="absolute right-0 z-[var(--z-dropdown)] mt-2 w-64 border-2 border-ink bg-paper p-1.5 shadow-[6px_6px_0_var(--color-paper-3)]">
+        <div className="border-b border-rule px-3 py-2">
           <p className="text-sm font-medium text-ink">{displayName}</p>
           <p className="text-13 text-muted">{user.email}</p>
-          <p className="mt-1 text-13 font-medium text-primary">
+          <p className="mt-1 text-13 font-medium text-accent">
             {roleLabel(user)}
           </p>
         </div>
         <Link
           href={homeHref}
-          className="mt-1 flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink transition-colors hover:bg-secondary"
+          className="mt-1 flex items-center gap-2 px-3 py-2 text-sm text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
         >
           <LayoutDashboard className="h-4 w-4 text-muted" />
           Dashboard
@@ -80,7 +80,7 @@ export function UserMenu({ className }: UserMenuProps) {
         {user.role === "admin" && user.adminLevel === "owner" ? (
           <Link
             href="/admin/akun"
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink transition-colors hover:bg-secondary"
+            className="flex items-center gap-2 px-3 py-2 text-sm text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
           >
             <ShieldCheck className="h-4 w-4 text-muted" />
             Manajemen akun
@@ -89,7 +89,7 @@ export function UserMenu({ className }: UserMenuProps) {
         <button
           type="button"
           onClick={handleLogout}
-          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-danger-fg transition-colors hover:bg-danger-bg"
+          className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-danger-fg transition-colors duration-[var(--dur-micro)] hover:bg-danger-bg"
         >
           <LogOut className="h-4 w-4" />
           Keluar

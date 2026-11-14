@@ -27,7 +27,7 @@ export function StatusBadge({ status, overdue = false, className }: StatusBadgeP
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-pill px-2.5 py-1 text-xs font-medium",
+        "inline-flex items-center rounded-pill px-2.5 py-1 text-13 font-medium whitespace-nowrap",
         isOverdue ? "bg-danger-bg text-danger-fg" : tones[status],
         className,
       )}

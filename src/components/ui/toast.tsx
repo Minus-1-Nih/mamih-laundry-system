@@ -52,17 +52,17 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       <div
         aria-live="polite"
         aria-atomic="false"
-        className="pointer-events-none fixed inset-x-0 bottom-4 z-50 flex flex-col items-center gap-2 px-4 sm:items-end sm:pr-6"
+        className="pointer-events-none fixed inset-x-0 bottom-4 z-[var(--z-toast)] flex flex-col items-center gap-2 px-4 sm:items-end sm:pr-6"
       >
         {items.map((item) => (
           <div
             key={item.id}
             role="status"
             className={cn(
-              "pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-lg border px-4 py-3 text-sm shadow-lg",
+              "pointer-events-auto flex w-full max-w-sm items-start gap-3 border-2 px-4 py-3 text-sm shadow-[6px_6px_0_var(--color-paper-3)]",
               item.tone === "success"
-                ? "border-done-fg/20 bg-done-bg text-done-fg"
-                : "border-danger-fg/20 bg-danger-bg text-danger-fg",
+                ? "border-done-fg bg-done-bg text-done-fg"
+                : "border-danger-fg bg-danger-bg text-danger-fg",
             )}
           >
             {item.tone === "success" ? (
@@ -75,7 +75,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               type="button"
               onClick={() => dismiss(item.id)}
               aria-label="Tutup notifikasi"
-              className="rounded p-0.5 opacity-70 hover:opacity-100"
+              className="p-0.5 opacity-70 transition-opacity duration-[var(--dur-micro)] hover:opacity-100"
             >
               <X className="h-4 w-4" />
             </button>

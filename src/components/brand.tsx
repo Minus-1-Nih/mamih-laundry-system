@@ -16,11 +16,15 @@ export function Brand({
   compact = false,
 }: BrandProps) {
   return (
-    <Link href={href} className={cn("flex items-center gap-2.5", className)}>
+    <Link
+      href={href}
+      aria-label="Laundria, beranda"
+      className={cn("flex items-center gap-2.5", className)}
+    >
       <span
         className={cn(
-          "flex shrink-0 items-center justify-center rounded-xl bg-primary text-white",
-          compact ? "h-9 w-9" : "h-10 w-10",
+          "flex shrink-0 items-center justify-center bg-accent text-accent-ink",
+          compact ? "h-8 w-8" : "h-9 w-9",
         )}
       >
         <Waves className={compact ? "h-4 w-4" : "h-5 w-5"} />
@@ -28,14 +32,14 @@ export function Brand({
       <span className="min-w-0">
         <span
           className={cn(
-            "block font-bold tracking-tight text-primary",
-            compact ? "text-lg" : "text-xl",
+            "block font-display leading-none text-ink",
+            compact ? "text-xl" : "text-2xl",
           )}
         >
           Laundria
         </span>
         {subtitle ? (
-          <span className="block text-xs leading-tight text-muted">{subtitle}</span>
+          <span className="small-print mt-1 block text-muted">{subtitle}</span>
         ) : null}
       </span>
     </Link>

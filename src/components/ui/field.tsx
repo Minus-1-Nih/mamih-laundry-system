@@ -33,18 +33,18 @@ export function Field({
         ) : null}
       </label>
       {children}
-      {error ? (
-        <p
-          className={cn(
-            "text-xs",
-            errorTone === "warning" ? "text-waiting-fg" : "text-danger-fg",
-          )}
-        >
-          {error}
-        </p>
-      ) : hint ? (
-        <p className="text-xs text-muted">{hint}</p>
-      ) : null}
+      <p
+        className={cn(
+          "min-h-[1lh] text-13",
+          error
+            ? errorTone === "warning"
+              ? "text-waiting-fg"
+              : "text-danger-fg"
+            : "text-muted",
+        )}
+      >
+        {error ?? hint ?? ""}
+      </p>
     </div>
   );
 }

@@ -16,23 +16,25 @@ export function Tabs({ items, className }: TabsProps) {
   return (
     <nav
       aria-label="Tab"
-      className={cn("inline-flex rounded-pill bg-track p-1", className)}
+      className={cn("max-w-full overflow-x-auto border-b border-rule", className)}
     >
-      {items.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          aria-current={item.active ? "page" : undefined}
-          className={cn(
-            "rounded-pill px-4 py-1.5 text-sm font-medium transition-colors",
-            item.active
-              ? "bg-surface text-ink shadow-sm"
-              : "text-muted hover:text-ink",
-          )}
-        >
-          {item.label}
-        </Link>
-      ))}
+      <div className="inline-flex min-w-full">
+        {items.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            aria-current={item.active ? "page" : undefined}
+            className={cn(
+              "border-b-2 px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-[border-color,color] duration-[var(--dur-micro)]",
+              item.active
+                ? "border-accent text-ink"
+                : "border-transparent text-muted hover:text-ink",
+            )}
+          >
+            {item.label}
+          </Link>
+        ))}
+      </div>
     </nav>
   );
 }
