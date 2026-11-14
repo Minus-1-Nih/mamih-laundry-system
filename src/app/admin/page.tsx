@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
-import { Card } from "@/components/ui/card";
+import { OrderDocketList } from "@/components/admin/order-docket-list";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { TBody, TD, TH, THead, TR, Table } from "@/components/ui/table";
@@ -27,7 +28,7 @@ import { useAppStore } from "@/lib/store";
 import { SERVICE_HOURS } from "@/lib/constants";
 import type { SessionType } from "@/lib/types";
 
-function MetricCard({
+function Metric({
   label,
   value,
   caption,
@@ -39,17 +40,19 @@ function MetricCard({
   alert?: boolean;
 }) {
   return (
-    <Card className="p-4">
-      <p className="text-13 text-muted">{label}</p>
-      <p className="mt-1 text-2xl font-bold tracking-tight text-ink">{value}</p>
-      <p className={cn("mt-1 text-13", alert ? "text-danger-fg" : "text-muted")}>
+    <div className="px-4 py-4 first:pl-0 last:pr-0">
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="small-print text-muted">{label}</p>
+        <p className="font-display text-4xl leading-none">{value}</p>
+      </div>
+      <p className={cn("mt-3 text-13", alert ? "text-danger-fg" : "text-muted")}>
         {caption}
       </p>
-    </Card>
+    </div>
   );
 }
 
-function SessionCard({
+function SessionBlock({
   type,
   start,
   end,
@@ -67,31 +70,39 @@ function SessionCard({
   return (
     <div
       className={cn(
-        "flex min-h-[142px] flex-col rounded-lg border p-4",
-        active ? "border-primary/20 bg-secondary" : "border-border bg-surface",
+        "border-t-2 border-ink px-4 py-4",
+        active &&
+          "border-accent bg-accent-soft shadow-[inset_0_2px_0_var(--color-accent)]",
       )}
     >
-      <p
-        className={cn(
-          "text-sm font-medium",
-          active ? "text-primary" : "text-ink",
-        )}
-      >
-        {sessionLabel(type)}
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm font-medium text-ink">{sessionLabel(type)}</p>
+        <span
+          className={cn(
+            "small-print border px-2 py-0.5",
+            active
+              ? "border-accent bg-accent text-accent-ink"
+              : "border-rule text-muted",
+          )}
+        >
+          {active ? "Berlangsung" : "Terjadwal"}
+        </span>
+      </div>
+      <p className="mt-4 font-display text-3xl leading-none">
+        {count} <span className="text-base">pesanan</span>
       </p>
-      <p className="mt-2 text-2xl font-bold tracking-tight text-ink">
-        {count} pesanan
-      </p>
-      <p className="mt-auto pt-5 text-13 text-muted">
-        {start}–{end} WIB, {drivers} driver
+      <p className="small-print mt-4 border-t border-rule pt-2 text-muted">
+        {start}-{end} WIB, {drivers} driver
       </p>
     </div>
   );
 }
 
 export default function AdminDashboardPage() {
+  const router = useRouter();
   const orders = useAppStore((state) => state.orders);
   const zones = useAppStore((state) => state.zones);
+  const users = useAppStore((state) => state.users);
   const sessions = useAppStore((state) => state.sessions);
 
   const today = todayOrders(orders);
@@ -114,7 +125,7 @@ export default function AdminDashboardPage() {
         action={
           <Link
             href="/admin/pesanan/baru"
-            className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white transition-colors hover:bg-primary-hover"
+            className="inline-flex h-11 items-center gap-2 rounded-pill border border-accent bg-accent px-4 text-sm font-medium text-accent-ink transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-accent-hover hover:bg-accent-hover"
           >
             <Plus className="h-4 w-4" />
             Input pesanan
@@ -122,13 +133,13 @@ export default function AdminDashboardPage() {
         }
       />
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <MetricCard
+      <div className="grid border-y-2 border-ink sm:grid-cols-2 sm:divide-x sm:divide-rule xl:grid-cols-4 xl:divide-y-0">
+        <Metric
           label="Total pesanan hari ini"
           value={today.length}
           caption={`${done} selesai, ${today.length - done} berjalan`}
         />
-        <MetricCard
+        <Metric
           label="Menunggu penjemputan"
           value={waiting}
           caption={
@@ -138,39 +149,39 @@ export default function AdminDashboardPage() {
           }
           alert={late.length > 0}
         />
-        <MetricCard
+        <Metric
           label="Sedang dicuci"
           value={washing}
           caption="Rata-rata 3,2 jam"
         />
-        <MetricCard
+        <Metric
           label="Siap diantar"
           value={ready}
           caption={`${withoutDriver.length} belum ada driver`}
         />
       </div>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-[1.6fr_1fr]">
-        <Card className="p-5">
-          <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+        <section className="border border-rule bg-paper">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-rule px-5 py-4">
             <div>
               <h2 className="text-sm font-semibold text-ink">
                 Sesi operasional hari ini
               </h2>
               <p className="mt-0.5 text-13 text-muted">
-                Penjemputan 12.00–17.00, pengantaran 17.00–22.00 WIB.
+                Penjemputan 12.00-17.00, pengantaran 17.00-22.00 WIB.
               </p>
             </div>
             <Link
               href="/admin/pengaturan"
-              className="text-13 font-medium text-primary hover:text-primary-hover"
+              className="text-13 font-medium text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"
             >
               Kelola sesi
             </Link>
           </div>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-4 p-5 sm:grid-cols-2">
             {sessions.map((session) => (
-              <SessionCard
+              <SessionBlock
                 key={session.type}
                 type={session.type}
                 start={session.start}
@@ -180,32 +191,36 @@ export default function AdminDashboardPage() {
               />
             ))}
           </div>
-        </Card>
+        </section>
 
-        <Card className="p-5">
+        <section className="border border-rule bg-paper p-5">
           <h2 className="text-sm font-semibold text-ink">
             Sebaran zona hari ini
           </h2>
-          <div className="mt-2">
+          <dl className="mt-3 border-t border-ink">
             {zones.map((zone) => (
               <div
                 key={zone.id}
-                className="flex items-center justify-between border-b border-border py-2.5 last:border-0"
+                className="flex items-center justify-between gap-3 border-b border-rule py-3 last:border-b-0"
               >
-                <span className="text-sm text-ink">
-                  {zone.id}, {zone.name}
-                </span>
-                <span className="text-sm font-medium text-ink">
+                <dt className="flex items-baseline gap-2 text-sm text-ink">
+                  <span className="small-print text-muted">{zone.id}</span>
+                  {zone.name}
+                </dt>
+                <dd className="text-sm font-medium text-ink">
                   {countZone(today, zone.id)} pesanan
-                </span>
+                </dd>
               </div>
             ))}
-          </div>
-        </Card>
+          </dl>
+          <p className="small-print mt-4 border-t border-rule pt-3 text-muted">
+            Diperbarui 2 menit lalu
+          </p>
+        </section>
       </div>
 
-      <Card className="mt-4 overflow-hidden">
-        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border p-5">
+      <section className="mt-6 border border-rule bg-paper">
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-rule px-5 py-4">
           <div>
             <h2 className="text-sm font-semibold text-ink">Pesanan terbaru</h2>
             <p className="mt-0.5 text-13 text-muted">
@@ -215,7 +230,7 @@ export default function AdminDashboardPage() {
           </div>
           <Link
             href="/admin/pesanan"
-            className="text-13 font-medium text-primary hover:text-primary-hover"
+            className="text-13 font-medium text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"
           >
             Lihat semua pesanan
           </Link>
@@ -223,15 +238,16 @@ export default function AdminDashboardPage() {
 
         {recent.length ? (
           <>
-            <Table>
-              <THead className="bg-canvas">
+            <div className="hidden md:block">
+              <Table>
+              <THead>
                 <TR>
                   <TH>Kode</TH>
                   <TH>Pelanggan</TH>
-                  <TH>Zona</TH>
-                  <TH>Sesi</TH>
+                  <TH className="hidden sm:table-cell">Zona</TH>
+                  <TH className="hidden md:table-cell">Sesi</TH>
                   <TH>Status</TH>
-                  <TH>Jadwal</TH>
+                  <TH className="hidden sm:table-cell">Jadwal</TH>
                 </TR>
               </THead>
               <TBody>
@@ -240,7 +256,7 @@ export default function AdminDashboardPage() {
                     <TD>
                       <Link
                         href={`/admin/pesanan?detail=${encodeURIComponent(order.code)}`}
-                        className="font-mono text-13 font-semibold text-ink hover:text-primary"
+                        className="font-outlier text-13 font-semibold tracking-[0.06em] whitespace-nowrap text-ink hover:text-accent"
                       >
                         {order.code}
                       </Link>
@@ -248,16 +264,16 @@ export default function AdminDashboardPage() {
                     <TD>
                       <Link
                         href={`/admin/pesanan?detail=${encodeURIComponent(order.code)}`}
-                        className="text-sm font-medium text-ink hover:text-primary"
+                        className="text-sm font-medium text-ink hover:text-accent"
                       >
                         {order.customerName}
                       </Link>
                     </TD>
-                    <TD className="text-sm">
+                    <TD className="hidden text-sm sm:table-cell">
                       {order.zoneId},{" "}
                       {zones.find((zone) => zone.id === order.zoneId)?.name}
                     </TD>
-                    <TD className="text-sm text-muted">
+                    <TD className="hidden text-sm text-muted md:table-cell">
                       {sessionLabel(order.session)}
                     </TD>
                     <TD>
@@ -266,12 +282,25 @@ export default function AdminDashboardPage() {
                         overdue={isOverdue(order)}
                       />
                     </TD>
-                    <TD className="text-sm">{order.schedule}</TD>
+                    <TD className="hidden whitespace-nowrap text-sm sm:table-cell">
+                      {order.schedule}
+                    </TD>
                   </TR>
                 ))}
               </TBody>
             </Table>
-            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border px-5 py-3 text-13 text-muted">
+            </div>
+
+            <OrderDocketList
+              orders={recent}
+              zones={zones}
+              users={users}
+              onOpen={(code) =>
+                router.push(`/admin/pesanan?detail=${encodeURIComponent(code)}`)
+              }
+            />
+
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-rule px-5 py-3 text-13 text-muted">
               <span>
                 Menampilkan {recent.length} dari {today.length} pesanan hari ini
               </span>
@@ -286,7 +315,7 @@ export default function AdminDashboardPage() {
             />
           </div>
         )}
-      </Card>
+      </section>
     </>
   );
 }

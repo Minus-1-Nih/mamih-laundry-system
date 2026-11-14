@@ -18,12 +18,20 @@ import type { Order, OrderStatus, User, Zone } from "@/lib/types";
 
 function DetailRow({ label, value }: { label: string; value: ReactNode }) {
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-border py-2.5 last:border-0">
+    <div className="flex items-start justify-between gap-4 border-b border-rule py-2.5 last:border-0">
       <dt className="shrink-0 text-13 text-muted">{label}</dt>
       <dd className="max-w-[62%] text-right text-sm font-medium text-ink">
         {value}
       </dd>
     </div>
+  );
+}
+
+function BlockLabel({ children }: { children: ReactNode }) {
+  return (
+    <h3 className="mt-6 flex items-center gap-2.5 border-t-2 border-ink pt-3">
+      <span className="small-print text-accent">{children}</span>
+    </h3>
   );
 }
 
@@ -68,7 +76,7 @@ export function OrderDetailSheet({
           </Button>
           <Button
             variant="ghost"
-            className="border border-danger-fg/30 text-danger-fg hover:bg-danger-bg"
+            className="border border-danger-fg text-danger-fg hover:bg-danger-bg"
             onClick={onDelete}
           >
             Hapus
@@ -76,18 +84,20 @@ export function OrderDetailSheet({
         </div>
       }
     >
-      <p className="font-mono text-lg font-bold text-ink">{order.code}</p>
-      <div className="mt-1 flex flex-wrap items-center gap-2">
+      <p className="font-outlier text-lg font-semibold tracking-[0.08em] text-ink">
+        {order.code}
+      </p>
+      <div className="mt-2 flex flex-wrap items-center gap-2 border-b border-rule pb-4">
         <StatusBadge status={order.status} className="text-13" />
-        <span className="text-13 text-muted">
+        <span className="small-print text-muted">
           Dibuat {formatDateTime(order.createdAt)} WIB
         </span>
       </div>
 
-      <p className="mt-5 text-13 text-muted">Pelanggan</p>
-      <div className="mt-1.5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-canvas p-4">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border border-rule bg-paper-2 p-4">
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-ink">
+          <p className="small-print text-muted">Pelanggan</p>
+          <p className="mt-1 truncate text-sm font-semibold text-ink">
             {order.customerName}
           </p>
           <p className="text-13 text-muted">{order.phone}</p>
@@ -96,14 +106,14 @@ export function OrderDetailSheet({
           href={wa}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex h-9 items-center rounded-lg border border-primary/30 bg-surface px-3 text-13 font-medium text-primary transition-colors hover:bg-secondary"
+          className="inline-flex h-9 items-center border border-accent bg-paper px-3 text-13 font-medium text-accent transition-colors duration-[var(--dur-micro)] hover:bg-accent hover:text-accent-ink"
         >
           Chat WhatsApp
         </a>
       </div>
 
-      <h3 className="mt-5 text-sm font-semibold text-ink">Rincian pesanan</h3>
-      <dl className="mt-1">
+      <BlockLabel>Rincian pesanan</BlockLabel>
+      <dl className="mt-2">
         <DetailRow label="Layanan" value={order.service} />
         <DetailRow label="Berat" value={order.weight} />
         <DetailRow
@@ -120,11 +130,11 @@ export function OrderDetailSheet({
         {order.note ? <DetailRow label="Catatan" value={order.note} /> : null}
       </dl>
 
-      <h3 className="mt-5 text-sm font-semibold text-ink">Riwayat status</h3>
-      <div className="mt-3">
+      <BlockLabel>Riwayat status</BlockLabel>
+      <div className="mt-2">
         <OrderTimeline order={order} variant="admin" />
       </div>
-      <p className="mt-4 rounded-lg bg-canvas px-3 py-2.5 text-13 text-muted">
+      <p className="mt-4 border-l-2 border-gold bg-paper-2 px-3 py-2.5 text-13 leading-relaxed text-muted">
         Setiap perubahan status dicatat otomatis: waktu, status baru, dan
         pelakunya.
       </p>
@@ -204,7 +214,7 @@ function OrderStatusSheetForm({
       open={open}
       onClose={onClose}
       title="Ubah status pesanan"
-      description={`${order.code}  ${order.customerName}, ${order.zoneId} ${
+      description={`${order.code}, ${order.customerName}, ${order.zoneId} ${
         zone?.name ?? ""
       }`}
       size="lg"
@@ -212,7 +222,7 @@ function OrderStatusSheetForm({
         <div className="flex gap-2">
           <Button
             variant="ghost"
-            className="flex-1 border border-border"
+            className="flex-1 border border-rule"
             onClick={onClose}
           >
             Batal
@@ -223,54 +233,62 @@ function OrderStatusSheetForm({
         </div>
       }
     >
-      <div className="space-y-2.5">
-        {statusOptions.map((option) => {
+      <ol className="border-t border-ink">
+        {statusOptions.map((option, index) => {
           const active = selected === option.status;
           return (
-            <button
-              key={option.status}
-              type="button"
-              onClick={() => setSelected(option.status)}
-              aria-pressed={active}
-              className={cn(
-                "flex w-full items-start gap-3 rounded-xl border p-3.5 text-left transition-colors",
-                active
-                  ? "border-primary bg-secondary"
-                  : "border-border bg-surface hover:border-primary/40",
-              )}
-            >
-              <span
+            <li key={option.status}>
+              <button
+                type="button"
+                onClick={() => setSelected(option.status)}
+                aria-pressed={active}
                 className={cn(
-                  "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border",
-                  active ? "border-primary" : "border-border",
+                  "flex w-full items-start gap-3 border-b border-rule px-2 py-3.5 text-left transition-colors duration-[var(--dur-micro)]",
+                  active
+                    ? "bg-accent-soft shadow-[inset_2px_0_0_var(--color-accent)]"
+                    : "hover:bg-paper-2",
                 )}
               >
-                {active ? (
-                  <span className="h-2 w-2 rounded-full bg-primary" />
-                ) : null}
-              </span>
-              <span className="min-w-0">
-                <span className="text-sm font-medium text-ink">
-                  {statusLabels[option.status]}
+                <span className="small-print w-6 shrink-0 pt-0.5 text-muted">
+                  {String(index + 1).padStart(2, "0")}
                 </span>
-                <span className="mt-0.5 block text-13 text-muted">
-                  {option.description}
+                <span
+                  className={cn(
+                    "mt-0.5 flex h-3 w-3 shrink-0 items-center justify-center border-2",
+                    active ? "border-accent bg-accent" : "border-rule bg-paper",
+                  )}
+                  aria-hidden="true"
+                >
+                  {active ? (
+                    <span className="h-1 w-1 bg-accent-ink" />
+                  ) : null}
                 </span>
-              </span>
-            </button>
+                <span className="min-w-0">
+                  <span
+                    className={cn(
+                      "text-sm font-medium",
+                      active ? "text-accent" : "text-ink",
+                    )}
+                  >
+                    {statusLabels[option.status]}
+                  </span>
+                  <span className="mt-0.5 block text-13 text-muted">
+                    {option.description}
+                  </span>
+                </span>
+              </button>
+            </li>
           );
         })}
-      </div>
+      </ol>
 
       <p className="mt-4 text-13 leading-relaxed text-muted">
         Status baru ikut terkirim ke pelanggan lewat WhatsApp. Hanya admin dan
         driver terkait yang dapat mengubah status.
       </p>
 
-      <h3 className="mt-5 text-sm font-semibold text-ink">
-        Ringkasan pesanan
-      </h3>
-      <dl className="mt-1">
+      <BlockLabel>Ringkasan pesanan</BlockLabel>
+      <dl className="mt-2">
         <DetailRow
           label="Pelanggan"
           value={`${order.customerName}, ${order.phone}`}
@@ -336,7 +354,7 @@ export function OrderDeleteSheet({
         <div className="flex gap-2">
           <Button
             variant="ghost"
-            className="flex-1 border border-border"
+            className="flex-1 border border-rule"
             onClick={onClose}
           >
             Batal
@@ -353,16 +371,14 @@ export function OrderDeleteSheet({
       </p>
 
       {running ? (
-        <div className="mt-4 rounded-lg border border-waiting-fg/20 bg-waiting-bg px-3 py-2.5 text-13 leading-relaxed text-waiting-fg">
+        <div className="mt-4 border border-waiting-fg bg-waiting-bg px-3 py-2.5 text-13 leading-relaxed text-waiting-fg">
           Pesanan masih berjalan sebaiknya tidak dihapus. Perbarui lewat Ubah
           status, atau hubungi supervisor jika ini salah input.
         </div>
       ) : null}
 
-      <h3 className="mt-5 text-sm font-semibold text-ink">
-        Dampak penghapusan
-      </h3>
-      <div className="mt-2 rounded-xl border border-border bg-canvas p-4">
+      <BlockLabel>Dampak penghapusan</BlockLabel>
+      <div className="mt-2 border border-rule bg-paper-2 p-4">
         <dl>
           <DetailRow
             label="Status saat ini"

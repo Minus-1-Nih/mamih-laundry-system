@@ -14,10 +14,10 @@ export function AdminPageHeader({
   action,
 }: AdminPageHeaderProps) {
   return (
-    <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+    <div className="mb-6 flex flex-wrap items-start justify-between gap-4 border-b border-rule pb-5">
       <div className="min-w-0">
-        <h1 className="text-2xl font-bold tracking-tight text-ink">{title}</h1>
-        {subtitle ? <p className="mt-1 text-sm text-muted">{subtitle}</p> : null}
+        <h1 className="screen-title text-3xl">{title}</h1>
+        {subtitle ? <p className="mt-2 text-sm text-muted">{subtitle}</p> : null}
       </div>
       <div className="flex flex-wrap items-center gap-2.5">
         {action}

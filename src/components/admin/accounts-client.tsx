@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Field } from "@/components/ui/field";
@@ -48,17 +47,28 @@ function RoleBadge({ user }: { user: User }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-pill px-2.5 py-1 text-13 font-medium",
+        "inline-flex items-center gap-1 border px-2.5 py-1 text-13 font-medium",
         owner
-          ? "bg-primary text-white"
+          ? "border-accent bg-accent text-accent-ink"
           : user.role === "admin"
-            ? "bg-secondary text-primary"
-            : "bg-track text-ink",
+            ? "border-accent bg-accent-soft text-accent"
+            : "border-rule bg-paper-2 text-ink",
       )}
     >
       {owner ? <ShieldCheck className="h-3.5 w-3.5" /> : null}
       {roleLabel(user)}
     </span>
+  );
+}
+
+function FormError({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      role="alert"
+      className="border border-danger-fg bg-danger-bg px-3 py-2.5 text-sm text-danger-fg"
+    >
+      {children}
+    </div>
   );
 }
 
@@ -130,14 +140,7 @@ function AccountForm({ mode, user, zones, onDone }: AccountFormProps) {
 
   return (
     <form id="account-form" onSubmit={handleSubmit} className="space-y-4">
-      {error ? (
-        <div
-          role="alert"
-          className="rounded-lg border border-danger-fg/20 bg-danger-bg px-3 py-2.5 text-sm text-danger-fg"
-        >
-          {error}
-        </div>
-      ) : null}
+      {error ? <FormError>{error}</FormError> : null}
 
       <Field label="Nama lengkap" htmlFor="account-name" required>
         <Input
@@ -175,7 +178,7 @@ function AccountForm({ mode, user, zones, onDone }: AccountFormProps) {
 
       {mode === "create" ? (
         <>
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <p className="text-sm font-medium text-ink">Peran</p>
             <div className="flex gap-2">
               <Chip active={role === "admin"} onClick={() => setRole("admin")}>
@@ -185,7 +188,7 @@ function AccountForm({ mode, user, zones, onDone }: AccountFormProps) {
                 Driver
               </Chip>
             </div>
-            <p className="text-xs text-muted">
+            <p className="text-13 text-muted">
               Owner tidak dapat ditambahkan. Akun Owner hanya satu dan sudah
               tersedia.
             </p>
@@ -208,7 +211,7 @@ function AccountForm({ mode, user, zones, onDone }: AccountFormProps) {
           </Field>
         </>
       ) : (
-        <div className="rounded-lg border border-border bg-canvas px-3 py-2.5">
+        <div className="border border-rule bg-paper-2 px-3 py-2.5">
           <p className="text-13 text-muted">
             Peran: <span className="font-medium text-ink">{roleLabel(user!)}</span>
             . Peran tidak dapat diubah. Gunakan reset kata sandi untuk mengganti
@@ -218,7 +221,7 @@ function AccountForm({ mode, user, zones, onDone }: AccountFormProps) {
       )}
 
       {role === "driver" || user?.role === "driver" ? (
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <p className="text-sm font-medium text-ink">Zona tugas</p>
           <div className="flex flex-wrap gap-2">
             {zones.map((zone) => (
@@ -232,7 +235,7 @@ function AccountForm({ mode, user, zones, onDone }: AccountFormProps) {
               </Chip>
             ))}
           </div>
-          <p className="text-xs text-muted">
+          <p className="text-13 text-muted">
             Driver akan menerima tugas dari zona yang dipilih.
           </p>
         </div>
@@ -272,15 +275,8 @@ function ResetPasswordForm({
 
   return (
     <form id="reset-form" onSubmit={handleSubmit} className="space-y-4">
-      {error ? (
-        <div
-          role="alert"
-          className="rounded-lg border border-danger-fg/20 bg-danger-bg px-3 py-2.5 text-sm text-danger-fg"
-        >
-          {error}
-        </div>
-      ) : null}
-      <div className="rounded-lg border border-border bg-canvas px-3 py-2.5">
+      {error ? <FormError>{error}</FormError> : null}
+      <div className="border border-rule bg-paper-2 px-3 py-2.5">
         <p className="text-sm font-medium text-ink">{user.name}</p>
         <p className="text-13 text-muted">@{user.username}</p>
       </div>
@@ -308,6 +304,43 @@ function ResetPasswordForm({
         />
       </Field>
     </form>
+  );
+}
+
+function OwnerSummary({
+  active,
+  drivers,
+  inactive,
+}: {
+  active: number;
+  drivers: number;
+  inactive: number;
+}) {
+  const items = [
+    { label: "Akun aktif", value: active },
+    { label: "Driver aktif", value: drivers },
+    { label: "Nonaktif", value: inactive },
+  ];
+
+  return (
+    <dl className="grid grid-cols-3 border-t border-rule sm:border-t-0">
+      {items.map((item, index) => (
+        <div
+          key={item.label}
+          className={cn(
+            "px-3 py-2.5",
+            index > 0 && "border-l border-rule",
+            index === 0 && "pl-0",
+            index === items.length - 1 && "pr-0",
+          )}
+        >
+          <dt className="small-print text-muted">{item.label}</dt>
+          <dd className="mt-0.5 font-display text-2xl leading-none text-ink">
+            {item.value}
+          </dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 
@@ -398,55 +431,47 @@ export function AccountsClient() {
         }
       />
 
-      <Card className="mb-4 flex flex-wrap items-start gap-3 p-4">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-secondary text-primary">
-          <ShieldCheck className="h-5 w-5" />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-ink">
-            Owner adalah tingkat akses tertinggi dari Admin
-          </p>
-          <p className="mt-0.5 text-13 text-muted">
-            Sistem tetap memiliki tiga peran: Admin, Driver, dan Pelanggan.
-            Halaman ini hanya dapat dibuka oleh Owner.
-          </p>
+      <section className="grid gap-5 border-2 border-ink bg-paper-2 p-5 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-center">
+        <div className="flex items-start gap-3.5">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center bg-accent text-accent-ink">
+            <ShieldCheck className="h-5 w-5" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-ink">
+              Owner adalah tingkat akses tertinggi dari Admin
+            </p>
+            <p className="mt-1 text-13 leading-relaxed text-muted">
+              Sistem tetap memiliki tiga peran: Admin, Driver, dan Pelanggan.
+              Halaman ini hanya dapat dibuka oleh Owner.
+            </p>
+          </div>
         </div>
-        <dl className="flex gap-5 text-13">
-          <div>
-            <dt className="text-muted">Akun aktif</dt>
-            <dd className="text-base font-semibold text-ink">
-              {activeAdmins + activeDrivers}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-muted">Driver aktif</dt>
-            <dd className="text-base font-semibold text-ink">{activeDrivers}</dd>
-          </div>
-          <div>
-            <dt className="text-muted">Nonaktif</dt>
-            <dd className="text-base font-semibold text-ink">{inactive}</dd>
-          </div>
-        </dl>
-      </Card>
+        <OwnerSummary
+          active={activeAdmins + activeDrivers}
+          drivers={activeDrivers}
+          inactive={inactive}
+        />
+      </section>
 
-      <Card className="mb-4 p-4">
-        <div className="flex flex-wrap items-center gap-2.5">
+      <section className="mt-5 border-y-2 border-ink">
+        <div className="flex flex-wrap items-center gap-2.5 py-3.5">
           <div className="relative w-full sm:w-[280px]">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
             <Input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Cari nama, username, atau WA..."
-              className="pl-9"
+              placeholder="Cari nama, username, atau WA"
+              className="h-11 pl-9"
               aria-label="Cari akun"
             />
           </div>
-          <div className="w-full sm:w-[150px]">
+          <div className="w-full sm:w-[155px]">
             <Select
               value={roleFilter}
               onChange={(event) =>
                 setRoleFilter(event.target.value as typeof roleFilter)
               }
+              className="h-11"
               aria-label="Filter peran"
             >
               <option value="all">Semua peran</option>
@@ -454,12 +479,13 @@ export function AccountsClient() {
               <option value="driver">Driver</option>
             </Select>
           </div>
-          <div className="w-full sm:w-[150px]">
+          <div className="w-full sm:w-[155px]">
             <Select
               value={statusFilter}
               onChange={(event) =>
                 setStatusFilter(event.target.value as typeof statusFilter)
               }
+              className="h-11"
               aria-label="Filter status akun"
             >
               <option value="all">Semua status</option>
@@ -467,13 +493,23 @@ export function AccountsClient() {
               <option value="inactive">Nonaktif</option>
             </Select>
           </div>
-          <p className="ml-auto text-13 text-muted">
+          <p className="small-print ml-auto text-muted">
             {filtered.length} dari {accounts.length} akun
           </p>
         </div>
-      </Card>
+      </section>
 
-      <Card>
+      <section className="mt-5 border border-rule bg-paper">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-rule px-4 py-3">
+          <div className="flex items-baseline gap-2.5">
+            <span className="small-print text-muted">Daftar</span>
+            <h2 className="text-sm font-semibold text-ink">Akun tim</h2>
+          </div>
+          <span className="small-print text-muted">
+            Admin dan Driver
+          </span>
+        </div>
+
         {filtered.length === 0 ? (
           <div className="p-4">
             <EmptyState
@@ -515,7 +551,7 @@ export function AccountsClient() {
                     <TD>
                       <div className="flex items-center gap-3">
                         <span
-                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-secondary text-13 font-semibold text-primary"
+                          className="flex h-9 w-9 shrink-0 items-center justify-center border border-rule bg-accent-soft text-13 font-semibold text-accent"
                           aria-hidden="true"
                         >
                           {initials(user.name)}
@@ -531,11 +567,11 @@ export function AccountsClient() {
                     </TD>
                     <TD className="text-13 text-muted">
                       {user.role === "driver"
-                        ? (user.zoneIds ?? []).join(", ") || "—"
+                        ? (user.zoneIds ?? []).join(", ") || "-"
                         : "Semua zona"}
                     </TD>
                     <TD className="text-13 text-muted">
-                      {user.phone || "—"}
+                      {user.phone || "-"}
                     </TD>
                     <TD>
                       <span
@@ -545,8 +581,9 @@ export function AccountsClient() {
                         )}
                       >
                         <span
+                          aria-hidden="true"
                           className={cn(
-                            "h-1.5 w-1.5 rounded-full",
+                            "h-1.5 w-1.5",
                             user.active ? "bg-done-fg" : "bg-muted",
                           )}
                         />
@@ -563,7 +600,7 @@ export function AccountsClient() {
                           onClick={() => setSheet({ kind: "edit", user })}
                           aria-label={`Ubah akun ${user.name}`}
                           title="Ubah akun"
-                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted transition-colors hover:bg-secondary hover:text-primary"
+                          className="inline-flex h-9 w-9 items-center justify-center border border-transparent text-muted transition-colors duration-[var(--dur-micro)] hover:border-rule hover:bg-paper-2 hover:text-accent"
                         >
                           <Pencil className="h-4 w-4" />
                         </button>
@@ -572,13 +609,13 @@ export function AccountsClient() {
                           onClick={() => setSheet({ kind: "reset", user })}
                           aria-label={`Reset kata sandi ${user.name}`}
                           title="Reset kata sandi"
-                          className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted transition-colors hover:bg-secondary hover:text-primary"
+                          className="inline-flex h-9 w-9 items-center justify-center border border-transparent text-muted transition-colors duration-[var(--dur-micro)] hover:border-rule hover:bg-paper-2 hover:text-accent"
                         >
                           <KeyRound className="h-4 w-4" />
                         </button>
                         {owner ? (
                           <span
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted/40"
+                            className="inline-flex h-9 w-9 items-center justify-center text-muted/40"
                             title="Akun Owner tidak dapat dinonaktifkan"
                           >
                             <ShieldCheck className="h-4 w-4" />
@@ -598,10 +635,10 @@ export function AccountsClient() {
                             }
                             title={user.active ? "Nonaktifkan akun" : "Aktifkan akun"}
                             className={cn(
-                              "inline-flex h-9 w-9 items-center justify-center rounded-lg transition-colors",
+                              "inline-flex h-9 w-9 items-center justify-center border border-transparent transition-colors duration-[var(--dur-micro)]",
                               user.active
-                                ? "text-muted hover:bg-danger-bg hover:text-danger-fg"
-                                : "text-muted hover:bg-secondary hover:text-primary",
+                                ? "text-muted hover:border-danger-fg hover:bg-danger-bg hover:text-danger-fg"
+                                : "text-muted hover:border-rule hover:bg-paper-2 hover:text-accent",
                             )}
                           >
                             <Power className="h-4 w-4" />
@@ -615,7 +652,7 @@ export function AccountsClient() {
             </TBody>
           </Table>
         )}
-      </Card>
+      </section>
 
       <Sheet
         open={sheet?.kind === "create" || sheet?.kind === "edit"}
@@ -700,7 +737,7 @@ export function AccountsClient() {
               (@{sheet.user.username}) akan dinonaktifkan.
             </p>
             {sheet.user.role === "driver" && activeOrdersFor(sheet.user.id) > 0 ? (
-              <p className="rounded-lg border border-waiting-fg/20 bg-waiting-bg px-3 py-2.5 text-waiting-fg">
+              <p className="border border-waiting-fg bg-waiting-bg px-3 py-2.5 text-waiting-fg">
                 Driver masih memiliki {activeOrdersFor(sheet.user.id)} tugas
                 berjalan. Tugas tetap tercatat, tetapi penugasan baru sebaiknya
                 dialihkan lebih dulu.

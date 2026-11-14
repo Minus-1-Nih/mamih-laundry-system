@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { AlertTriangle, Check } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -53,6 +52,29 @@ function joinLabels(labels: string[]): string {
   return `${labels.slice(0, -1).join(", ")} dan ${labels.at(-1)}`;
 }
 
+function PanelHead({
+  index,
+  title,
+  note,
+  aside,
+}: {
+  index: string;
+  title: string;
+  note: string;
+  aside?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-wrap items-start justify-between gap-3 border-b border-ink pb-3">
+      <div className="min-w-0">
+        <p className="small-print text-accent">{index}</p>
+        <h2 className="mt-1.5 text-base font-semibold text-ink">{title}</h2>
+        <p className="mt-0.5 text-13 text-muted">{note}</p>
+      </div>
+      {aside}
+    </div>
+  );
+}
+
 export default function AdminNewOrderPage() {
   const orders = useAppStore((state) => state.orders);
   const createOrder = useAppStore((state) => state.createOrder);
@@ -83,8 +105,8 @@ export default function AdminNewOrderPage() {
     stage === "input"
       ? "Tempel pesan WhatsApp, parse otomatis, lalu periksa hasilnya sebelum disimpan"
       : missingFields.length
-        ? `${recognized} dari 8 field terbaca — lengkapi kolom yang ditandai`
-        : `${recognized} dari 8 field terbaca otomatis — periksa lalu simpan pesanan`;
+        ? `${recognized} dari 8 field terbaca, lengkapi kolom yang ditandai`
+        : `${recognized} dari 8 field terbaca otomatis, periksa lalu simpan pesanan`;
 
   function handleRawChange(value: string) {
     setRaw(value);
@@ -198,16 +220,17 @@ export default function AdminNewOrderPage() {
     <>
       <AdminPageHeader title="Input pesanan" subtitle={subtitle} />
 
-      <div className="grid items-start gap-4 lg:grid-cols-2">
-        <Card className="p-5">
-          <h2 className="text-sm font-semibold text-ink">
-            {stage === "input" ? "Tempel pesan WhatsApp" : "Pesan WhatsApp"}
-          </h2>
-          <p className="mt-0.5 text-13 text-muted">
-            {stage === "input"
-              ? "Salin template dari pelanggan, lalu tempel di bawah ini."
-              : "Pesan asli dari pelanggan, tersimpan sebagai referensi."}
-          </p>
+      <div className="grid items-start gap-5 lg:grid-cols-2">
+        <section className="border border-rule bg-paper p-5">
+          <PanelHead
+            index="01"
+            title={stage === "input" ? "Tempel pesan WhatsApp" : "Pesan WhatsApp"}
+            note={
+              stage === "input"
+                ? "Salin template dari pelanggan, lalu tempel di bawah ini."
+                : "Pesan asli dari pelanggan, tersimpan sebagai referensi."
+            }
+          />
 
           <Textarea
             id="pesan-whatsapp"
@@ -222,8 +245,10 @@ export default function AdminNewOrderPage() {
             <>
               <div
                 className={cn(
-                  "mt-3 flex items-start gap-1.5 text-13",
-                  missingFields.length ? "text-waiting-fg" : "text-primary",
+                  "mt-3 flex items-start gap-1.5 border-l-2 px-3 py-2 text-13",
+                  missingFields.length
+                    ? "border-waiting-fg bg-waiting-bg text-waiting-fg"
+                    : "border-accent bg-accent-soft text-accent",
                 )}
               >
                 {missingFields.length ? (
@@ -246,12 +271,12 @@ export default function AdminNewOrderPage() {
             </>
           ) : null}
 
-          <div className="mt-4 flex flex-wrap items-center gap-2">
+          <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-rule pt-4">
             <Button
               variant={stage === "input" ? "primary" : "ghost"}
               className={
                 stage === "parsed"
-                  ? "border border-border text-primary hover:bg-secondary"
+                  ? "border border-rule text-accent hover:bg-paper-2"
                   : undefined
               }
               onClick={handleParse}
@@ -262,12 +287,12 @@ export default function AdminNewOrderPage() {
               <>
                 <Button
                   variant="ghost"
-                  className="border border-border text-primary hover:bg-secondary"
+                  className="border border-rule text-accent hover:bg-paper-2"
                   onClick={handleSample}
                 >
                   Muat contoh
                 </Button>
-                <span className="text-13 text-muted">Ctrl + V</span>
+                <span className="small-print text-muted">Ctrl + V</span>
               </>
             ) : (
               <span className="text-13 text-muted">
@@ -275,35 +300,42 @@ export default function AdminNewOrderPage() {
               </span>
             )}
           </div>
-        </Card>
+        </section>
 
-        <Card className="p-5">
-          <div className="flex flex-wrap items-start justify-between gap-2">
-            <h2 className="text-sm font-semibold text-ink">Hasil parsing</h2>
-            {stage === "input" ? (
-              <span className="rounded-pill bg-track px-2.5 py-1 text-13 font-medium text-muted">
-                Menunggu pesan
-              </span>
-            ) : (
-              <span
-                className={cn(
-                  "rounded-pill px-2.5 py-1 text-13 font-medium",
-                  missingFields.length
-                    ? "bg-waiting-bg text-waiting-fg"
-                    : "bg-secondary text-primary",
-                )}
-              >
-                {missingFields.length
-                  ? `${missingFields.length} field hilang`
-                  : `${recognized} field terbaca`}
-              </span>
-            )}
-          </div>
+        <section className="border border-rule bg-paper p-5">
+          <PanelHead
+            index="02"
+            title="Hasil parsing"
+            note="Periksa tiap field sebelum pesanan disimpan."
+            aside={
+              stage === "input" ? (
+                <span className="small-print border border-rule px-2.5 py-1 text-muted">
+                  Menunggu pesan
+                </span>
+              ) : (
+                <span
+                  className={cn(
+                    "small-print border px-2.5 py-1",
+                    missingFields.length
+                      ? "border-waiting-fg bg-waiting-bg text-waiting-fg"
+                      : "border-accent bg-accent text-accent-ink",
+                  )}
+                >
+                  {missingFields.length
+                    ? `${missingFields.length} field hilang`
+                    : `${recognized} field terbaca`}
+                </span>
+              )
+            }
+          />
 
           {stage === "input" || !data ? (
             <>
-              <div className="mt-4 flex min-h-[260px] flex-col items-center justify-center rounded-xl border border-border bg-canvas px-6 py-10 text-center lg:min-h-[320px]">
-                <p className="text-sm font-semibold text-ink">
+              <div className="mt-4 flex min-h-[260px] flex-col items-center justify-center border border-dashed border-rule bg-paper-2 px-6 py-10 text-center lg:min-h-[320px]">
+                <span className="flex h-11 w-11 items-center justify-center border border-rule bg-paper text-accent">
+                  <Check className="h-5 w-5" />
+                </span>
+                <p className="mt-4 text-sm font-semibold text-ink">
                   Belum ada pesan yang diparse
                 </p>
                 <p className="mt-1 max-w-xs text-sm text-muted">
@@ -312,24 +344,27 @@ export default function AdminNewOrderPage() {
                 </p>
               </div>
 
-              <p className="mt-5 text-sm font-semibold text-ink">
+              <p className="mt-5 border-t border-rule pt-4 text-sm font-semibold text-ink">
                 Field yang dikenali parser
               </p>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {knownFields.map((label) => (
+                {knownFields.map((label, index) => (
                   <span
                     key={label}
-                    className="rounded-pill bg-secondary px-2.5 py-1 text-13 font-medium text-primary"
+                    className="inline-flex items-center gap-1.5 border border-rule bg-paper px-2.5 py-1 text-13 text-ink"
                   >
+                    <span className="small-print text-muted">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
                     {label}
                   </span>
                 ))}
               </div>
 
-              <p className="mt-5 text-sm font-semibold text-ink">
+              <p className="mt-5 border-t border-rule pt-4 text-sm font-semibold text-ink">
                 Contoh format yang valid
               </p>
-              <pre className="mt-2 whitespace-pre-wrap rounded-xl border border-border bg-canvas p-4 text-13 leading-relaxed text-muted">
+              <pre className="mt-2 whitespace-pre-wrap border border-rule bg-paper-2 p-4 text-13 leading-relaxed text-muted">
                 {sampleOrderMessage}
               </pre>
               <p className="mt-4 text-13 leading-relaxed text-muted">
@@ -517,15 +552,15 @@ export default function AdminNewOrderPage() {
                 </Field>
               </div>
 
-              <div className="mt-5 rounded-xl bg-secondary px-4 py-3">
-                <p className="text-13 text-muted">Kode pesanan otomatis</p>
+              <div className="mt-5 border border-rule bg-paper-2 px-4 py-3">
+                <p className="small-print text-muted">Kode pesanan otomatis</p>
                 <p
                   className={cn(
-                    "mt-0.5 font-mono text-xl font-bold",
+                    "mt-1 font-outlier text-xl font-semibold tracking-[0.06em]",
                     displayCode ? "text-ink" : "text-muted",
                   )}
                 >
-                  {displayCode || "—"}
+                  {displayCode || "-"}
                 </p>
               </div>
               <p className="mt-2 text-13 text-muted">
@@ -545,7 +580,7 @@ export default function AdminNewOrderPage() {
               </p>
             </>
           )}
-        </Card>
+        </section>
       </div>
 
       {createdOrder ? (
@@ -559,7 +594,7 @@ export default function AdminNewOrderPage() {
             <div className="flex gap-2">
               <Button
                 variant="ghost"
-                className="flex-1 border border-border"
+                className="flex-1 border border-rule"
                 onClick={resetForm}
               >
                 Input pesanan lain
@@ -573,7 +608,7 @@ export default function AdminNewOrderPage() {
             </div>
           }
         >
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-secondary text-primary">
+          <div className="flex h-11 w-11 items-center justify-center bg-accent text-accent-ink">
             <Check className="h-5 w-5" />
           </div>
           <p className="mt-3 text-sm font-semibold text-ink">
@@ -584,17 +619,17 @@ export default function AdminNewOrderPage() {
             pelanggan lewat WhatsApp.
           </p>
 
-          <div className="mt-4 rounded-xl bg-secondary px-4 py-3">
-            <p className="text-13 text-muted">Kode pesanan</p>
-            <p className="font-mono text-xl font-bold text-ink">
+          <div className="mt-4 border border-rule bg-paper-2 px-4 py-3">
+            <p className="small-print text-muted">Kode pesanan</p>
+            <p className="mt-1 font-outlier text-xl font-semibold tracking-[0.06em] text-ink">
               {createdOrder.code}
             </p>
           </div>
 
-          <p className="mt-4 text-sm font-semibold text-ink">
+          <p className="mt-4 border-t-2 border-ink pt-3 text-sm font-semibold text-ink">
             Pesan WhatsApp
           </p>
-          <pre className="mt-2 whitespace-pre-wrap rounded-xl border border-border bg-canvas p-4 text-13 leading-relaxed text-ink">
+          <pre className="mt-2 whitespace-pre-wrap border border-rule bg-paper-2 p-4 text-13 leading-relaxed text-ink">
             {successMessage}
           </pre>
 
@@ -603,13 +638,13 @@ export default function AdminNewOrderPage() {
               href={whatsappLinkTo(createdOrder.phone, successMessage)}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex h-11 items-center justify-center rounded-lg border border-border bg-surface px-4 text-sm font-medium text-ink transition-colors hover:bg-secondary"
+              className="inline-flex h-11 items-center justify-center border border-ink bg-paper px-4 text-sm font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
             >
               Buka WhatsApp
             </a>
             <Link
               href="/admin/pesanan"
-              className="inline-flex h-11 items-center justify-center rounded-lg px-2 text-sm font-medium text-primary transition-colors hover:text-primary-hover"
+              className="inline-flex h-11 items-center justify-center px-2 text-sm font-medium text-accent underline decoration-gold underline-offset-4 transition-colors duration-[var(--dur-micro)] hover:text-accent-hover"
             >
               Lihat daftar pesanan
             </Link>

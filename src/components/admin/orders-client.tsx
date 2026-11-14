@@ -11,13 +11,13 @@ import {
   Search,
 } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { OrderDocketList } from "@/components/admin/order-docket-list";
 import {
   OrderDeleteSheet,
   OrderDetailSheet,
   OrderStatusSheet,
 } from "@/components/admin/order-sheets";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -102,6 +102,13 @@ export function OrdersClient() {
     currentPage * PAGE_SIZE,
   );
 
+  const filtering =
+    search.trim() !== "" ||
+    zone !== "all" ||
+    session !== "all" ||
+    status !== "all" ||
+    attention;
+
   function setQuery(patch: Record<string, string | null>) {
     const params = new URLSearchParams(searchParams.toString());
     for (const [key, value] of Object.entries(patch)) {
@@ -122,7 +129,7 @@ export function OrdersClient() {
   }
 
   function driverName(order: Order): string {
-    return users.find((user) => user.id === order.driverId)?.name ?? "—";
+    return users.find((user) => user.id === order.driverId)?.name ?? "Belum ditugaskan";
   }
 
   function zoneName(order: Order): string {
@@ -182,10 +189,19 @@ export function OrdersClient() {
           today,
           "menunggu",
         )} menunggu penjemputan, sesi ${SERVICE_HOURS}`}
+        action={
+          <Link
+            href="/admin/pesanan/baru"
+            className="inline-flex h-11 items-center gap-2 rounded-pill border border-accent bg-accent px-4 text-sm font-medium text-accent-ink transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-accent-hover hover:bg-accent-hover"
+          >
+            <Plus className="h-4 w-4" />
+            Input pesanan
+          </Link>
+        }
       />
 
-      <Card className="mb-4 p-4">
-        <div className="flex flex-wrap items-center gap-2.5">
+      <section className="border-y-2 border-ink">
+        <div className="flex flex-wrap items-end gap-2.5 py-3.5">
           <div className="relative w-full sm:w-[260px]">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
             <Input
@@ -194,8 +210,8 @@ export function OrdersClient() {
                 setSearch(event.target.value);
                 setPage(1);
               }}
-              placeholder="Cari kode, nama, atau HP..."
-              className="pl-9"
+              placeholder="Cari kode, nama, atau HP"
+              className="h-11 pl-9"
               aria-label="Cari pesanan"
             />
           </div>
@@ -208,16 +224,19 @@ export function OrdersClient() {
             }}
             aria-pressed={attention}
             className={cn(
-              "inline-flex h-11 items-center rounded-lg border px-3 text-sm font-medium transition-colors",
+              "inline-flex h-11 items-center gap-2 border px-3 text-sm font-medium transition-colors duration-[var(--dur-micro)]",
               attention
                 ? "border-danger-fg bg-danger-bg text-danger-fg"
-                : "border-danger-fg/30 bg-danger-bg text-danger-fg hover:bg-danger-hover",
+                : "border-danger-fg bg-paper text-danger-fg hover:bg-danger-bg",
             )}
           >
-            Perlu perhatian, {late.length}
+            Perlu perhatian
+            <span className="small-print border border-current px-1.5 py-0.5">
+              {late.length}
+            </span>
           </button>
 
-          <div className="w-full sm:w-[155px]">
+          <div className="w-full sm:w-[160px]">
             <Select
               value={zone}
               onChange={(event) => {
@@ -236,7 +255,7 @@ export function OrdersClient() {
             </Select>
           </div>
 
-          <div className="w-full sm:w-[140px]">
+          <div className="w-full sm:w-[150px]">
             <Select
               value={session}
               onChange={(event) => {
@@ -252,7 +271,7 @@ export function OrdersClient() {
             </Select>
           </div>
 
-          <div className="w-full sm:w-[150px]">
+          <div className="w-full sm:w-[160px]">
             <Select
               value={status}
               onChange={(event) => {
@@ -270,28 +289,31 @@ export function OrdersClient() {
             </Select>
           </div>
 
-          <Link
-            href="/admin/pesanan/baru"
-            className="inline-flex h-11 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-white transition-colors hover:bg-primary-hover sm:ml-auto"
-          >
-            <Plus className="h-4 w-4" />
-            Input pesanan
-          </Link>
+          {filtering ? (
+            <button
+              type="button"
+              onClick={resetFilters}
+              className="inline-flex h-11 items-center px-1 text-13 font-medium text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"
+            >
+              Atur ulang
+            </button>
+          ) : null}
         </div>
-      </Card>
+      </section>
 
-      <Card className="overflow-hidden">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border p-5">
-          <div className="flex items-center gap-2">
-            <h2 className="text-sm font-semibold text-ink">Daftar pesanan</h2>
-            <span className="rounded-pill bg-canvas px-2 py-0.5 text-13 text-muted">
+      <section className="mt-6 border border-rule bg-paper">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-rule px-4 py-3.5">
+          <div className="flex items-baseline gap-2.5">
+            <span className="small-print text-muted">Daftar</span>
+            <h2 className="text-sm font-semibold text-ink">Pesanan hari ini</h2>
+            <span className="small-print border border-rule px-2 py-0.5 text-muted">
               {filtered.length} pesanan
             </span>
           </div>
           <button
             type="button"
             onClick={handleExport}
-            className="inline-flex items-center gap-1.5 text-13 font-medium text-primary transition-colors hover:text-primary-hover"
+            className="inline-flex items-center gap-1.5 text-13 font-medium text-accent underline decoration-gold underline-offset-4 transition-colors duration-[var(--dur-micro)] hover:text-accent-hover"
           >
             <Download className="h-4 w-4" />
             Ekspor CSV
@@ -300,8 +322,9 @@ export function OrdersClient() {
 
         {filtered.length ? (
           <>
-            <Table>
-              <THead className="bg-canvas">
+            <div className="hidden md:block">
+              <Table>
+              <THead>
                 <TR>
                   <TH>Kode</TH>
                   <TH>Pelanggan</TH>
@@ -321,7 +344,7 @@ export function OrdersClient() {
                       <TD>
                         <Link
                           href={`/admin/pesanan?detail=${encodeURIComponent(order.code)}`}
-                          className="font-mono text-13 font-semibold text-ink hover:text-primary"
+                          className="font-outlier text-13 font-semibold tracking-[0.06em] text-ink hover:text-accent"
                         >
                           {order.code}
                         </Link>
@@ -365,7 +388,7 @@ export function OrdersClient() {
                             })
                           }
                           aria-label={`Buka detail ${order.code}`}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-secondary hover:text-ink"
+                          className="inline-flex h-8 w-8 items-center justify-center border border-rule text-muted transition-colors duration-[var(--dur-micro)] hover:border-ink hover:bg-paper-2 hover:text-ink"
                         >
                           <ChevronRight className="h-4 w-4" />
                         </button>
@@ -375,9 +398,19 @@ export function OrdersClient() {
                 })}
               </TBody>
             </Table>
+            </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border px-5 py-3">
-              <p className="text-13 text-muted">
+            <OrderDocketList
+              orders={pageOrders}
+              zones={zones}
+              users={users}
+              onOpen={(code) =>
+                setQuery({ detail: code, status: null, hapus: null })
+              }
+            />
+
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-rule px-4 py-3">
+              <p className="small-print text-muted">
                 Menampilkan {pageOrders.length} dari {filtered.length} pesanan
               </p>
               <div className="flex items-center gap-1">
@@ -386,7 +419,7 @@ export function OrdersClient() {
                   onClick={() => setPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
                   aria-label="Halaman sebelumnya"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-secondary hover:text-ink disabled:pointer-events-none disabled:opacity-40"
+                  className="inline-flex h-8 w-8 items-center justify-center border border-rule text-muted transition-colors duration-[var(--dur-micro)] hover:border-ink hover:text-ink disabled:pointer-events-none disabled:opacity-40"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
@@ -400,10 +433,10 @@ export function OrdersClient() {
                         pageNumber === currentPage ? "page" : undefined
                       }
                       className={cn(
-                        "h-8 w-8 rounded-lg text-13 font-medium transition-colors",
+                        "h-8 min-w-8 border px-1.5 text-13 font-medium transition-colors duration-[var(--dur-micro)]",
                         pageNumber === currentPage
-                          ? "bg-primary text-white"
-                          : "text-muted hover:bg-secondary hover:text-ink",
+                          ? "border-accent bg-accent text-accent-ink"
+                          : "border-rule text-muted hover:border-ink hover:text-ink",
                       )}
                     >
                       {pageNumber}
@@ -415,7 +448,7 @@ export function OrdersClient() {
                   onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
                   aria-label="Halaman berikutnya"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-secondary hover:text-ink disabled:pointer-events-none disabled:opacity-40"
+                  className="inline-flex h-8 w-8 items-center justify-center border border-rule text-muted transition-colors duration-[var(--dur-micro)] hover:border-ink hover:text-ink disabled:pointer-events-none disabled:opacity-40"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
@@ -435,7 +468,7 @@ export function OrdersClient() {
             />
           </div>
         )}
-      </Card>
+      </section>
 
       <OrderDetailSheet
         order={detailOrder}
