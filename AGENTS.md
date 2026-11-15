@@ -7,3 +7,27 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+<!-- BEGIN:laundria-rules -->
+
+## Laundria rules
+
+**Definition of done.** Run `npm run check` before saying a task is done, and paste
+the output. If it fails, fix it or say why it cannot pass. Never report "verified"
+without the gate output.
+
+| # | Rule | Enforced by |
+|---|---|---|
+| 1 | Role gating is `RoleGuard`, never nav filtering. Owner-only pages pass `adminLevel="owner"`. | `check: guards`, `check: layout-guard:*` |
+| 2 | Four order statuses: `menunggu`, `dicuci`, `siap`, `selesai`. No cancelled status. The word may appear in prose ("tidak bisa dibatalkan"). | `check: no-status` |
+| 3 | Order codes are `Z1-YYMMDD-NNN`, from `nextOrderCode`. | review |
+| 4 | No `new Date()` for display time — use `DEMO_NOW` from `src/lib/demo-date.ts`. `Date.now()` is fine for ids and durations. | `check: no-clock` |
+| 5 | Tokens live in `@theme` in `src/app/globals.css`. There is no `tailwind.config.*`. | `check: tailwind-config` |
+| 6 | Store actions return `{ ok: false, error }`; never throw for expected failures. | types (`Result<T>`) |
+| 7 | Drawers are URL state (`?detail=`, `?status=`, `?hapus=`, `?kode=`), not routes. | review |
+| 8 | One primary action per screen. Sentence case, no eyebrows, no tracked caps, no decorative dots, no emoji icons. | review |
+
+`scripts/check.mjs` is the source of truth. If a rule and the gate disagree, the gate
+wins and this file gets fixed.
+
+<!-- END:laundria-rules -->
