@@ -106,7 +106,7 @@ export function OrderDetailSheet({
           href={wa}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex h-9 items-center border border-accent bg-paper px-3 text-13 font-medium text-accent transition-colors duration-[var(--dur-micro)] hover:bg-accent hover:text-accent-ink"
+          className="inline-flex h-9 items-center border border-accent bg-paper px-3.5 text-13 font-medium text-accent transition-colors duration-[var(--dur-micro)] hover:bg-accent hover:text-accent-ink"
         >
           Chat WhatsApp
         </a>
@@ -243,7 +243,7 @@ function OrderStatusSheetForm({
                 onClick={() => setSelected(option.status)}
                 aria-pressed={active}
                 className={cn(
-                  "flex w-full items-start gap-3 border-b border-rule px-2 py-3.5 text-left transition-colors duration-[var(--dur-micro)]",
+                  "flex w-full items-start gap-3 border-b border-rule px-3.5 py-3.5 text-left transition-colors duration-[var(--dur-micro)]",
                   active
                     ? "bg-accent-soft shadow-[inset_2px_0_0_var(--color-accent)]"
                     : "hover:bg-paper-2",
