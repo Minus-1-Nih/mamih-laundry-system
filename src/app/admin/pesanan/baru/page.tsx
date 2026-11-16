@@ -67,7 +67,7 @@ function PanelHead({
     <div className="flex flex-wrap items-start justify-between gap-3 border-b border-ink pb-3">
       <div className="min-w-0">
         <p className="small-print text-accent">{index}</p>
-        <h2 className="mt-1.5 text-base font-semibold text-ink">{title}</h2>
+        <h2 className="mt-1.5">{title}</h2>
         <p className="mt-0.5 text-13 text-muted">{note}</p>
       </div>
       {aside}
@@ -309,18 +309,27 @@ export default function AdminNewOrderPage() {
             note="Periksa tiap field sebelum pesanan disimpan."
             aside={
               stage === "input" ? (
-                <span className="small-print border border-rule px-2.5 py-1 text-muted">
+                <span className="small-print flex items-center gap-1.5 text-muted">
+                  <span
+                    aria-hidden="true"
+                    className="h-1.5 w-1.5 rounded-full bg-muted/60"
+                  />
                   Menunggu pesan
                 </span>
               ) : (
                 <span
                   className={cn(
-                    "small-print border px-2.5 py-1",
-                    missingFields.length
-                      ? "border-waiting-fg bg-waiting-bg text-waiting-fg"
-                      : "border-accent bg-accent text-accent-ink",
+                    "small-print flex items-center gap-1.5",
+                    missingFields.length ? "text-waiting-fg" : "text-ink",
                   )}
                 >
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      "h-1.5 w-1.5 rounded-full",
+                      missingFields.length ? "bg-waiting-fg" : "bg-done-fg",
+                    )}
+                  />
                   {missingFields.length
                     ? `${missingFields.length} field hilang`
                     : `${recognized} field terbaca`}

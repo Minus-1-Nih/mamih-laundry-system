@@ -9,8 +9,6 @@ import {
   MapPin,
   MessageCircle,
   PackageCheck,
-  Wifi,
-  WifiOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/sheet";
@@ -48,7 +46,7 @@ function nextStatus(action: DriverAction): OrderStatus {
 function SectionHeading({ title, count }: { title: string; count: number }) {
   return (
     <div className="mt-6 flex items-baseline justify-between gap-3 border-t-2 border-ink pt-2.5 first:mt-0">
-      <h2 className="text-base font-semibold text-ink">{title}</h2>
+      <h2>{title}</h2>
       <span className="small-print text-muted">{count} pesanan</span>
     </div>
   );
@@ -94,7 +92,7 @@ function TaskCard({ order, onOpen }: { order: Order; onOpen: () => void }) {
             )}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex h-9 items-center gap-1.5 rounded-pill border border-ink px-3 text-13 font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:border-accent hover:text-accent"
+            className="inline-flex h-9 items-center gap-2 rounded-control border border-ink px-3.5 text-13 font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:border-accent hover:text-accent"
           >
             <MessageCircle className="h-4 w-4" />
             WhatsApp Kurir
@@ -293,18 +291,15 @@ export function DriverClient() {
               });
             }}
             aria-pressed={driverOnline}
-            className={cn(
-              "inline-flex h-8 items-center gap-1.5 rounded-pill border px-3 text-13 font-medium transition-colors duration-[var(--dur-micro)]",
-              driverOnline
-                ? "border-accent bg-accent text-accent-ink"
-                : "border-rule bg-paper text-muted hover:border-ink hover:text-ink",
-            )}
+            className="inline-flex h-9 items-center gap-2 rounded-control border border-rule bg-paper px-3.5 text-13 font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:border-ink"
           >
-            {driverOnline ? (
-              <Wifi className="h-3.5 w-3.5" />
-            ) : (
-              <WifiOff className="h-3.5 w-3.5" />
-            )}
+            <span
+              aria-hidden="true"
+              className={cn(
+                "h-2 w-2 shrink-0 rounded-full",
+                driverOnline ? "bg-done-fg" : "bg-muted",
+              )}
+            />
             {driverOnline ? "Online" : "Offline"}
           </button>
         </div>
@@ -323,16 +318,9 @@ export function DriverClient() {
             type="button"
             onClick={() => setAccountOpen(true)}
             aria-label="Buka menu akun"
-            className="relative flex h-12 w-12 shrink-0 items-center justify-center border-2 border-ink bg-paper text-sm font-semibold text-accent transition-colors duration-[var(--dur-micro)] hover:border-accent"
+            className="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-ink bg-paper text-sm font-semibold text-accent transition-colors duration-[var(--dur-micro)] hover:border-accent"
           >
             {initials(user.name)}
-            <span
-              aria-hidden="true"
-              className={cn(
-                "absolute -right-1 -top-1 h-2.5 w-2.5 border border-paper",
-                driverOnline ? "bg-done-fg" : "bg-danger-fg",
-              )}
-            />
           </button>
         </div>
 
@@ -366,8 +354,8 @@ export function DriverClient() {
           className={cn(
             "px-3 py-2.5 text-13 font-medium transition-colors duration-[var(--dur-micro)]",
             tab === "active"
-              ? "bg-accent text-accent-ink"
-              : "bg-paper text-muted hover:text-ink",
+              ? "bg-paper text-ink shadow-[inset_0_-3px_0_var(--color-accent)]"
+              : "bg-paper-2 text-muted hover:text-ink",
           )}
         >
           Daftar Tugas Aktif ({tasks.length})
@@ -379,8 +367,8 @@ export function DriverClient() {
           className={cn(
             "border-l-2 border-ink px-3 py-2.5 text-13 font-medium transition-colors duration-[var(--dur-micro)]",
             tab === "history"
-              ? "bg-accent text-accent-ink"
-              : "bg-paper text-muted hover:text-ink",
+              ? "bg-paper text-ink shadow-[inset_0_-3px_0_var(--color-accent)]"
+              : "bg-paper-2 text-muted hover:text-ink",
           )}
         >
           Riwayat Tugas Selesai
@@ -403,9 +391,9 @@ export function DriverClient() {
                 onClick={() => setFilter(item.key)}
                 aria-pressed={filter === item.key}
                 className={cn(
-                  "inline-flex h-9 shrink-0 items-center rounded-pill border px-3.5 text-13 font-medium transition-colors duration-[var(--dur-micro)]",
+                  "inline-flex h-9 shrink-0 items-center rounded-control border px-3.5 text-13 font-medium transition-colors duration-[var(--dur-micro)]",
                   filter === item.key
-                    ? "border-accent bg-accent text-accent-ink"
+                    ? "border-ink bg-paper text-ink"
                     : "border-rule bg-paper text-muted hover:border-ink hover:text-ink",
                 )}
               >

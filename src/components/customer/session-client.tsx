@@ -57,12 +57,17 @@ function SessionBlock({ session }: { session: OperationalSession }) {
         </div>
         <span
           className={cn(
-            "small-print shrink-0 border px-2 py-0.5",
-            active
-              ? "border-accent bg-accent text-accent-ink"
-              : "border-rule text-muted",
+            "small-print flex shrink-0 items-center gap-1.5",
+            active ? "text-ink" : "text-muted",
           )}
         >
+          <span
+            aria-hidden="true"
+            className={cn(
+              "h-1.5 w-1.5 rounded-full",
+              active ? "bg-done-fg" : "bg-muted/60",
+            )}
+          />
           {status}
         </span>
       </div>
@@ -116,15 +121,14 @@ export function SessionClient() {
           </p>
         </div>
         <div className="sm:text-right">
-          <span
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-pill border px-3 py-1.5 text-13 font-medium",
-              open
-                ? "border-accent bg-accent text-accent-ink"
-                : "border-rule bg-paper-2 text-muted",
-            )}
-          >
-            <CheckCircle2 className="h-3.5 w-3.5" />
+          <span className="inline-flex h-9 items-center gap-2 border border-rule bg-paper px-3.5 text-13 font-medium text-ink">
+            <span
+              aria-hidden="true"
+              className={cn(
+                "h-2 w-2 rounded-full",
+                open ? "bg-done-fg" : "bg-muted",
+              )}
+            />
             {open ? "Layanan buka" : "Layanan tutup"}
           </span>
           <p className="small-print mt-1.5 text-muted">Laundria Sukabirus, Z1</p>
@@ -168,7 +172,11 @@ export function SessionClient() {
                 Di luar jam operasional
               </p>
             </div>
-            <span className="small-print shrink-0 border border-rule px-2 py-0.5 text-muted">
+            <span className="small-print flex shrink-0 items-center gap-1.5 text-muted">
+              <span
+                aria-hidden="true"
+                className="h-1.5 w-1.5 rounded-full bg-muted/60"
+              />
               Tutup
             </span>
           </div>
@@ -188,7 +196,7 @@ export function SessionClient() {
         <div className="space-y-6">
           <section className="border border-rule bg-paper p-5">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <h2 className="font-display text-2xl leading-tight">
+              <h2>
                 Jadwal pesanan Anda
               </h2>
               {user ? (
@@ -291,7 +299,7 @@ export function SessionClient() {
         </div>
 
         <section className="border border-rule bg-paper p-5">
-          <h2 className="font-display text-2xl leading-tight">
+          <h2>
             Sebelum cucian dijemput
           </h2>
           <ul className="mt-4 border-t border-ink">
@@ -337,7 +345,7 @@ export function SessionClient() {
             href={whatsappLink("Halo Laundria, saya ingin menanyakan jadwal layanan.")}
             target="_blank"
             rel="noreferrer"
-            className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-pill border border-ink bg-paper text-sm font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
+            className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-control border border-ink bg-paper text-sm font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
           >
             Tanya jadwal melalui WhatsApp
             <ArrowUpRight className="h-4 w-4" />

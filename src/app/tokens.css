@@ -93,16 +93,16 @@
   --tracking-tighter: -0.02em;
   --tracking-wide: 0.01em;
 
-  /* Square wells, pill controls */
-  --radius-xs: 2px;
-  --radius-sm: 2px;
-  --radius-md: 2px;
-  --radius-lg: 2px;
+  /* Square wells, square controls. v2.1 retires the pill: one radius rule. */
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
   --radius-xl: 0px;
   --radius-2xl: 0px;
   --radius-3xl: 0px;
   --radius-card: 0px;
-  --radius-pill: 999px;
+  --radius-control: 0px;
 
   /* Hard paper depth */
   --shadow-2xs: none;
@@ -120,6 +120,19 @@
 }
 
 :root {
+/* Control spacing spec (v2.1)
+     bordered icon-only .... 36px box, 16px icon, 10px inset
+     bordered text control .. 14px inline inset (16px leading when it holds an icon)
+     icon + label ........... 14px leading, 8px gap, 14px trailing
+     trailing count badge ... 8px to the border, the badge itself unbordered
+     square corner .......... +2px over the pill it replaces
+     dot on a bordered edge . 2px inside the corner, never across the stroke */
+  --control-h: 44px;
+  --control-h-sm: 36px;
+  --control-inset: 14px;
+  --control-inset-icon: 10px;
+  --control-gap: 8px;
+
   /* Space */
   --space-3xs: 2px;
   --space-2xs: 4px;

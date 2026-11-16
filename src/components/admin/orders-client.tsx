@@ -192,7 +192,7 @@ export function OrdersClient() {
         action={
           <Link
             href="/admin/pesanan/baru"
-            className="inline-flex h-11 items-center gap-2 rounded-pill border border-accent bg-accent px-4 text-sm font-medium text-accent-ink transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-accent-hover hover:bg-accent-hover"
+            className="inline-flex h-11 items-center gap-2 rounded-control border border-accent bg-accent px-4 text-sm font-medium text-accent-ink transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-accent-hover hover:bg-accent-hover"
           >
             <Plus className="h-4 w-4" />
             Input pesanan
@@ -224,14 +224,14 @@ export function OrdersClient() {
             }}
             aria-pressed={attention}
             className={cn(
-              "inline-flex h-11 items-center gap-2 border px-3 text-sm font-medium transition-colors duration-[var(--dur-micro)]",
+              "inline-flex h-11 items-center gap-2 border px-3.5 text-sm font-medium transition-colors duration-[var(--dur-micro)]",
               attention
                 ? "border-danger-fg bg-danger-bg text-danger-fg"
                 : "border-danger-fg bg-paper text-danger-fg hover:bg-danger-bg",
             )}
           >
             Perlu perhatian
-            <span className="small-print border border-current px-1.5 py-0.5">
+            <span className="inline-flex min-w-5 items-center justify-center bg-danger-fg px-1 py-0.5 text-13 font-semibold tabular text-paper">
               {late.length}
             </span>
           </button>
@@ -305,7 +305,7 @@ export function OrdersClient() {
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-rule px-4 py-3.5">
           <div className="flex items-baseline gap-2.5">
             <span className="small-print text-muted">Daftar</span>
-            <h2 className="text-sm font-semibold text-ink">Pesanan hari ini</h2>
+            <h2>Pesanan hari ini</h2>
             <span className="small-print border border-rule px-2 py-0.5 text-muted">
               {filtered.length} pesanan
             </span>
@@ -388,7 +388,7 @@ export function OrdersClient() {
                             })
                           }
                           aria-label={`Buka detail ${order.code}`}
-                          className="inline-flex h-8 w-8 items-center justify-center border border-rule text-muted transition-colors duration-[var(--dur-micro)] hover:border-ink hover:bg-paper-2 hover:text-ink"
+                          className="inline-flex h-9 w-9 items-center justify-center text-muted transition-colors duration-[var(--dur-micro)] hover:bg-paper-2 hover:text-ink"
                         >
                           <ChevronRight className="h-4 w-4" />
                         </button>
@@ -413,42 +413,44 @@ export function OrdersClient() {
               <p className="small-print text-muted">
                 Menampilkan {pageOrders.length} dari {filtered.length} pesanan
               </p>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
                   aria-label="Halaman sebelumnya"
-                  className="inline-flex h-8 w-8 items-center justify-center border border-rule text-muted transition-colors duration-[var(--dur-micro)] hover:border-ink hover:text-ink disabled:pointer-events-none disabled:opacity-40"
+                  className="inline-flex h-9 w-9 items-center justify-center border border-rule text-muted transition-colors duration-[var(--dur-micro)] hover:border-ink hover:text-ink disabled:pointer-events-none disabled:opacity-40"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
-                {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-                  (pageNumber) => (
-                    <button
-                      key={pageNumber}
-                      type="button"
-                      onClick={() => setPage(pageNumber)}
-                      aria-current={
-                        pageNumber === currentPage ? "page" : undefined
-                      }
-                      className={cn(
-                        "h-8 min-w-8 border px-1.5 text-13 font-medium transition-colors duration-[var(--dur-micro)]",
-                        pageNumber === currentPage
-                          ? "border-accent bg-accent text-accent-ink"
-                          : "border-rule text-muted hover:border-ink hover:text-ink",
-                      )}
-                    >
-                      {pageNumber}
-                    </button>
-                  ),
-                )}
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+                    (pageNumber) => (
+                      <button
+                        key={pageNumber}
+                        type="button"
+                        onClick={() => setPage(pageNumber)}
+                        aria-current={
+                          pageNumber === currentPage ? "page" : undefined
+                        }
+                        className={cn(
+                          "h-9 min-w-9 border px-2 text-13 font-medium tabular transition-colors duration-[var(--dur-micro)]",
+                          pageNumber === currentPage
+                            ? "border-accent bg-accent text-accent-ink"
+                            : "border-rule text-muted hover:border-ink hover:text-ink",
+                        )}
+                      >
+                        {pageNumber}
+                      </button>
+                    ),
+                  )}
+                </div>
                 <button
                   type="button"
                   onClick={() => setPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
                   aria-label="Halaman berikutnya"
-                  className="inline-flex h-8 w-8 items-center justify-center border border-rule text-muted transition-colors duration-[var(--dur-micro)] hover:border-ink hover:text-ink disabled:pointer-events-none disabled:opacity-40"
+                  className="inline-flex h-9 w-9 items-center justify-center border border-rule text-muted transition-colors duration-[var(--dur-micro)] hover:border-ink hover:text-ink disabled:pointer-events-none disabled:opacity-40"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>

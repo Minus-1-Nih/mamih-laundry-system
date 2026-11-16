@@ -28,7 +28,7 @@ export function THead({
 }: HTMLAttributes<HTMLTableSectionElement>) {
   return (
     <thead
-      className={cn("border-y border-rule text-13 text-muted", className)}
+      className={cn("border-y border-rule bg-paper text-13 text-muted", className)}
       {...props}
     />
   );
@@ -62,7 +62,10 @@ export function TH({
 }: ThHTMLAttributes<HTMLTableCellElement>) {
   return (
     <th
-      className={cn("whitespace-nowrap px-4 py-3 font-medium", className)}
+      className={cn(
+        "sticky top-0 z-[1] whitespace-nowrap bg-paper px-4 py-2.5 font-medium",
+        className,
+      )}
       {...props}
     />
   );
@@ -72,5 +75,5 @@ export function TD({
   className,
   ...props
 }: TdHTMLAttributes<HTMLTableCellElement>) {
-  return <td className={cn("px-4 py-3.5 align-middle", className)} {...props} />;
+  return <td className={cn("px-4 py-2.5 align-middle", className)} {...props} />;
 }

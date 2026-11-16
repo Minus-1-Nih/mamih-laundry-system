@@ -49,10 +49,10 @@ function RoleBadge({ user }: { user: User }) {
       className={cn(
         "inline-flex items-center gap-1 border px-2.5 py-1 text-13 font-medium",
         owner
-          ? "border-accent bg-accent text-accent-ink"
+          ? "border-ink bg-paper text-ink"
           : user.role === "admin"
-            ? "border-accent bg-accent-soft text-accent"
-            : "border-rule bg-paper-2 text-ink",
+            ? "border-rule bg-paper text-ink"
+            : "border-rule bg-paper-2 text-muted",
       )}
     >
       {owner ? <ShieldCheck className="h-3.5 w-3.5" /> : null}
@@ -503,7 +503,7 @@ export function AccountsClient() {
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-rule px-4 py-3">
           <div className="flex items-baseline gap-2.5">
             <span className="small-print text-muted">Daftar</span>
-            <h2 className="text-sm font-semibold text-ink">Akun tim</h2>
+            <h2>Akun tim</h2>
           </div>
           <span className="small-print text-muted">
             Admin dan Driver
@@ -576,15 +576,15 @@ export function AccountsClient() {
                     <TD>
                       <span
                         className={cn(
-                          "inline-flex items-center gap-1.5 text-13 font-medium",
-                          user.active ? "text-done-fg" : "text-muted",
+                          "inline-flex items-center gap-2 text-13 font-medium",
+                          user.active ? "text-ink" : "text-muted",
                         )}
                       >
                         <span
                           aria-hidden="true"
                           className={cn(
-                            "h-1.5 w-1.5",
-                            user.active ? "bg-done-fg" : "bg-muted",
+                            "h-1.5 w-1.5 shrink-0 rounded-full",
+                            user.active ? "bg-accent" : "bg-rule",
                           )}
                         />
                         {user.active ? "Aktif" : "Nonaktif"}

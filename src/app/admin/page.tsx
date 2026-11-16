@@ -79,12 +79,17 @@ function SessionBlock({
         <p className="text-sm font-medium text-ink">{sessionLabel(type)}</p>
         <span
           className={cn(
-            "small-print border px-2 py-0.5",
-            active
-              ? "border-accent bg-accent text-accent-ink"
-              : "border-rule text-muted",
+            "small-print flex shrink-0 items-center gap-1.5",
+            active ? "text-ink" : "text-muted",
           )}
         >
+          <span
+            aria-hidden="true"
+            className={cn(
+              "h-1.5 w-1.5 rounded-full",
+              active ? "bg-done-fg" : "bg-muted/60",
+            )}
+          />
           {active ? "Berlangsung" : "Terjadwal"}
         </span>
       </div>
@@ -125,7 +130,7 @@ export default function AdminDashboardPage() {
         action={
           <Link
             href="/admin/pesanan/baru"
-            className="inline-flex h-11 items-center gap-2 rounded-pill border border-accent bg-accent px-4 text-sm font-medium text-accent-ink transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-accent-hover hover:bg-accent-hover"
+            className="inline-flex h-11 items-center gap-2 rounded-control border border-accent bg-accent px-4 text-sm font-medium text-accent-ink transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-accent-hover hover:bg-accent-hover"
           >
             <Plus className="h-4 w-4" />
             Input pesanan
@@ -165,7 +170,7 @@ export default function AdminDashboardPage() {
         <section className="border border-rule bg-paper">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-rule px-5 py-4">
             <div>
-              <h2 className="text-sm font-semibold text-ink">
+              <h2>
                 Sesi operasional hari ini
               </h2>
               <p className="mt-0.5 text-13 text-muted">
@@ -194,7 +199,7 @@ export default function AdminDashboardPage() {
         </section>
 
         <section className="border border-rule bg-paper p-5">
-          <h2 className="text-sm font-semibold text-ink">
+          <h2>
             Sebaran zona hari ini
           </h2>
           <dl className="mt-3 border-t border-ink">
@@ -222,7 +227,7 @@ export default function AdminDashboardPage() {
       <section className="mt-6 border border-rule bg-paper">
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-rule px-5 py-4">
           <div>
-            <h2 className="text-sm font-semibold text-ink">Pesanan terbaru</h2>
+            <h2>Pesanan terbaru</h2>
             <p className="mt-0.5 text-13 text-muted">
               {recent.length} dari {today.length} pesanan hari ini, diperbarui 2
               menit lalu

@@ -1,9 +1,10 @@
 /* Hallmark · v2.0.0 · genre: editorial · theme: Solstice (deal 3/3) · redesign: full · scope: site + app · posture: restrained · paper: cream · signal: Laundria green · display: Yeseva One · body: Archivo · outlier: Archivo Narrow · shape: Split Studio · hero: Banner · nav: floating pill (public) / top bar (app) · footer: statement · signature: ruled order timeline · imagery: none · job: book a pickup and track it */
 /* Hallmark · pre-emit critique: P5 H4 E5 S5 R4 V4 · weakest: V, the product shells share one system and vary by data, so each surface gets its own list, table or timeline composition */
 /* Hallmark · dropped "/admin/pesanan/baru", "/akun/riwayat" · inventory only: both routes and actions remain, the kept extractor recorded the old JSX source strings */
+/* Hallmark · v2.1 · revision, not a new run · same theme, signature and palette · type roles split (display = page title + numeral, section = sans 15px) · pill retired for square controls · control-spacing spec in tokens.css · status = dot + ink label */
 @import "tailwindcss";
 @import "./tokens.css";
-@import "./base.css" layer(base);
+@import "./base.css" layer(components);
 
 body {
   background-color: var(--color-paper);

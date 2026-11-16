@@ -144,7 +144,7 @@ export function HistoryClient() {
           )}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex h-11 items-center gap-2 rounded-pill border border-accent bg-accent px-4 text-sm font-medium text-accent-ink transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-accent-hover hover:bg-accent-hover"
+          className="inline-flex h-11 items-center gap-2 rounded-control border border-accent bg-accent px-4 text-sm font-medium text-accent-ink transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-accent-hover hover:bg-accent-hover"
         >
           Pesan melalui WhatsApp
           <ArrowUpRight className="h-4 w-4" />
@@ -197,7 +197,7 @@ export function HistoryClient() {
                   setPage(1);
                 }}
                 placeholder="Cari kode pesanan"
-                className="h-10 pl-9"
+                className="h-9 pl-9"
                 aria-label="Cari kode pesanan"
               />
             </div>
@@ -208,7 +208,7 @@ export function HistoryClient() {
                   setRange(event.target.value as Range);
                   setPage(1);
                 }}
-                className="h-10"
+                className="h-9"
                 aria-label="Filter tanggal"
               >
                 <option value="all">Semua Tanggal</option>
@@ -283,17 +283,17 @@ export function HistoryClient() {
               <p className="small-print text-muted">
                 Menampilkan {start}-{end} dari {filtered.length} pesanan
               </p>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setPage(Math.max(1, safePage - 1))}
                   disabled={safePage === 1}
                   aria-label="Halaman sebelumnya"
-                  className="inline-flex h-8 w-8 items-center justify-center border border-rule text-muted transition-colors duration-[var(--dur-micro)] hover:border-ink hover:text-ink disabled:pointer-events-none disabled:opacity-40"
+                  className="inline-flex h-9 w-9 items-center justify-center border border-rule text-muted transition-colors duration-[var(--dur-micro)] hover:border-ink hover:text-ink disabled:pointer-events-none disabled:opacity-40"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
-                <span className="inline-flex h-8 min-w-8 items-center justify-center border border-accent bg-accent px-2 text-13 font-semibold text-accent-ink">
+                <span className="inline-flex h-9 min-w-9 items-center justify-center border border-accent bg-accent px-2 text-13 font-semibold tabular text-accent-ink">
                   {safePage}
                 </span>
                 <button
@@ -301,7 +301,7 @@ export function HistoryClient() {
                   onClick={() => setPage(Math.min(pageCount, safePage + 1))}
                   disabled={safePage === pageCount}
                   aria-label="Halaman berikutnya"
-                  className="inline-flex h-8 w-8 items-center justify-center border border-rule text-muted transition-colors duration-[var(--dur-micro)] hover:border-ink hover:text-ink disabled:pointer-events-none disabled:opacity-40"
+                  className="inline-flex h-9 w-9 items-center justify-center border border-rule text-muted transition-colors duration-[var(--dur-micro)] hover:border-ink hover:text-ink disabled:pointer-events-none disabled:opacity-40"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>

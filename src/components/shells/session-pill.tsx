@@ -11,13 +11,15 @@ export function SessionPill() {
   return (
     <span
       role="status"
-      className={cn(
-        "inline-flex items-center rounded-pill border px-3 py-1.5 text-13 font-medium whitespace-nowrap",
-        active
-          ? "border-accent/40 bg-accent-soft text-accent"
-          : "border-rule bg-paper-2 text-muted",
-      )}
+      className="inline-flex items-center gap-2 text-13 font-medium whitespace-nowrap text-ink-2"
     >
+      <span
+        aria-hidden="true"
+        className={cn(
+          "h-1.5 w-1.5 shrink-0 rounded-full",
+          active ? "bg-accent" : "bg-rule",
+        )}
+      />
       {active
         ? `Sesi ${sessionLabel(active.type).toLowerCase()} aktif`
         : "Di luar jam operasional"}
