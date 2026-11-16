@@ -108,7 +108,7 @@ export function AuthShell({ mode, title, subtitle, children }: AuthShellProps) {
             <span className="flex h-12 w-12 items-center justify-center bg-accent text-accent-ink">
               <Icon className="h-6 w-6" />
             </span>
-            <h2 className="mt-6 font-display text-3xl leading-tight sm:text-4xl">
+            <h2 className="mt-6 font-display text-3xl font-normal leading-tight sm:text-4xl">
               {content.heading}
             </h2>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-ink-2">

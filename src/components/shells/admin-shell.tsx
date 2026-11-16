@@ -59,7 +59,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
               onClick={onNavigate}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex items-center gap-3 rounded-pill px-3.5 py-2.5 text-sm font-medium whitespace-nowrap transition-[background-color,color] duration-[var(--dur-micro)]",
+                "flex items-center gap-3 rounded-control px-3.5 py-2.5 text-sm font-medium whitespace-nowrap transition-[background-color,color] duration-[var(--dur-micro)]",
                 active
                   ? "bg-accent text-accent-ink"
                   : "text-ink-2 hover:bg-paper hover:text-ink",
@@ -96,7 +96,7 @@ function CoverageCard() {
         ))}
       </ul>
       <p className="mt-3 flex items-center gap-2 border-t border-rule pt-3 text-13 font-medium text-accent">
-        <span aria-hidden="true" className="h-2 w-2 rounded-full bg-accent" />
+        <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
         {onlineDrivers} driver sedang online
       </p>
     </div>
@@ -108,7 +108,7 @@ function SettingsLink({ onNavigate }: { onNavigate?: () => void }) {
     <Link
       href="/admin/pengaturan"
       onClick={onNavigate}
-      className="flex items-center gap-3 rounded-pill px-3.5 py-2.5 text-sm font-medium text-ink-2 transition-[background-color,color] duration-[var(--dur-micro)] hover:bg-paper hover:text-ink"
+      className="flex items-center gap-3 rounded-control px-3.5 py-2.5 text-sm font-medium text-ink-2 transition-[background-color,color] duration-[var(--dur-micro)] hover:bg-paper hover:text-ink"
     >
       <Settings className="h-4 w-4 shrink-0" />
       Pengaturan
@@ -137,7 +137,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         <header className="sticky top-0 z-[var(--z-sticky-nav)] flex items-center justify-between gap-3 border-b border-rule bg-paper px-4 py-3 lg:hidden">
           <Brand href="/admin" compact />
           <details className="group relative">
-            <summary className="flex h-10 cursor-pointer list-none items-center gap-1.5 rounded-pill border border-rule px-3 text-sm font-medium text-ink [&::-webkit-details-marker]:hidden">
+            <summary className="flex h-11 cursor-pointer list-none items-center gap-1.5 rounded-control border border-rule px-3.5 text-sm font-medium text-ink [&::-webkit-details-marker]:hidden">
               Menu
               <ChevronDown className="h-4 w-4 text-muted transition-transform duration-[var(--dur-short)] group-open:rotate-180" />
             </summary>

@@ -84,7 +84,7 @@ function SectionHead({
             <span className="small-print text-accent">{index}</span>
             <span aria-hidden="true" className="h-px w-8 bg-gold" />
           </div>
-          <h2 className="mt-4 font-display text-[clamp(2.25rem,3.7vw,52px)] leading-tight">
+          <h2 className="mt-4 font-display text-[clamp(2.25rem,3.7vw,52px)] font-normal leading-tight">
             {title}
           </h2>
           {subtitle ? (
@@ -173,7 +173,7 @@ export default function PublicPage() {
               <span aria-hidden="true" className="h-px w-8 bg-gold" />
               <span className="small-print text-muted">Bandung</span>
             </div>
-            <h1 className="mt-5 max-w-[15ch] text-[clamp(2.75rem,6vw,4.25rem)] leading-[1.02]">
+            <h1 className="mt-5 max-w-[20ch] text-[clamp(2rem,6vw,4.25rem)] leading-[1.02]">
               Cucian bersih, kembali tanpa repot.
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-relaxed text-ink-2 sm:text-lg">
@@ -188,14 +188,14 @@ export default function PublicPage() {
                 )}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-pill border border-accent bg-accent px-6 text-sm font-medium text-accent-ink transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-accent-hover hover:bg-accent-hover"
+                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-control border border-accent bg-accent px-6 text-sm font-medium text-accent-ink transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-accent-hover hover:bg-accent-hover sm:w-auto"
               >
                 <MessageCircle className="h-4 w-4" />
                 Pesan lewat WhatsApp
               </a>
               <Link
                 href="/tracking"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-pill border border-ink px-6 text-sm font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper"
+                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-control border border-ink px-6 text-sm font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper sm:w-auto"
               >
                 Lacak pesanan
                 <ArrowRight className="h-4 w-4" />
@@ -362,7 +362,7 @@ export default function PublicPage() {
               <span className="small-print text-paper/60">03</span>
               <span aria-hidden="true" className="h-px w-8 bg-gold" />
             </div>
-            <h2 className="mt-4 font-display text-[clamp(2.25rem,3.7vw,52px)] leading-tight">
+            <h2 className="mt-4 font-display text-[clamp(2.25rem,3.7vw,52px)] font-normal leading-tight">
               Jangkauan dan jadwal
             </h2>
             <p className="mt-3 max-w-lg text-sm leading-relaxed text-paper/70">
@@ -423,7 +423,7 @@ export default function PublicPage() {
               )}
               target="_blank"
               rel="noreferrer"
-              className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-pill bg-paper px-4 text-sm font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
+              className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-control bg-paper px-4 text-sm font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
             >
               <MessageCircle className="h-4 w-4" />
               Pesan antar-jemput
@@ -439,7 +439,7 @@ export default function PublicPage() {
               <span className="small-print text-accent">04</span>
               <span aria-hidden="true" className="h-px w-8 bg-gold" />
             </div>
-            <h2 className="mt-4 font-display text-[clamp(2.25rem,3.7vw,52px)] leading-tight">
+            <h2 className="mt-4 font-display text-[clamp(2.25rem,3.7vw,52px)] font-normal leading-tight">
               Sudah punya kode pesanan?
             </h2>
             <p className="mt-3 max-w-md text-sm leading-relaxed text-muted sm:text-base">

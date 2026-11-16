@@ -47,7 +47,7 @@ export function UserMenu({ className }: UserMenuProps) {
 
   return (
     <details className={cn("group relative", className)}>
-      <summary className="flex cursor-pointer list-none items-center gap-2.5 rounded-pill border border-transparent p-1 pr-2 transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-rule hover:bg-paper-2 [&::-webkit-details-marker]:hidden">
+      <summary className="flex cursor-pointer list-none items-center gap-2.5 rounded-control border border-transparent py-1.5 pl-3.5 pr-3.5 transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-rule hover:bg-paper-2 [&::-webkit-details-marker]:hidden">
         <span className="flex h-9 w-9 items-center justify-center border border-rule bg-accent-soft text-13 font-semibold text-accent">
           {initials(displayName)}
         </span>
@@ -63,7 +63,7 @@ export function UserMenu({ className }: UserMenuProps) {
       </summary>
 
       <div className="absolute right-0 z-[var(--z-dropdown)] mt-2 w-64 border-2 border-ink bg-paper p-1.5 shadow-[6px_6px_0_var(--color-paper-3)]">
-        <div className="border-b border-rule px-3 py-2">
+        <div className="border-b border-rule px-3.5 py-2.5">
           <p className="text-sm font-medium text-ink">{displayName}</p>
           <p className="text-13 text-muted">{user.email}</p>
           <p className="mt-1 text-13 font-medium text-accent">
@@ -72,7 +72,7 @@ export function UserMenu({ className }: UserMenuProps) {
         </div>
         <Link
           href={homeHref}
-          className="mt-1 flex items-center gap-2 px-3 py-2 text-sm text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
+          className="mt-1 flex items-center gap-2 px-3.5 py-2 text-sm text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
         >
           <LayoutDashboard className="h-4 w-4 text-muted" />
           Dashboard
@@ -80,7 +80,7 @@ export function UserMenu({ className }: UserMenuProps) {
         {user.role === "admin" && user.adminLevel === "owner" ? (
           <Link
             href="/admin/akun"
-            className="flex items-center gap-2 px-3 py-2 text-sm text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
+            className="flex items-center gap-2 px-3.5 py-2 text-sm text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
           >
             <ShieldCheck className="h-4 w-4 text-muted" />
             Manajemen akun
@@ -89,7 +89,7 @@ export function UserMenu({ className }: UserMenuProps) {
         <button
           type="button"
           onClick={handleLogout}
-          className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-danger-fg transition-colors duration-[var(--dur-micro)] hover:bg-danger-bg"
+          className="flex w-full items-center gap-2 px-3.5 py-2 text-left text-sm text-danger-fg transition-colors duration-[var(--dur-micro)] hover:bg-danger-bg"
         >
           <LogOut className="h-4 w-4" />
           Keluar

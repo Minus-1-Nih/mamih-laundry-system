@@ -51,8 +51,8 @@ function NavItems({
             className={cn(
               "text-sm font-medium whitespace-nowrap transition-[background-color,color] duration-[var(--dur-micro)]",
               vertical
-                ? "rounded-pill px-4 py-2.5"
-                : "rounded-pill px-3.5 py-2",
+                ? "rounded-control px-4 py-2.5"
+                : "rounded-control px-3.5 py-2",
               active
                 ? "bg-accent text-accent-ink"
                 : "text-ink-2 hover:bg-paper-2 hover:text-ink",
@@ -79,12 +79,12 @@ export function PublicShell({ children, mainClassName }: PublicShellProps) {
     <div className="flex min-h-dvh flex-col bg-paper">
       <header className="sticky top-0 z-[var(--z-sticky-nav)] bg-paper">
         <div className="mx-auto w-full max-w-[1440px] px-4 pt-3 sm:px-6 lg:px-16">
-          <div className="flex h-16 items-center justify-between gap-3 rounded-pill border border-ink bg-paper pr-2 pl-4 shadow-[4px_4px_0_var(--color-paper-3)] sm:pl-5">
+          <div className="flex h-16 items-center justify-between gap-3 rounded-control border border-ink bg-paper pr-2 pl-4 shadow-[4px_4px_0_var(--color-paper-3)] sm:pl-5">
             <Brand href="/public" compact />
 
             <nav
               aria-label="Navigasi utama"
-              className="hidden items-center gap-1 rounded-pill border border-rule p-1 lg:flex"
+              className="hidden items-center gap-1 rounded-control border border-rule p-1 lg:flex"
             >
               <NavItems customer={customer} />
             </nav>
@@ -102,7 +102,7 @@ export function PublicShell({ children, mainClassName }: PublicShellProps) {
                   </Link>
                   <Link
                     href="/daftar"
-                    className="inline-flex h-10 items-center rounded-pill border border-accent bg-accent px-4 text-sm font-medium whitespace-nowrap text-accent-ink transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-accent-hover hover:bg-accent-hover"
+                    className="inline-flex h-10 items-center rounded-control border border-accent bg-accent px-3.5 text-sm font-medium whitespace-nowrap text-accent-ink transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-accent-hover hover:bg-accent-hover"
                   >
                     Daftar
                   </Link>
@@ -110,7 +110,7 @@ export function PublicShell({ children, mainClassName }: PublicShellProps) {
               )}
 
               <details className="group relative lg:hidden">
-                <summary className="flex h-10 cursor-pointer list-none items-center gap-1.5 rounded-pill border border-rule px-3 text-sm font-medium text-ink [&::-webkit-details-marker]:hidden">
+                <summary className="flex h-10 cursor-pointer list-none items-center gap-1.5 rounded-control border border-rule px-3.5 text-sm font-medium text-ink [&::-webkit-details-marker]:hidden">
                   Menu
                   <ChevronDown className="h-4 w-4 text-muted transition-transform duration-[var(--dur-short)] group-open:rotate-180" />
                 </summary>
@@ -121,7 +121,7 @@ export function PublicShell({ children, mainClassName }: PublicShellProps) {
                   {!user ? (
                     <Link
                       href="/masuk"
-                      className="mt-1 block rounded-pill px-4 py-2.5 text-sm font-medium text-ink hover:bg-paper-2"
+                      className="mt-1 block rounded-control px-4 py-2.5 text-sm font-medium text-ink hover:bg-paper-2"
                     >
                       Masuk akun
                     </Link>
