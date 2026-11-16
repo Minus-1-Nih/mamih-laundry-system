@@ -26,7 +26,6 @@ without the gate output.
 | 6 | Store actions return `{ ok: false, error }`; never throw for expected failures. | types (`Result<T>`) |
 | 7 | Drawers are URL state (`?detail=`, `?status=`, `?hapus=`, `?kode=`), not routes. | review |
 | 8 | One primary action per screen. Sentence case, no eyebrows, no tracked caps, no decorative dots, no emoji icons. | review |
-| 9 | Adding a route means adding its row to `docs/features.md` in the same PR. | review |
 
 `scripts/check.mjs` is the source of truth. If a rule and the gate disagree, the gate
 wins and this file gets fixed.

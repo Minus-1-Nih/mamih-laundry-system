@@ -24,6 +24,7 @@ Gates:
   lint             eslint .
   build            next build (catches RSC / client-boundary mistakes)
   tailwind-config  tailwind.config.* must not exist (Tailwind 4 reads @theme)
+  route-map        every src/app/**/page.tsx must have a row in docs/features.md
   no-clock         no new Date() outside src/lib (use DEMO_NOW from demo-date.ts)
   no-status        no "dibatalkan" status (the app has four statuses)
   guards           /admin/akun still requires adminLevel="owner"
@@ -81,6 +82,36 @@ record(
   "tailwind-config",
   !["ts", "js", "mjs", "cjs"].some((e) => existsSync(join(ROOT, `tailwind.config.${e}`))),
   "Tailwind 4 reads @theme in src/app/globals.css. Delete the config file rather than adding one.",
+);
+
+// --- feature map coverage ---------------------------------------------------
+const APP = join(ROOT, "src/app");
+const routeOf = (file) => {
+  const rel = relative(APP, file)
+    .replace(/page\.tsx$/, "")
+    .replace(/\([^)]+\)\//g, "")
+    .replace(/\/$/, "");
+  return rel === "" ? "/" : `/${rel}`;
+};
+const routes = files(APP).filter((f) => f.endsWith("page.tsx")).map(routeOf).filter((r) => r !== "/");
+
+const mapPath = join(ROOT, "docs/features.md");
+const mapText = existsSync(mapPath) ? readFileSync(mapPath, "utf8") : "";
+const documented = new Set(
+  [...mapText.matchAll(/`([^`]+)`/g)]
+    .map((m) => m[1].trim())
+    .filter((s) => s.startsWith("/") && !/[\s.]/.test(s)),
+);
+const missing = routes.filter((r) => !documented.has(r));
+
+record(
+  "route-map",
+  routes.length > 0 && missing.length === 0,
+  routes.length === 0
+    ? "No pages found under src/app. Has the route tree moved?"
+    : `These routes have no row in docs/features.md:\n  ${missing.join(
+        "\n  ",
+      )}\nAdd a row (route | role | guard | proof) in the same PR.`,
 );
 
 const clock = scanning((s) => /\bnew Date\(\s*\)/.test(s));
