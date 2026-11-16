@@ -23,6 +23,7 @@ Gates:
   typecheck        tsc --noEmit
   lint             eslint .
   build            next build (catches RSC / client-boundary mistakes)
+  tests            node --test over scripts/tests (unit tests for pure logic)
   tailwind-config  tailwind.config.* must not exist (Tailwind 4 reads @theme)
   route-map        every src/app/**/page.tsx must have a row in docs/features.md
   no-clock         no new Date() outside src/lib (use DEMO_NOW from demo-date.ts)
@@ -43,15 +44,20 @@ const results = [];
 const notes = [];
 const record = (id, ok, detail = "") => results.push({ id, ok, detail });
 
+function exec(file, args) {
+  const r = spawnSync(file, args, { cwd: ROOT, encoding: "utf8" });
+  const out = `${r.stdout ?? ""}${r.stderr ?? ""}`.trim();
+  return { ok: r.status === 0, out };
+}
+
 function run(id, cmd, args) {
   const bin = join(BIN, cmd + EXE);
   if (!existsSync(bin)) {
     record(id, false, `Missing binary ${relative(ROOT, bin)}. Run "npm install" first.`);
     return;
   }
-  const r = spawnSync(bin, args, { cwd: ROOT, encoding: "utf8" });
-  const out = `${r.stdout ?? ""}${r.stderr ?? ""}`.trim();
-  record(id, r.status === 0, out.split("\n").slice(-25).join("\n"));
+  const r = exec(bin, args);
+  record(id, r.ok, r.out.split("\n").slice(-25).join("\n"));
 }
 
 function files(dir, acc = []) {
@@ -76,6 +82,26 @@ const scanning = (pred) =>
 run("typecheck", "tsc", ["--noEmit"]);
 run("lint", "eslint", ["."]);
 run("build", "next", ["build"]);
+
+// Unit tests run through Node's own runner. The alias resolver has to be
+// registered with --import before the test files load.
+const tests = exec(process.execPath, [
+  "--import",
+  "./scripts/alias-register.mjs",
+  "--test",
+  "scripts/tests/**/*.test.ts",
+]);
+const testsPassed = Number(/# pass (\d+)/.exec(tests.out)?.[1] ?? 0);
+const testsFailed = Number(/# fail (\d+)/.exec(tests.out)?.[1] ?? 0);
+
+record(
+  "tests",
+  tests.ok && testsFailed === 0 && testsPassed > 0,
+  testsPassed + testsFailed === 0
+    ? "no tests ran - check the runner glob. A gate that runs nothing must not pass."
+    : tests.out.split("\n").slice(-25).join("\n"),
+);
+if (tests.ok && testsPassed > 0) notes.push(`${testsPassed} unit tests passed`);
 
 // --- structural gates -------------------------------------------------------
 record(
