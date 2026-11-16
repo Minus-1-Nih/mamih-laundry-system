@@ -15,14 +15,13 @@ const EXE = process.platform === "win32" ? ".cmd" : "";
 const argv = process.argv.slice(2);
 
 if (argv.includes("--help") || argv.includes("-h")) {
-  console.log(`Usage: node scripts/check.mjs [--json]
+  console.log(`Usage: node scripts/check.mjs [--json] [--fast]
 
 Exit code is 0 only when every gate passes.
 
 Gates:
   typecheck        tsc --noEmit
   lint             eslint .
-  build            next build (catches RSC / client-boundary mistakes)
   tests            node --test over scripts/tests (unit tests for pure logic)
   tailwind-config  tailwind.config.* must not exist (Tailwind 4 reads @theme)
   route-map        every src/app/**/page.tsx must have a row in docs/features.md
@@ -30,9 +29,12 @@ Gates:
   no-status        no "dibatalkan" status (the app has four statuses)
   guards           /admin/akun still requires adminLevel="owner"
   layout-guard:*   /admin, /driver, /akun layouts still render RoleGuard
+  build            next build (catches RSC / client-boundary mistakes). Last,
+                   because it is the slowest and it fights a running dev server.
 
 Options:
-  --json   machine-readable: {"ok":bool,"results":[...],"notes":[...]}
+  --json   machine-readable: {"ok":bool,"mode":str,"commit":str,"results":[...],"notes":[...]}
+  --fast   skip next build for the inner loop. NOT the done signal.
 
 Notes are reported but never fail the run.
 `);
@@ -40,6 +42,7 @@ Notes are reported but never fail the run.
 }
 
 const asJson = argv.includes("--json");
+const fast = argv.includes("--fast");
 const results = [];
 const notes = [];
 const record = (id, ok, detail = "") => results.push({ id, ok, detail });
@@ -81,7 +84,6 @@ const scanning = (pred) =>
 // --- gates that shell out ---------------------------------------------------
 run("typecheck", "tsc", ["--noEmit"]);
 run("lint", "eslint", ["."]);
-run("build", "next", ["build"]);
 
 // Unit tests run through Node's own runner. The alias resolver has to be
 // registered with --import before the test files load.
@@ -175,6 +177,9 @@ for (const [route, role] of [["admin", "admin"], ["driver", "driver"], ["akun", 
   );
 }
 
+// --- slow gate, last --------------------------------------------------------
+if (!fast) run("build", "next", ["build"]);
+
 // --- notes (reported, never fail) ------------------------------------------
 for (const f of scanning((s) => /\bDate\.now\(\)/.test(s))) {
   notes.push(
@@ -184,9 +189,18 @@ for (const f of scanning((s) => /\bDate\.now\(\)/.test(s))) {
 
 // --- report -----------------------------------------------------------------
 const ok = results.every((r) => r.ok);
+const passed = results.filter((r) => r.ok).length;
+const mode = fast ? "check:fast" : "check";
+const commit = (() => {
+  const r = spawnSync("git", ["rev-parse", "--short", "HEAD"], {
+    cwd: ROOT,
+    encoding: "utf8",
+  });
+  return r.status === 0 ? r.stdout.trim() : "no-git";
+})();
 
 if (asJson) {
-  console.log(JSON.stringify({ ok, results, notes }, null, 2));
+  console.log(JSON.stringify({ ok, mode, commit, results, notes }, null, 2));
 } else {
   for (const r of results) {
     console.log(`${r.ok ? "PASS" : "FAIL"}  ${r.id}`);
@@ -196,9 +210,20 @@ if (asJson) {
     console.log("");
     for (const n of notes) console.log(`NOTE  ${n}`);
   }
-  const passed = results.filter((r) => r.ok).length;
-  console.log(`\n${passed}/${results.length} gates passed`);
-  if (!ok) console.log("Fix the FAIL lines above, then run this again.");
+  console.log("");
+  if (ok) {
+    console.log(
+      `${mode}: ${passed}/${results.length} gates passed @ ${commit} · ${new Date()
+        .toISOString()
+        .slice(0, 16)}Z`,
+    );
+    if (fast) {
+      console.log("NOT THE DONE SIGNAL — run `npm run check` before reporting complete.");
+    }
+  } else {
+    console.log(`${passed}/${results.length} gates passed`);
+    console.log("Fix the FAIL lines above, then run this again.");
+  }
 }
 
 process.exit(ok ? 0 : 1);
