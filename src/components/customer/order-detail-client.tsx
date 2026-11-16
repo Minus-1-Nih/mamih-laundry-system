@@ -112,7 +112,7 @@ export function OrderDetailClient() {
           )}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex h-11 items-center gap-2 rounded-pill border border-ink px-4 text-sm font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
+          className="inline-flex h-11 items-center gap-2 rounded-control border border-ink px-4 text-sm font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
         >
           Hubungi Laundria
           <MessageCircle className="h-4 w-4" />
@@ -154,7 +154,7 @@ export function OrderDetailClient() {
         <div className="space-y-6">
           <section className="border border-rule bg-paper p-6">
             <div className="flex items-start justify-between gap-3">
-              <h2 className="font-display text-2xl leading-tight">
+              <h2>
                 Rincian layanan
               </h2>
               <span className="small-print shrink-0 border border-rule px-2 py-1 text-muted">
@@ -193,7 +193,7 @@ export function OrderDetailClient() {
 
           <section className="border border-rule bg-paper p-6">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <h2 className="font-display text-2xl leading-tight">
+              <h2>
                 Perjalanan pesanan
               </h2>
               <p className="small-print text-muted">
@@ -210,7 +210,7 @@ export function OrderDetailClient() {
 
         <div className="space-y-6">
           <section className="border border-rule bg-paper p-6">
-            <h2 className="font-display text-2xl leading-tight">
+            <h2>
               Pelanggan dan alamat
             </h2>
 
@@ -257,7 +257,7 @@ export function OrderDetailClient() {
           </section>
 
           <section className="border border-rule bg-paper p-6">
-            <h2 className="font-display text-2xl leading-tight">Ringkasan biaya</h2>
+            <h2>Ringkasan biaya</h2>
 
             <dl className="mt-4 border-t border-ink">
               <div className="flex items-start justify-between gap-3 border-b border-rule py-2.5 text-sm">

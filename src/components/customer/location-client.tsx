@@ -369,7 +369,7 @@ export function LocationClient() {
                 <Store className="h-5 w-5" />
               </span>
               <div>
-                <p className="font-display text-2xl leading-tight">
+                <p className="section-heading">
                   Gerai Laundria Sukabirus
                 </p>
                 <p className="mt-2 text-sm leading-relaxed text-muted">
@@ -398,7 +398,7 @@ export function LocationClient() {
           </section>
 
           <section className="border border-rule bg-paper-2 p-6">
-            <h2 className="font-display text-2xl leading-tight">
+            <h2>
               Simpan alamat Anda.
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-muted">
@@ -408,13 +408,13 @@ export function LocationClient() {
             <div className="mt-5 flex flex-wrap gap-2">
               <a
                 href="/masuk"
-                className="inline-flex h-11 flex-1 items-center justify-center rounded-pill border border-accent bg-accent px-4 text-sm font-medium text-accent-ink transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-accent-hover hover:bg-accent-hover"
+                className="inline-flex h-11 flex-1 items-center justify-center rounded-control border border-accent bg-accent px-4 text-sm font-medium text-accent-ink transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-accent-hover hover:bg-accent-hover"
               >
                 Masuk akun
               </a>
               <a
                 href="/daftar"
-                className="inline-flex h-11 flex-1 items-center justify-center rounded-pill border border-ink bg-paper px-4 text-sm font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
+                className="inline-flex h-11 flex-1 items-center justify-center rounded-control border border-ink bg-paper px-4 text-sm font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
               >
                 Daftar
               </a>
@@ -484,7 +484,7 @@ export function LocationClient() {
         <div className="space-y-6">
           <section className="border border-rule bg-paper p-5">
             <div className="flex items-baseline justify-between gap-2">
-              <h2 className="font-display text-2xl leading-tight">
+              <h2>
                 Alamat tersimpan
               </h2>
               <span className="small-print text-muted">
@@ -540,7 +540,7 @@ export function LocationClient() {
             <section className="border border-rule bg-paper p-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h2 className="font-display text-2xl leading-tight">
+                  <h2>
                     {selected.label}
                   </h2>
                   <p className="mt-1 text-sm font-medium text-ink">
@@ -595,7 +595,7 @@ export function LocationClient() {
                   href={`https://maps.google.com/?q=${encodeURIComponent(selected.address)}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-pill border border-accent bg-accent px-4 text-sm font-medium text-accent-ink transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-accent-hover hover:bg-accent-hover"
+                  className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-control border border-accent bg-accent px-4 text-sm font-medium text-accent-ink transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-accent-hover hover:bg-accent-hover"
                 >
                   Petunjuk arah
                   <Navigation className="h-4 w-4" />

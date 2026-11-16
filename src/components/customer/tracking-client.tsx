@@ -184,7 +184,7 @@ function Landing({ onSearch }: { onSearch: (code: string) => void }) {
                 <span className="small-print text-accent">01</span>
                 <span aria-hidden="true" className="h-px w-8 bg-gold" />
               </div>
-              <h2 className="mt-3 font-display text-3xl leading-tight">
+              <h2 className="mt-3">
                 Tiga langkah, tetap tenang.
               </h2>
             </div>
@@ -295,7 +295,7 @@ function Result({ order, onSearch }: { order: Order; onSearch: (code: string) =>
       <div className="mt-6 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
         <section className="border border-rule bg-paper p-6">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="font-display text-2xl leading-tight">
+            <h2>
               Perjalanan cucian Anda
             </h2>
             <span className="small-print text-muted">
@@ -307,7 +307,7 @@ function Result({ order, onSearch }: { order: Order; onSearch: (code: string) =>
 
         <div className="space-y-6">
           <section className="border border-rule bg-paper p-6">
-            <h2 className="font-display text-2xl leading-tight">
+            <h2>
               Ringkasan pesanan
             </h2>
             <dl className="mt-4 border-t border-ink">
@@ -349,7 +349,7 @@ function Result({ order, onSearch }: { order: Order; onSearch: (code: string) =>
           </section>
 
           <section className="border border-rule bg-paper-2 p-6">
-            <h2 className="font-display text-2xl leading-tight">
+            <h2>
               Semua pesanan, satu tempat.
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-muted">
@@ -358,7 +358,7 @@ function Result({ order, onSearch }: { order: Order; onSearch: (code: string) =>
             </p>
             <Link
               href="/masuk"
-              className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-pill border border-ink bg-paper text-sm font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
+              className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-control border border-ink bg-paper text-sm font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
             >
               Masuk ke akun
               <ArrowRight className="h-4 w-4" />
