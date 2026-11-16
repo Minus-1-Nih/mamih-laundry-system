@@ -3,6 +3,7 @@ export type AdminLevel = "owner" | "store";
 export type OrderStatus = "menunggu" | "dicuci" | "siap" | "selesai";
 export type SessionType = "pickup" | "delivery";
 export type ZoneId = "Z1" | "Z2" | "Z3";
+export type ServiceTier = "reguler" | "express" | "kilat";
 
 export interface User {
   id: string;
@@ -44,6 +45,10 @@ export interface Order {
   zoneId: ZoneId;
   session: SessionType;
   schedule: string;
+  /** YYYY-MM-DD. Absent on rows created before the date field existed. */
+  scheduleDate?: string;
+  serviceId?: string;
+  tier?: ServiceTier;
   landmark: string;
   status: OrderStatus;
   createdAt: string;

@@ -9,6 +9,7 @@ import type {
   OrderStatus,
   OperationalSession,
   Role,
+  ServiceTier,
   SessionType,
   User,
   ZoneId,
@@ -51,6 +52,9 @@ export interface CreateOrderInput {
   zoneId: ZoneId;
   session: SessionType;
   schedule: string;
+  scheduleDate?: string;
+  serviceId?: string;
+  tier?: ServiceTier;
   landmark: string;
   note?: string;
   driverId?: string;
