@@ -1,4 +1,10 @@
-import { isOverdue, isToday } from "@/lib/format";
+import {
+  canonicalPhone,
+  isOverdue,
+  isToday,
+  orderDate,
+  todayKey,
+} from "@/lib/format";
 import type { Order, OrderStatus, SessionType, ZoneId } from "@/lib/types";
 
 export function visibleOrders(orders: Order[]): Order[] {
@@ -22,16 +28,34 @@ export function driverActiveTasks(
   orders: Order[],
   zoneIds: ZoneId[],
 ): Order[] {
+  const today = todayKey();
   return visibleOrders(orders)
     .filter(
       (order) =>
         zoneIds.includes(order.zoneId) &&
+        orderDate(order) <= today &&
         (order.status === "menunggu" || order.status === "siap"),
     )
     .sort((a, b) => {
       if (a.status !== b.status) return a.status === "menunggu" ? -1 : 1;
-      return a.schedule.localeCompare(b.schedule);
+      const dateOrder = orderDate(a).localeCompare(orderDate(b));
+      return dateOrder !== 0 ? dateOrder : a.schedule.localeCompare(b.schedule);
     });
+}
+
+/** Normalised phone + schedule date + schedule time, the duplicate key. */
+export function findSimilarOrder(
+  orders: Order[],
+  key: { phone: string; scheduleDate: string; schedule: string },
+): Order | undefined {
+  const phone = canonicalPhone(key.phone);
+  if (!phone || !key.scheduleDate || !key.schedule) return undefined;
+  return visibleOrders(orders).find(
+    (order) =>
+      canonicalPhone(order.phone) === phone &&
+      orderDate(order) === key.scheduleDate &&
+      order.schedule === key.schedule,
+  );
 }
 
 export function driverHistory(

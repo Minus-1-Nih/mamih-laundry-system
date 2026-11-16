@@ -9,9 +9,12 @@ import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/cn";
 import { whatsappLinkTo } from "@/lib/constants";
 import {
-  formatDateShort,
+  formatDateKey,
   formatDateTime,
+  orderDate,
+  scheduleDateLabel,
   sessionLabel,
+  todayKey,
 } from "@/lib/format";
 import { useAppStore } from "@/lib/store";
 import type { Order, OrderStatus, User, Zone } from "@/lib/types";
@@ -58,6 +61,11 @@ export function OrderDetailSheet({
 
   const zone = zones.find((item) => item.id === order.zoneId);
   const driver = users.find((user) => user.id === order.driverId);
+  const scheduledDay = orderDate(order);
+  const scheduleValue =
+    scheduledDay === todayKey()
+      ? `${order.schedule} WIB`
+      : `${scheduleDateLabel(scheduledDay)} · ${order.schedule} WIB`;
   const wa = whatsappLinkTo(
     order.phone,
     `Halo ${order.customerName}, kami dari Laundria mengenai pesanan ${order.code}.`,
@@ -121,7 +129,7 @@ export function OrderDetailSheet({
           value={`${order.zoneId}, ${zone?.name ?? ""}`}
         />
         <DetailRow label="Sesi" value={sessionLabel(order.session)} />
-        <DetailRow label="Jadwal" value={`${order.schedule} WIB`} />
+        <DetailRow label="Jadwal" value={scheduleValue} />
         <DetailRow label="Patokan" value={order.landmark} />
         <DetailRow
           label="Driver"
@@ -295,7 +303,7 @@ function OrderStatusSheetForm({
         />
         <DetailRow
           label="Jadwal"
-          value={`${formatDateShort(order.createdAt)}, ${order.schedule}, ${sessionLabel(
+          value={`${formatDateKey(orderDate(order))}, ${order.schedule}, ${sessionLabel(
             order.session,
           )}`}
         />

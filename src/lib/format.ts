@@ -10,6 +10,12 @@ const shortDate = new Intl.DateTimeFormat("id-ID", {
   year: "numeric",
 });
 
+const dayMonth = new Intl.DateTimeFormat("id-ID", {
+  timeZone: TZ,
+  day: "numeric",
+  month: "short",
+});
+
 const longDate = new Intl.DateTimeFormat("id-ID", {
   timeZone: TZ,
   weekday: "long",
@@ -66,6 +72,44 @@ export function dateKeyWib(iso: string): string {
   return dateKey.format(new Date(iso));
 }
 
+/** Calendar date (YYYY-MM-DD) in WIB for the demo "now". */
+export function todayKey(now: Date = DEMO_NOW): string {
+  return dateKeyWib(now.toISOString());
+}
+
+/** Add days to a YYYY-MM-DD key without touching the clock. */
+export function addDaysToKey(key: string, days: number): string {
+  const [year, month, day] = key.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day + days));
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(
+    2,
+    "0",
+  )}-${String(date.getUTCDate()).padStart(2, "0")}`;
+}
+
+/** The day a scheduled slot belongs to, with a fallback for pre-MNI-5 rows. */
+export function orderDate(order: Order): string {
+  return order.scheduleDate ?? dateKeyWib(order.createdAt);
+}
+
+/** "4 Nov 2026" from a YYYY-MM-DD key. */
+export function formatDateKey(key: string): string {
+  return shortDate.format(new Date(`${key}T12:00:00+07:00`));
+}
+
+/** "4 Nov" from a YYYY-MM-DD key, for the schedule chip. */
+export function formatDateKeyShort(key: string): string {
+  return dayMonth.format(new Date(`${key}T12:00:00+07:00`));
+}
+
+/** "Hari ini" / "Besok" / "5 Nov" relative to the demo clock. */
+export function scheduleDateLabel(key: string): string {
+  const today = todayKey();
+  if (key === today) return "Hari ini";
+  if (key === addDaysToKey(today, 1)) return "Besok";
+  return formatDateKeyShort(key);
+}
+
 export function yymmddWib(date: Date): string {
   return dateKey.format(date).replaceAll("-", "").slice(2);
 }
@@ -78,6 +122,12 @@ export function formatPhone(value: string): string {
 
 export function normalizePhone(value: string): string {
   return value.replace(/\D/g, "");
+}
+
+/** Country-code form collapsed to the local 0-prefixed form, for comparison. */
+export function canonicalPhone(value: string): string {
+  const digits = normalizePhone(value);
+  return digits.startsWith("62") ? `0${digits.slice(2)}` : digits;
 }
 
 export function isValidPhone(value: string): boolean {
@@ -155,7 +205,7 @@ export function isToday(iso: string): boolean {
 function scheduledAt(order: Order): Date {
   const [hour, minute] = order.schedule.replace(".", ":").split(":").map(Number);
   return new Date(
-    `${dateKeyWib(order.createdAt)}T${String(hour).padStart(2, "0")}:${String(
+    `${orderDate(order)}T${String(hour).padStart(2, "0")}:${String(
       minute ?? 0,
     ).padStart(2, "0")}:00+07:00`,
   );
