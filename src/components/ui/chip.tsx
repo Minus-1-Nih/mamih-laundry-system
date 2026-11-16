@@ -15,10 +15,10 @@ export function Chip({
     <button
       type={type}
       className={cn(
-        "inline-flex h-9 items-center rounded-pill border px-3.5 text-sm font-medium whitespace-nowrap transition-[background-color,border-color,color] duration-[var(--dur-micro)] active:translate-y-px",
+        "inline-flex h-9 items-center rounded-control border px-3.5 text-sm font-medium whitespace-nowrap transition-[background-color,border-color,color] duration-[var(--dur-micro)] active:translate-y-px",
         active
-          ? "border-accent bg-accent text-accent-ink"
-          : "border-rule bg-transparent text-ink-2 hover:border-accent hover:text-accent",
+          ? "border-ink bg-paper text-ink"
+          : "border-rule bg-transparent text-ink-2 hover:border-ink hover:text-ink",
         className,
       )}
       {...props}
