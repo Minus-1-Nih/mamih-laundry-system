@@ -1,6 +1,6 @@
 # Feature map — Laundria (as built)
 
-What the app does today, verified 2026-11-16 by running the app and logging in as each role. Every row below rendered in the browser; nothing here is planned work. Routes are Next.js pages; drawers are URL state on an existing page. The only command this repo exposes for checking work is `npm run check`.
+What the app does today, verified 2026-11-16 by running the app and logging in as each role. Every row below rendered in the browser; nothing here is planned work. Routes are Next.js pages; drawers are URL state on an existing page. `npm run check` is the done signal; `npm run surfaces` re-verifies every row below in a real browser (start `npm run dev` first).
 
 ## Roles
 

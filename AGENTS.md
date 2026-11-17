@@ -16,6 +16,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 the output line (`check: N/N gates passed @ <sha> · <time>`). If it fails, fix it or
 say why it cannot pass. Never report "verified" without the gate output.
 `npm run check:fast` skips the build for the inner loop; it is not the done signal.
+For UI changes, `npm run surfaces` must pass with `npm run dev` running.
 
 | # | Rule | Enforced by |
 |---|---|---|
