@@ -1,11 +1,9 @@
 import { DEMO_NOW } from "@/lib/demo-date";
 import {
   addDaysToKey,
-  formatDateKeyShort,
   formatPhone,
   isValidPhone,
   normalizePhone,
-  orderDate,
   parseScheduleTime,
   timeToMinutes,
   todayKey,
@@ -15,7 +13,7 @@ import {
   matchService,
   matchTier,
 } from "@/lib/service-catalog";
-import type { Order, ServiceTier, SessionType, ZoneId } from "@/lib/types";
+import type { ServiceTier, SessionType, ZoneId } from "@/lib/types";
 
 export interface ParsedOrder {
   customerName: string;
@@ -430,30 +428,4 @@ export function parseOrderMessage(
     formError,
     ok: Object.keys(validation.errors).length === 0 && !formError,
   };
-}
-
-export function orderWhatsAppMessage(order: Order): string {
-  const day = orderDate(order);
-  const when =
-    day === todayKey()
-      ? order.schedule
-      : `${formatDateKeyShort(day)} ${order.schedule}`;
-
-  return [
-    "PESANAN LAUNDRIA",
-    `Kode: ${order.code}`,
-    `Nama: ${order.customerName}`,
-    `No HP: ${order.phone}`,
-    `Layanan: ${order.service}`,
-    order.tier
-      ? `Paket: ${order.tier.charAt(0).toUpperCase()}${order.tier.slice(1)}`
-      : "",
-    `Zona: ${order.zoneId}`,
-    `Patokan: ${order.landmark}`,
-    `Sesi: ${order.session === "pickup" ? "Penjemputan" : "Pengantaran"}`,
-    `Jadwal: ${when}`,
-    order.note ? `Catatan: ${order.note}` : "",
-  ]
-    .filter(Boolean)
-    .join("\n");
 }

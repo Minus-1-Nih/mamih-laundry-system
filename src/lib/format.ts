@@ -1,5 +1,5 @@
 import { DEMO_MINUTES, DEMO_NOW, DEMO_NOW_ISO } from "@/lib/demo-date";
-import type { Order, SessionType, User, ZoneId } from "@/lib/types";
+import type { Order, ServiceTier, SessionType, User, ZoneId } from "@/lib/types";
 
 const TZ = "Asia/Jakarta";
 
@@ -102,6 +102,17 @@ export function formatDateKeyShort(key: string): string {
   return dayMonth.format(new Date(`${key}T12:00:00+07:00`));
 }
 
+/** "Rabu, 4 November 2026" from a YYYY-MM-DD key. */
+export function formatDateKeyLong(key: string): string {
+  return longDate.format(new Date(`${key}T12:00:00+07:00`));
+}
+
+export function tierLabel(tier: ServiceTier): string {
+  if (tier === "express") return "Express";
+  if (tier === "kilat") return "Kilat";
+  return "Reguler";
+}
+
 /** "Hari ini" / "Besok" / "5 Nov" relative to the demo clock. */
 export function scheduleDateLabel(key: string): string {
   const today = todayKey();
@@ -182,20 +193,40 @@ export function orderSequence(code: string): number {
   return parseOrderCode(code)?.seq ?? 0;
 }
 
+/**
+ * Next unused code for the zone and intake day. The sequence comes from the
+ * highest existing number, then advances until the candidate is free — so a
+ * deleted order, a manual duplicate, or a gap never hands out a code twice.
+ * Codes are never reused, because `orders` keeps deleted rows.
+ *
+ * Bounded by the three-digit segment: at most 999 codes per zone per day.
+ */
 export function nextOrderCode(
   zoneId: ZoneId,
   orders: Order[],
   date: Date = DEMO_NOW,
 ): string {
   const day = yymmddWib(date);
+  const used = new Set(orders.map((order) => order.code.toUpperCase()));
   const max = orders.reduce((current, order) => {
     const parsed = parseOrderCode(order.code);
-    return parsed && parsed.dateKey === day
+    return parsed && parsed.zoneId === zoneId && parsed.dateKey === day
       ? Math.max(current, parsed.seq)
       : current;
   }, 0);
 
-  return `${zoneId}-${day}-${String(max + 1).padStart(3, "0")}`;
+  let seq = max + 1;
+  let code = formatOrderCode(zoneId, date, seq);
+  while (used.has(code)) {
+    seq += 1;
+    code = formatOrderCode(zoneId, date, seq);
+  }
+  return code;
+}
+
+/** Arrival day (YYYY-MM-DD): two days after the scheduled pickup/delivery day. */
+export function orderArrivalKey(order: Order): string {
+  return addDaysToKey(orderDate(order), 2);
 }
 
 export function isToday(iso: string): boolean {

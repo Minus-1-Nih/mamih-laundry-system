@@ -21,6 +21,7 @@ import { Select } from "@/components/ui/select";
 import { Sheet } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/cn";
+import { whatsappLink } from "@/lib/constants";
 import { formatPhone } from "@/lib/format";
 import { useAppStore, useCurrentUser } from "@/lib/store";
 import type { ZoneId } from "@/lib/types";
@@ -470,7 +471,7 @@ export function LocationClient() {
               </div>
             </div>
             <a
-              href="https://wa.me/6281234567890"
+              href={whatsappLink()}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1 text-sm font-medium text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"
