@@ -7,7 +7,7 @@ import { Sheet } from "@/components/ui/sheet";
 import { StatusBadge, statusLabels } from "@/components/ui/status-badge";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/cn";
-import { whatsappLinkTo } from "@/lib/constants";
+import { appBaseUrl, whatsappLinkTo } from "@/lib/constants";
 import {
   formatDateKey,
   formatDateTime,
@@ -16,6 +16,7 @@ import {
   sessionLabel,
   todayKey,
 } from "@/lib/format";
+import { orderConfirmationMessage } from "@/lib/order-messages";
 import { useAppStore } from "@/lib/store";
 import type { Order, OrderStatus, User, Zone } from "@/lib/types";
 
@@ -68,7 +69,7 @@ export function OrderDetailSheet({
       : `${scheduleDateLabel(scheduledDay)} · ${order.schedule} WIB`;
   const wa = whatsappLinkTo(
     order.phone,
-    `Halo ${order.customerName}, kami dari Laundria mengenai pesanan ${order.code}.`,
+    orderConfirmationMessage(order, appBaseUrl()),
   );
 
   return (
@@ -116,7 +117,7 @@ export function OrderDetailSheet({
           rel="noreferrer"
           className="inline-flex h-9 items-center border border-accent bg-paper px-3.5 text-13 font-medium text-accent transition-colors duration-[var(--dur-micro)] hover:bg-accent hover:text-accent-ink"
         >
-          Chat WhatsApp
+          Kirim konfirmasi
         </a>
       </div>
 

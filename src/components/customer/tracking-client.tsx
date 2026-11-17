@@ -20,9 +20,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/ui/status-badge";
 import {
-  formatDateShort,
   formatDateTime,
   maskName,
+  orderDate,
+  scheduleDateLabel,
+  tierLabel,
 } from "@/lib/format";
 import { useAppStore } from "@/lib/store";
 import {
@@ -313,9 +315,17 @@ function Result({ order, onSearch }: { order: Order; onSearch: (code: string) =>
             <dl className="mt-4 border-t border-ink">
               {[
                 ["Pelanggan", maskName(order.customerName)],
-                ["Tanggal pesanan", formatDateShort(order.createdAt)],
+                [
+                  "Jadwal",
+                  `${scheduleDateLabel(orderDate(order))} · ${order.schedule}`,
+                ],
                 ["Layanan", order.service],
-                ["Berat", `${order.weight}, Reguler`],
+                [
+                  "Berat",
+                  order.tier
+                    ? `${order.weight}, ${tierLabel(order.tier)}`
+                    : order.weight,
+                ],
               ].map(([label, value]) => (
                 <div
                   key={label}

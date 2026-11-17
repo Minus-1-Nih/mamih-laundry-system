@@ -1,6 +1,6 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { formatDateLong, formatDateTime } from "@/lib/format";
+import { formatDateKeyLong, formatDateTime, orderArrivalKey } from "@/lib/format";
 import type { Order, StatusEvent } from "@/lib/types";
 
 function findEvent(order: Order, notes: string[]): StatusEvent | undefined {
@@ -16,8 +16,7 @@ function stamp(event?: StatusEvent): string | undefined {
 }
 
 export function orderArrivalLabel(order: Order): string {
-  const arrival = new Date(new Date(order.createdAt).getTime() + 2 * 86_400_000);
-  return formatDateLong(arrival.toISOString());
+  return formatDateKeyLong(orderArrivalKey(order));
 }
 
 export interface CustomerOrderProgressProps {

@@ -13,7 +13,7 @@ import { statusLabels } from "@/components/ui/status-badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/cn";
-import { whatsappLinkTo } from "@/lib/constants";
+import { appBaseUrl, trackingUrl, whatsappLinkTo } from "@/lib/constants";
 import { DEMO_NOW, DEMO_NOW_ISO } from "@/lib/demo-date";
 import {
   addDaysToKey,
@@ -25,13 +25,13 @@ import {
 } from "@/lib/format";
 import {
   countRequired,
-  orderWhatsAppMessage,
   parseOrderMessage,
   parsedFieldLabels,
   sampleOrderMessage,
   validateParsedOrder,
   type ParsedOrder,
 } from "@/lib/parse-order";
+import { orderConfirmationMessage } from "@/lib/order-messages";
 import { findSimilarOrder } from "@/lib/selectors";
 import { findServiceByLabel, serviceCatalog } from "@/lib/service-catalog";
 import { useAppStore } from "@/lib/store";
@@ -305,17 +305,24 @@ export default function AdminNewOrderPage() {
     setDuplicate(null);
   }
 
-  async function copyMessage(message: string) {
+  async function copyText(value: string, label: string) {
     try {
-      await navigator.clipboard.writeText(message);
-      toast({ title: "Pesan WhatsApp disalin." });
+      await navigator.clipboard.writeText(value);
+      toast({ title: `${label} disalin.` });
     } catch {
-      toast({ title: "Gagal menyalin. Salin manual dari kotak pesan.", tone: "error" });
+      toast({
+        title: `Gagal menyalin ${label.toLowerCase()}. Salin manual dari kotak di atas.`,
+        tone: "error",
+      });
     }
   }
 
+  const baseUrl = createdOrder ? appBaseUrl() : "";
   const successMessage = createdOrder
-    ? orderWhatsAppMessage(createdOrder)
+    ? orderConfirmationMessage(createdOrder, baseUrl)
+    : "";
+  const successTrackingUrl = createdOrder
+    ? trackingUrl(createdOrder.code, baseUrl)
     : "";
 
   return (
@@ -897,7 +904,7 @@ export default function AdminNewOrderPage() {
           description={`Kode ${createdOrder.code}`}
           size="lg"
           footer={
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button
                 variant="ghost"
                 className="flex-1 border border-rule"
@@ -905,12 +912,14 @@ export default function AdminNewOrderPage() {
               >
                 Input pesanan lain
               </Button>
-              <Button
-                className="flex-1"
-                onClick={() => void copyMessage(successMessage)}
+              <a
+                href={whatsappLinkTo(createdOrder.phone, successMessage)}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-control border border-accent bg-accent px-3.5 text-sm font-medium whitespace-nowrap text-accent-ink transition-[background-color,border-color] duration-[var(--dur-micro)] hover:border-accent-hover hover:bg-accent-hover"
               >
-                Salin pesan
-              </Button>
+                Kirim konfirmasi via WhatsApp
+              </a>
             </div>
           }
         >
@@ -921,8 +930,8 @@ export default function AdminNewOrderPage() {
             Pesanan masuk antrean
           </p>
           <p className="mt-1 text-sm leading-relaxed text-muted">
-            Kode sudah dibuat otomatis. Salin pesan berikut dan kirim ke
-            pelanggan lewat WhatsApp.
+            Kode sudah dibuat otomatis. Kirim pesan berikut ke pelanggan lewat
+            WhatsApp; tautan pelacakan sudah ikut di dalamnya.
           </p>
 
           <div className="mt-4 border border-rule bg-paper-2 px-4 py-3">
@@ -933,24 +942,30 @@ export default function AdminNewOrderPage() {
           </div>
 
           <p className="mt-4 border-t-2 border-ink pt-3 text-sm font-semibold text-ink">
-            Pesan WhatsApp
+            Pesan konfirmasi
           </p>
           <pre className="mt-2 whitespace-pre-wrap border border-rule bg-paper-2 p-4 text-13 leading-relaxed text-ink">
             {successMessage}
           </pre>
 
-          <div className="mt-3 flex flex-wrap gap-2">
-            <a
-              href={whatsappLinkTo(createdOrder.phone, successMessage)}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-11 items-center justify-center border border-ink bg-paper px-4 text-sm font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <button
+              type="button"
+              className="inline-flex items-center text-13 font-medium text-accent underline decoration-gold underline-offset-4 transition-colors duration-[var(--dur-micro)] hover:text-accent-hover"
+              onClick={() => void copyText(successMessage, "Pesan konfirmasi")}
             >
-              Buka WhatsApp
-            </a>
+              Salin pesan
+            </button>
+            <button
+              type="button"
+              className="inline-flex items-center text-13 font-medium text-accent underline decoration-gold underline-offset-4 transition-colors duration-[var(--dur-micro)] hover:text-accent-hover"
+              onClick={() => void copyText(successTrackingUrl, "Tautan pelacakan")}
+            >
+              Salin tautan
+            </button>
             <Link
               href="/admin/pesanan"
-              className="inline-flex h-11 items-center justify-center px-2 text-sm font-medium text-accent underline decoration-gold underline-offset-4 transition-colors duration-[var(--dur-micro)] hover:text-accent-hover"
+              className="inline-flex items-center text-13 font-medium text-muted underline decoration-rule underline-offset-4 transition-colors duration-[var(--dur-micro)] hover:text-ink"
             >
               Lihat daftar pesanan
             </Link>
