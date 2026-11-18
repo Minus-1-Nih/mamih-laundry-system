@@ -73,7 +73,11 @@ export function driverHistory(
   driverId: string,
 ): Order[] {
   return visibleOrders(orders)
-    .filter((order) => order.status === "selesai" && order.driverId === driverId)
+    .filter(
+      (order) =>
+        (order.status === "selesai" || order.status === "dicuci") &&
+        order.driverId === driverId,
+    )
     .sort(
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
@@ -83,7 +87,7 @@ export function driverHistory(
 function completedAt(order: Order): number {
   const last = [...order.history]
     .reverse()
-    .find((event) => event.status === "selesai");
+    .find((event) => event.status === "selesai" || event.status === "dicuci");
   return new Date(last?.at ?? order.createdAt).getTime();
 }
 
@@ -93,7 +97,9 @@ export function driverZoneHistory(
 ): Order[] {
   return visibleOrders(orders)
     .filter(
-      (order) => zoneIds.includes(order.zoneId) && order.status === "selesai",
+      (order) =>
+        zoneIds.includes(order.zoneId) &&
+        (order.status === "selesai" || order.status === "dicuci"),
     )
     .sort((a, b) => completedAt(b) - completedAt(a));
 }
