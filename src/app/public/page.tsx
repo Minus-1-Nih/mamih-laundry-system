@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import {
   ArrowRight,
   Check,
@@ -12,11 +13,15 @@ import {
 } from "lucide-react";
 import { PublicShell } from "@/components/shells/public-shell";
 import { StatusBadge } from "@/components/ui/status-badge";
+import {
+  ServiceHoursText,
+  SessionWindowText,
+} from "@/components/public/session-hours";
 import { PublicTrackingForm } from "@/components/public/tracking-form";
 import { cn } from "@/lib/cn";
-import { SERVICE_HOURS, whatsappLink } from "@/lib/constants";
+import { whatsappLink } from "@/lib/constants";
 import { formatTime, maskName } from "@/lib/format";
-import { seedOrders, seedSessions, seedZones } from "@/lib/seed";
+import { seedOrders, seedZones } from "@/lib/seed";
 
 const preview =
   seedOrders.find((order) => order.code === "Z1-261104-012") ?? seedOrders[0];
@@ -112,7 +117,7 @@ function PreviewStep({
   index: number;
   state: "done" | "current" | "pending";
   label: string;
-  time: string;
+  time: ReactNode;
 }) {
   return (
     <li
@@ -160,9 +165,6 @@ function PreviewStep({
 }
 
 export default function PublicPage() {
-  const pickup = seedSessions.find((session) => session.type === "pickup");
-  const delivery = seedSessions.find((session) => session.type === "delivery");
-
   return (
     <PublicShell>
       <section className="border-y-2 border-ink bg-paper-2">
@@ -204,7 +206,7 @@ export default function PublicPage() {
 
             <p className="mt-6 flex items-center gap-2 text-13 text-muted">
               <Clock3 className="h-4 w-4 text-accent" />
-              Buka setiap hari, {SERVICE_HOURS}.
+              Buka setiap hari, <ServiceHoursText />.
             </p>
           </div>
 
@@ -259,7 +261,7 @@ export default function PublicPage() {
                   index={3}
                   state="pending"
                   label="Pengantaran"
-                  time="17.00-22.00 WIB"
+                  time={<SessionWindowText type="delivery" withWib />}
                 />
               </ol>
 
@@ -398,7 +400,7 @@ export default function PublicPage() {
               Jam operasional
             </p>
             <p className="mt-3 font-display text-4xl leading-none text-paper">
-              12.00-22.00
+              <ServiceHoursText withWib={false} />
             </p>
             <p className="mt-2 text-13 text-paper/60">Setiap hari, WIB</p>
 
@@ -406,13 +408,13 @@ export default function PublicPage() {
               <div className="flex items-center justify-between gap-3">
                 <dt className="text-paper/60">Penjemputan</dt>
                 <dd className="font-medium text-paper">
-                  {pickup ? `${pickup.start}-${pickup.end}` : "12.00-17.00"}
+                  <SessionWindowText type="pickup" />
                 </dd>
               </div>
               <div className="flex items-center justify-between gap-3">
                 <dt className="text-paper/60">Pengantaran</dt>
                 <dd className="font-medium text-paper">
-                  {delivery ? `${delivery.start}-${delivery.end}` : "17.00-22.00"}
+                  <SessionWindowText type="delivery" />
                 </dd>
               </div>
             </dl>

@@ -26,6 +26,7 @@ import {
   scheduleDateLabel,
   tierLabel,
 } from "@/lib/format";
+import { sessionWindowLabel } from "@/lib/sessions";
 import { useAppStore } from "@/lib/store";
 import {
   CustomerOrderProgress,
@@ -227,6 +228,7 @@ function Landing({ onSearch }: { onSearch: (code: string) => void }) {
 
 function Result({ order, onSearch }: { order: Order; onSearch: (code: string) => void }) {
   const zones = useAppStore((state) => state.zones);
+  const sessions = useAppStore((state) => state.sessions);
   const [code, setCode] = useState(order.code);
   const zone = zones.find((item) => item.id === order.zoneId);
 
@@ -289,7 +291,7 @@ function Result({ order, onSearch }: { order: Order; onSearch: (code: string) =>
             {orderArrivalLabel(order)}
           </p>
           <p className="small-print mt-1 text-muted">
-            Sesi pengantaran, 17.00-22.00 WIB
+            Sesi pengantaran, {sessionWindowLabel("delivery", sessions)}
           </p>
         </div>
       </section>

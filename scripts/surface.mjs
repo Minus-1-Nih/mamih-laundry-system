@@ -13,7 +13,7 @@ import puppeteer from "puppeteer-core";
 
 const ROOT = process.cwd();
 const MAP = join(ROOT, "docs/features.md");
-const STORE = "laundria-demo-v1";
+const STORE = "laundria-demo-v2";
 const SHOTS = "/tmp/laundria-surfaces";
 
 const argv = process.argv.slice(2);

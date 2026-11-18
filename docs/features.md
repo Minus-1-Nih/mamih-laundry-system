@@ -31,7 +31,7 @@ What the app does today, verified 2026-11-16 by running the app and logging in a
 | Zona & Driver | `/admin/zona-driver` | `/admin` layout | — | "Belum termasuk cakupan prototipe" |
 | Pelanggan | `/admin/pelanggan` | `/admin` layout | — | "Belum termasuk cakupan prototipe" |
 | Laporan | `/admin/laporan` | `/admin` layout | — | "Belum termasuk cakupan prototipe" |
-| Pengaturan | `/admin/pengaturan` | `/admin` layout | — | "Belum termasuk cakupan prototipe" |
+| Pengaturan | `/admin/pengaturan` | `/admin` layout | — | "Pengaturan sesi operasional"; "Simpan" |
 | Manajemen akun | `/admin/akun` | `/admin` layout + owner | — | "Manajemen akun"; "Tambah akun" |
 | Riwayat pesanan | `/akun/riwayat` | `/akun` layout | — | "Riwayat Pesanan"; "Halo, Adinda." |
 | Detail pesanan | `/akun/riwayat/detail` | `/akun` layout | `?kode=` | "Detail pesanan"; "Perjalanan pesanan" |
@@ -41,7 +41,7 @@ What the app does today, verified 2026-11-16 by running the app and logging in a
 
 - Guards live in layouts, not pages: `/admin`, `/driver`, `/akun`. `/admin/akun` adds a nested owner-only guard (`RoleGuard role="admin" adminLevel="owner"`).
 - An `adminLevel` mismatch redirects to `/admin`; a role mismatch redirects to that section's login with `?next=` the current path (e.g. a driver opening `/admin/akun` lands on `/masuk/admin?next=%2Fadmin%2Fakun`).
-- State lives in `localStorage["laundria-demo-v1"]`; the profile is stored with it, so a stale profile shows stale data. Clearing site data is the only reset.
+- State lives in `localStorage["laundria-demo-v2"]`; the profile is stored with it, so a stale profile shows stale data. Clearing site data is the only reset.
 - The demo clock is frozen at 4 November 2026, 14.00 WIB (`src/lib/demo-date.ts`); seed dates and every "today" label derive from it.
 - `?next=` is honoured only when it starts with `/` and not `//`; `//evil.example` falls back to the role's landing page.
 - `/` redirects to `/public` (307), so the landing page is not at the root.

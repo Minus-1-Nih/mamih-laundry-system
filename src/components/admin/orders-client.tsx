@@ -25,13 +25,13 @@ import { StatusBadge, statusLabels } from "@/components/ui/status-badge";
 import { TBody, TD, TH, THead, TR, Table } from "@/components/ui/table";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/cn";
-import { SERVICE_HOURS } from "@/lib/constants";
 import {
   isOverdue,
   orderSequence,
   overdueHours,
   sessionLabel,
 } from "@/lib/format";
+import { legFor, serviceHours } from "@/lib/sessions";
 import {
   countStatus,
   overdueOrders,
@@ -56,6 +56,7 @@ export function OrdersClient() {
   const orders = useAppStore((state) => state.orders);
   const users = useAppStore((state) => state.users);
   const zones = useAppStore((state) => state.zones);
+  const sessions = useAppStore((state) => state.sessions);
 
   const [search, setSearch] = useState("");
   const [zone, setZone] = useState<ZoneFilter>("all");
@@ -81,7 +82,7 @@ export function OrdersClient() {
     .filter((order) => {
       if (attention && !isOverdue(order)) return false;
       if (zone !== "all" && order.zoneId !== zone) return false;
-      if (session !== "all" && order.session !== session) return false;
+      if (session !== "all" && legFor(order) !== session) return false;
       if (status !== "all" && order.status !== status) return false;
       if (
         needle &&
@@ -154,7 +155,7 @@ export function OrdersClient() {
       order.customerName,
       order.phone,
       order.zoneId,
-      sessionLabel(order.session),
+      sessionLabel(legFor(order)),
       order.schedule,
       order.service,
       order.weight,
@@ -188,7 +189,7 @@ export function OrdersClient() {
         subtitle={`${today.length} pesanan hari ini, ${countStatus(
           today,
           "menunggu",
-        )} menunggu penjemputan, sesi ${SERVICE_HOURS}`}
+        )} menunggu penjemputan, sesi ${serviceHours(sessions)}`}
         action={
           <Link
             href="/admin/pesanan/baru"
@@ -361,7 +362,7 @@ export function OrdersClient() {
                       <TD>
                         <p className="text-sm text-ink">{order.schedule}</p>
                         <p className="text-13 text-muted">
-                          {sessionLabel(order.session)}
+                          {sessionLabel(legFor(order))}
                         </p>
                       </TD>
                       <TD>

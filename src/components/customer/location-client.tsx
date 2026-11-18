@@ -23,6 +23,7 @@ import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/cn";
 import { whatsappLink } from "@/lib/constants";
 import { formatPhone } from "@/lib/format";
+import { serviceHours } from "@/lib/sessions";
 import { useAppStore, useCurrentUser } from "@/lib/store";
 import type { ZoneId } from "@/lib/types";
 
@@ -255,6 +256,7 @@ function PageHead({
 export function LocationClient() {
   const orders = useAppStore((state) => state.orders);
   const zones = useAppStore((state) => state.zones);
+  const sessions = useAppStore((state) => state.sessions);
   const user = useCurrentUser();
   const { toast } = useToast();
 
@@ -375,7 +377,7 @@ export function LocationClient() {
                 </p>
                 <p className="mt-2 text-sm leading-relaxed text-muted">
                   Jl. Sukabirus, Bojongsoang, Kabupaten Bandung. Antar jemput
-                  tersedia setiap hari pukul 12.00-22.00 WIB.
+                  tersedia setiap hari pukul {serviceHours(sessions)}.
                 </p>
               </div>
             </div>

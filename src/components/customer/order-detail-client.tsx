@@ -17,6 +17,7 @@ import {
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { formatDateLong, formatDateShort, formatRupiah, formatTime, initials } from "@/lib/format";
+import { sessionWindowLabel } from "@/lib/sessions";
 import { useAppStore, useCurrentUser } from "@/lib/store";
 import { whatsappLink } from "@/lib/constants";
 import {
@@ -52,6 +53,7 @@ export function OrderDetailClient() {
   const code = (searchParams.get("kode") ?? "").trim();
   const orders = useAppStore((state) => state.orders);
   const zones = useAppStore((state) => state.zones);
+  const sessions = useAppStore((state) => state.sessions);
   const user = useCurrentUser();
 
   const order = orders.find(
@@ -137,7 +139,10 @@ export function OrderDetailClient() {
             <p className="mt-1 text-sm text-muted">
               {order.status === "selesai"
                 ? `Selesai diantar ${lastEventLabel(order)}`
-                : `Estimasi tiba ${orderArrivalLabel(order)}, Sesi pengantaran, 17.00-22.00 WIB`}
+                : `Estimasi tiba ${orderArrivalLabel(order)}, ${sessionWindowLabel(
+                    "delivery",
+                    sessions,
+                  )}`}
             </p>
           </div>
         </div>

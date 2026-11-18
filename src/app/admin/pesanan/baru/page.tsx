@@ -17,16 +17,20 @@ import { appBaseUrl, trackingUrl, whatsappLinkTo } from "@/lib/constants";
 import { DEMO_NOW, DEMO_NOW_ISO } from "@/lib/demo-date";
 import {
   addDaysToKey,
+  deliveryDateFor,
   formatDateKey,
   formatDateKeyShort,
   formatTime,
   nextOrderCode,
+  tierLabel,
   todayKey,
+  turnaroundDays,
 } from "@/lib/format";
 import {
   countRequired,
   parseOrderMessage,
   parsedFieldLabels,
+  requiredFields,
   sampleOrderMessage,
   validateParsedOrder,
   type ParsedOrder,
@@ -34,8 +38,15 @@ import {
 import { orderConfirmationMessage } from "@/lib/order-messages";
 import { findSimilarOrder } from "@/lib/selectors";
 import { findServiceByLabel, serviceCatalog } from "@/lib/service-catalog";
+import {
+  bookable,
+  nextSessionDate,
+  sessionFor,
+  sessionUsed,
+  sessionWindowLabel,
+} from "@/lib/sessions";
 import { useAppStore } from "@/lib/store";
-import type { Order, ServiceTier, SessionType, ZoneId } from "@/lib/types";
+import type { Order, ServiceTier, ZoneId } from "@/lib/types";
 
 const blankMessage = `PESANAN LAUNDRY
 Nama:
@@ -44,7 +55,6 @@ Layanan:
 Paket: Reguler / Express / Kilat
 Zona:
 Patokan:
-Sesi: Penjemputan / Pengantaran
 Jadwal: 4 Nov, 14:00
 Catatan:`;
 
@@ -55,7 +65,6 @@ const knownFields = [
   "Paket",
   "Zona",
   "Patokan",
-  "Sesi",
   "Jadwal",
   "Catatan",
 ];
@@ -107,6 +116,7 @@ function PanelHead({
 
 export default function AdminNewOrderPage() {
   const orders = useAppStore((state) => state.orders);
+  const sessions = useAppStore((state) => state.sessions);
   const createOrder = useAppStore((state) => state.createOrder);
   const { toast } = useToast();
 
@@ -142,14 +152,43 @@ export default function AdminNewOrderPage() {
   const tiered = Boolean(findServiceByLabel(data?.service ?? "")?.tiered);
   const optionalMissing = data && !data.note ? ["Catatan"] : [];
 
+  const pickupCheck =
+    data && data.scheduleDate
+      ? bookable(data.scheduleDate, "pickup", sessions, orders, DEMO_NOW)
+      : null;
+  const pickupSuggestion =
+    pickupCheck && !pickupCheck.ok
+      ? nextSessionDate(
+          "pickup",
+          sessions,
+          orders,
+          data?.scheduleDate || todayKey(),
+          DEMO_NOW,
+        )
+      : null;
+  const plannedDeliveryDate = data
+    ? deliveryDateFor(data.scheduleDate, data.tier || undefined)
+    : "";
+  const deliverySession = sessionFor("delivery", sessions);
+  const deliveryUsed = plannedDeliveryDate
+    ? sessionUsed(orders, "delivery", plannedDeliveryDate)
+    : 0;
+  const deliveryCheck =
+    data && plannedDeliveryDate
+      ? bookable(plannedDeliveryDate, "delivery", sessions, orders, DEMO_NOW)
+      : null;
+  const plannedTurnaround = data
+    ? turnaroundDays(data.tier || undefined)
+    : 0;
+
   const subtitle =
     stage === "input"
       ? "Tempel pesan WhatsApp, parse otomatis, lalu periksa hasilnya sebelum disimpan"
       : formError
         ? "Pesan tidak mengikuti template, periksa kembali"
         : missingFields.length
-          ? `${requiredFound} dari 7 field wajib terbaca, lengkapi kolom yang ditandai`
-          : `${requiredFound} dari 7 field wajib terbaca, periksa lalu simpan pesanan`;
+          ? `${requiredFound} dari ${requiredFields.length} field wajib terbaca, lengkapi kolom yang ditandai`
+          : `${requiredFound} dari ${requiredFields.length} field wajib terbaca, periksa lalu simpan pesanan`;
 
   function handleRawChange(value: string) {
     setRaw(value);
@@ -162,7 +201,7 @@ export default function AdminNewOrderPage() {
   }
 
   function parseText(text: string) {
-    const result = parseOrderMessage(text, { today: DEMO_NOW });
+    const result = parseOrderMessage(text, { today: DEMO_NOW, sessions });
     setData(result.data);
     setErrors(result.errors);
     setWarnings(result.warnings);
@@ -217,7 +256,7 @@ export default function AdminNewOrderPage() {
       }
     }
 
-    const validation = validateParsedOrder(next, { today: DEMO_NOW });
+    const validation = validateParsedOrder(next, { today: DEMO_NOW, sessions });
     setData(next);
     setErrors(validation.errors);
     setWarnings(validation.warnings);
@@ -238,7 +277,7 @@ export default function AdminNewOrderPage() {
   function handleSave(force = false) {
     if (!data || formError) return;
 
-    const validation = validateParsedOrder(data, { today: DEMO_NOW });
+    const validation = validateParsedOrder(data, { today: DEMO_NOW, sessions });
     setErrors(validation.errors);
     setWarnings(validation.warnings);
     if (Object.keys(validation.errors).length > 0) {
@@ -270,7 +309,6 @@ export default function AdminNewOrderPage() {
       weight: "Belum ditimbang",
       total: 0,
       zoneId: data.zoneId as ZoneId,
-      session: data.session as SessionType,
       schedule: data.schedule,
       landmark: data.landmark.trim(),
       note: data.note.trim() || undefined,
@@ -319,7 +357,7 @@ export default function AdminNewOrderPage() {
 
   const baseUrl = createdOrder ? appBaseUrl() : "";
   const successMessage = createdOrder
-    ? orderConfirmationMessage(createdOrder, baseUrl)
+    ? orderConfirmationMessage(createdOrder, baseUrl, sessions)
     : "";
   const successTrackingUrl = createdOrder
     ? trackingUrl(createdOrder.code, baseUrl)
@@ -512,10 +550,10 @@ export default function AdminNewOrderPage() {
               <p className="mt-4 text-13 leading-relaxed text-muted">
                 Zona menerima kode (Z1) atau nama (Sukabirus).
                 <br />
-                Sesi menerima Penjemputan/Pickup dan Pengantaran/Delivery.
-                <br />
-                Jam mengikuti sesi: penjemputan 12.00–17.00, pengantaran
-                17.00–22.00.
+                Jam mengikuti sesi: penjemputan{" "}
+                {sessionWindowLabel("pickup", sessions)}, pengantaran{" "}
+                {sessionWindowLabel("delivery", sessions)}. Label Sesi lama
+                diabaikan.
               </p>
             </>
           ) : (
@@ -686,33 +724,6 @@ export default function AdminNewOrderPage() {
                 </Field>
 
                 <Field
-                  label="Sesi"
-                  htmlFor="sesi"
-                  required
-                  error={errors.session}
-                  errorTone="warning"
-                >
-                  <Select
-                    id="sesi"
-                    value={data.session}
-                    onChange={(event) =>
-                      updateField(
-                        "session",
-                        event.target.value as SessionType | "",
-                      )
-                    }
-                    className={cn(
-                      errors.session &&
-                        "border-waiting-fg ring-1 ring-waiting-fg",
-                    )}
-                  >
-                    <option value="">Pilih sesi</option>
-                    <option value="pickup">Penjemputan</option>
-                    <option value="delivery">Pengantaran</option>
-                  </Select>
-                </Field>
-
-                <Field
                   label="Jadwal"
                   htmlFor="jadwal"
                   required
@@ -799,6 +810,37 @@ export default function AdminNewOrderPage() {
                       />
                     </div>
                   ) : null}
+
+                  {data ? (
+                    <div className="mt-3 w-full border-t border-rule pt-2.5 text-13">
+                      <p className="text-ink">
+                        Pengantaran:{" "}
+                        <span className="font-medium">
+                          {dateChipLabel(plannedDeliveryDate)}
+                        </span>{" "}
+                        · {sessionWindowLabel("delivery", sessions)} ·{" "}
+                        <span
+                          className={cn(
+                            "inline-flex border px-1.5 font-medium",
+                            deliveryCheck?.ok
+                              ? "border-rule text-ink"
+                              : "border-danger-fg text-danger-fg",
+                          )}
+                        >
+                          {deliveryUsed}/{deliverySession?.capacity ?? 0}
+                        </span>
+                      </p>
+                      <p className="mt-0.5 text-muted">
+                        {data.tier ? tierLabel(data.tier) : "Reguler"} ·{" "}
+                        {plannedTurnaround} hari
+                      </p>
+                      {deliveryCheck && !deliveryCheck.ok ? (
+                        <p className="mt-1 text-danger-fg">
+                          Pengantaran: {deliveryCheck.reason}
+                        </p>
+                      ) : null}
+                    </div>
+                  ) : null}
                 </Field>
 
                 <Field
@@ -838,6 +880,22 @@ export default function AdminNewOrderPage() {
               <p className="mt-2 text-13 text-muted">
                 Format kode: ZONA-YYMMDD-URUTAN, contoh Z2-261104-012.
               </p>
+
+              {pickupCheck && !pickupCheck.ok ? (
+                <div className="mt-4 border border-danger-fg bg-paper px-3 py-2.5 text-13 leading-relaxed text-danger-fg">
+                  <p>Penjemputan: {pickupCheck.reason}</p>
+                  {pickupSuggestion ? (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="mt-2"
+                      onClick={() => updateField("scheduleDate", pickupSuggestion)}
+                    >
+                      Gunakan {dateChipLabel(pickupSuggestion)}
+                    </Button>
+                  ) : null}
+                </div>
+              ) : null}
 
               {warnings.schedule ? (
                 <div className="mt-4 border border-waiting-fg bg-waiting-bg px-3 py-2.5 text-13 leading-relaxed text-waiting-fg">

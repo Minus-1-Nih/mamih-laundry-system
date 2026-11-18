@@ -1,9 +1,10 @@
 import { isoAt } from "@/lib/demo-date";
+import { dateKeyWib, deliveryDateFor } from "@/lib/format";
 import type {
   Order,
   OrderStatus,
   OperationalSession,
-  SessionType,
+  ServiceTier,
   StatusEvent,
   User,
   Zone,
@@ -17,8 +18,8 @@ export const seedZones: Zone[] = [
 ];
 
 export const seedSessions: OperationalSession[] = [
-  { type: "pickup", start: "12.00", end: "17.00", open: true },
-  { type: "delivery", start: "17.00", end: "22.00", open: true },
+  { type: "pickup", start: "08.00", cutoff: "16.00", end: "17.00", capacity: 20, open: true },
+  { type: "delivery", start: "17.00", cutoff: "16.00", end: "21.00", capacity: 12, open: true },
 ];
 
 export const seedUsers: User[] = [
@@ -127,11 +128,13 @@ interface OrderSeed {
   customerName: string;
   phone: string;
   service: string;
+  tier?: ServiceTier;
   weight: string;
   total: number;
   zoneId: ZoneId;
-  session: SessionType;
   schedule: string;
+  scheduleDate?: string;
+  deliveryDate?: string;
   status: OrderStatus;
   createdAt: string;
   landmark: string;
@@ -141,10 +144,14 @@ interface OrderSeed {
 }
 
 function makeOrder(seed: OrderSeed): Order {
-  if (seed.history) return { ...seed, history: seed.history };
+  const pickupDate = seed.scheduleDate ?? dateKeyWib(seed.createdAt);
+  const deliveryDate = seed.deliveryDate ?? deliveryDateFor(pickupDate, seed.tier);
+  const base = { ...seed, scheduleDate: pickupDate, deliveryDate };
 
-  const base = new Date(seed.createdAt).getTime();
-  const at = (hours: number) => new Date(base + hours * 3_600_000).toISOString();
+  if (seed.history) return { ...base, history: seed.history };
+
+  const baseTime = new Date(seed.createdAt).getTime();
+  const at = (hours: number) => new Date(baseTime + hours * 3_600_000).toISOString();
   const actor = seed.driverId ? driverNames[seed.driverId] ?? "Driver" : "Admin";
   const history: StatusEvent[] = [
     { status: "menunggu", at: seed.createdAt, by: "Admin Sari", note: "Pesanan dibuat" },
@@ -177,7 +184,7 @@ function makeOrder(seed: OrderSeed): Order {
     });
   }
 
-  return { ...seed, history };
+  return { ...base, history };
 }
 
 const today = "2026-11-04";
@@ -188,10 +195,10 @@ export const seedOrders: Order[] = [
     customerName: "Nadia Putri",
     phone: "0813-7788-1201",
     service: "Cuci Kering Setrika",
+    tier: "reguler",
     weight: "3 kg",
     total: 29_000,
     zoneId: "Z1",
-    session: "pickup",
     schedule: "14.00",
     status: "menunggu",
     createdAt: isoAt(today, "13:40"),
@@ -203,10 +210,10 @@ export const seedOrders: Order[] = [
     customerName: "Rina Lestari",
     phone: "0812-9100-4452",
     service: "Cuci Kering Setrika",
+    tier: "express",
     weight: "4 kg",
     total: 37_000,
     zoneId: "Z1",
-    session: "delivery",
     schedule: "14.20",
     status: "dicuci",
     createdAt: isoAt(today, "10:00"),
@@ -221,7 +228,6 @@ export const seedOrders: Order[] = [
     weight: "5 kg",
     total: 45_000,
     zoneId: "Z2",
-    session: "pickup",
     schedule: "15.00",
     status: "siap",
     createdAt: isoAt(today, "08:00"),
@@ -237,8 +243,8 @@ export const seedOrders: Order[] = [
     weight: "4 kg",
     total: 37_000,
     zoneId: "Z3",
-    session: "delivery",
     schedule: "15.15",
+    deliveryDate: "2026-11-04",
     status: "selesai",
     createdAt: isoAt(today, "07:00"),
     landmark: "Jl. Ciganitri No. 8, Kos Melati",
@@ -249,10 +255,10 @@ export const seedOrders: Order[] = [
     customerName: "Siti Rahma",
     phone: "0812-3456-7820",
     service: "Cuci Kering Setrika",
+    tier: "reguler",
     weight: "3,5 kg",
     total: 32_000,
     zoneId: "Z2",
-    session: "pickup",
     schedule: "12.00",
     status: "menunggu",
     createdAt: isoAt(today, "11:49"),
@@ -268,7 +274,6 @@ export const seedOrders: Order[] = [
     weight: "6 kg",
     total: 53_000,
     zoneId: "Z1",
-    session: "pickup",
     schedule: "16.30",
     status: "dicuci",
     createdAt: isoAt(today, "09:30"),
@@ -283,7 +288,6 @@ export const seedOrders: Order[] = [
     weight: "2,5 kg",
     total: 25_000,
     zoneId: "Z3",
-    session: "pickup",
     schedule: "17.00",
     status: "menunggu",
     createdAt: isoAt(today, "13:20"),
@@ -298,8 +302,8 @@ export const seedOrders: Order[] = [
     weight: "4 kg",
     total: 37_000,
     zoneId: "Z2",
-    session: "delivery",
     schedule: "17.30",
+    deliveryDate: "2026-11-04",
     status: "siap",
     createdAt: isoAt(today, "08:20"),
     landmark: "Jl. Sukapura No. 7, Kos Biru",
@@ -309,10 +313,10 @@ export const seedOrders: Order[] = [
     customerName: "Intan Permata",
     phone: "0813-5566-1122",
     service: "Cuci Kering Setrika",
+    tier: "express",
     weight: "5 kg",
     total: 45_000,
     zoneId: "Z1",
-    session: "delivery",
     schedule: "18.00",
     status: "dicuci",
     createdAt: isoAt(today, "09:10"),
@@ -327,7 +331,6 @@ export const seedOrders: Order[] = [
     weight: "3 kg",
     total: 29_000,
     zoneId: "Z3",
-    session: "pickup",
     schedule: "13.00",
     status: "menunggu",
     createdAt: isoAt(today, "12:40"),
@@ -342,7 +345,6 @@ export const seedOrders: Order[] = [
     weight: "4,5 kg",
     total: 41_000,
     zoneId: "Z2",
-    session: "delivery",
     schedule: "19.00",
     status: "menunggu",
     createdAt: isoAt(today, "13:30"),
@@ -355,10 +357,10 @@ export const seedOrders: Order[] = [
     customerName: "Adinda Putri",
     phone: "0813-0000-0001",
     service: "Cuci Kering Setrika",
+    tier: "reguler",
     weight: "3 kg",
     total: 29_000,
     zoneId: "Z1",
-    session: "pickup",
     schedule: "14.00",
     status: "menunggu",
     createdAt: isoAt(today, "13:50"),
@@ -371,10 +373,10 @@ export const seedOrders: Order[] = [
     customerName: "Lestari Wijaya",
     phone: "0815-4400-1188",
     service: "Cuci Kering Setrika",
+    tier: "kilat",
     weight: "5 kg",
     total: 45_000,
     zoneId: "Z3",
-    session: "pickup",
     schedule: "16.00",
     status: "dicuci",
     createdAt: isoAt(today, "09:20"),
@@ -389,7 +391,6 @@ export const seedOrders: Order[] = [
     weight: "4 kg",
     total: 37_000,
     zoneId: "Z1",
-    session: "pickup",
     schedule: "15.30",
     status: "dicuci",
     createdAt: isoAt(today, "09:40"),
@@ -404,8 +405,8 @@ export const seedOrders: Order[] = [
     weight: "3 kg",
     total: 29_000,
     zoneId: "Z2",
-    session: "pickup",
     schedule: "16.00",
+    deliveryDate: "2026-11-04",
     status: "siap",
     createdAt: isoAt(today, "08:30"),
     landmark: "Jl. Sukapura No. 11, Kos Anggrek",
@@ -418,8 +419,8 @@ export const seedOrders: Order[] = [
     weight: "2 kg",
     total: 25_000,
     zoneId: "Z3",
-    session: "delivery",
     schedule: "18.30",
+    deliveryDate: "2026-11-04",
     status: "siap",
     createdAt: isoAt(today, "08:40"),
     landmark: "Jl. Ciganitri No. 5, Kos Biru",
@@ -429,11 +430,12 @@ export const seedOrders: Order[] = [
     customerName: "Putri Amelia",
     phone: "0813-8080-9090",
     service: "Cuci Kering Setrika",
+    tier: "reguler",
     weight: "5,5 kg",
     total: 49_000,
     zoneId: "Z1",
-    session: "delivery",
     schedule: "19.30",
+    deliveryDate: "2026-11-04",
     status: "selesai",
     createdAt: isoAt(today, "07:20"),
     landmark: "Jl. Sukabirus No. 18, Kos Putri",
@@ -444,11 +446,12 @@ export const seedOrders: Order[] = [
     customerName: "Hendra Gunawan",
     phone: "0857-7070-8080",
     service: "Express",
+    tier: "express",
     weight: "4 kg",
     total: 37_000,
     zoneId: "Z2",
-    session: "delivery",
     schedule: "20.00",
+    deliveryDate: "2026-11-04",
     status: "selesai",
     createdAt: isoAt(today, "07:30"),
     landmark: "Jl. Sukapura No. 25, Kos Putra",
@@ -463,7 +466,6 @@ export const seedOrders: Order[] = [
     weight: "4,5 kg",
     total: 41_000,
     zoneId: "Z1",
-    session: "pickup",
     schedule: "12.00",
     status: "dicuci",
     createdAt: isoAt("2026-11-03", "12:05"),
@@ -485,7 +487,6 @@ export const seedOrders: Order[] = [
     weight: "5 kg",
     total: 45_000,
     zoneId: "Z1",
-    session: "delivery",
     schedule: "17.00",
     status: "siap",
     createdAt: isoAt("2026-11-02", "08:00"),
@@ -501,7 +502,6 @@ export const seedOrders: Order[] = [
     weight: "4 kg",
     total: 37_000,
     zoneId: "Z1",
-    session: "delivery",
     schedule: "17.00",
     status: "selesai",
     createdAt: isoAt("2026-10-30", "08:00"),
@@ -517,7 +517,6 @@ export const seedOrders: Order[] = [
     weight: "6 kg",
     total: 53_000,
     zoneId: "Z1",
-    session: "delivery",
     schedule: "17.00",
     status: "selesai",
     createdAt: isoAt("2026-10-24", "08:00"),
@@ -533,7 +532,6 @@ export const seedOrders: Order[] = [
     weight: "2,5 kg",
     total: 25_000,
     zoneId: "Z1",
-    session: "delivery",
     schedule: "17.00",
     status: "selesai",
     createdAt: isoAt("2026-10-17", "08:00"),

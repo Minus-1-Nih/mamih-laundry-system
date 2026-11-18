@@ -22,6 +22,7 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { TBody, TD, TH, THead, TR, Table } from "@/components/ui/table";
 import { DEMO_NOW } from "@/lib/demo-date";
 import { formatDateShort, formatRupiah, sessionLabel } from "@/lib/format";
+import { legFor } from "@/lib/sessions";
 import { customerOrders } from "@/lib/selectors";
 import { useAppStore, useCurrentUser } from "@/lib/store";
 import { whatsappLink } from "@/lib/constants";
@@ -247,7 +248,7 @@ export function HistoryClient() {
                         {order.code}
                       </p>
                       <p className="mt-0.5 text-13 text-muted">
-                        {sessionLabel(order.session)}, {order.zoneId}
+                        {sessionLabel(legFor(order))}, {order.zoneId}
                       </p>
                     </TD>
                     <TD className="whitespace-nowrap text-sm font-medium text-ink">

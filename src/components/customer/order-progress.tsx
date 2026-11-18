@@ -1,6 +1,10 @@
+"use client";
+
 import { Check } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { formatDateKeyLong, formatDateTime, orderArrivalKey } from "@/lib/format";
+import { sessionWindowLabel } from "@/lib/sessions";
+import { useAppStore } from "@/lib/store";
 import type { Order, StatusEvent } from "@/lib/types";
 
 function findEvent(order: Order, notes: string[]): StatusEvent | undefined {
@@ -30,6 +34,7 @@ export function CustomerOrderProgress({
   className,
   showStage = true,
 }: CustomerOrderProgressProps) {
+  const sessions = useAppStore((state) => state.sessions);
   const created =
     order.history.find(
       (event) =>
@@ -92,7 +97,10 @@ export function CustomerOrderProgress({
         stamp(ready) ??
         (reachedWash
           ? "Menunggu penjadwalan"
-          : `Estimasi ${orderArrivalLabel(order)}, 17.00-22.00 WIB`),
+          : `Estimasi ${orderArrivalLabel(order)}, ${sessionWindowLabel(
+              "delivery",
+              sessions,
+            )}`),
       state: reachedDone
         ? ("done" as const)
         : order.status === "siap"

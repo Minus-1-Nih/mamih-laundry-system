@@ -92,6 +92,26 @@ export function orderDate(order: Order): string {
   return order.scheduleDate ?? dateKeyWib(order.createdAt);
 }
 
+/** Days from pickup to delivery, per package. Unknown tiers behave as Reguler. */
+export const TURNAROUND_DAYS: Record<ServiceTier, number> = {
+  reguler: 2,
+  express: 1,
+  kilat: 1,
+};
+
+export function turnaroundDays(tier?: ServiceTier): number {
+  return TURNAROUND_DAYS[tier ?? "reguler"];
+}
+
+export function deliveryDateFor(pickupDate: string, tier?: ServiceTier): string {
+  return addDaysToKey(pickupDate, turnaroundDays(tier));
+}
+
+/** The delivery leg's day, with the tier turnaround as the fallback. */
+export function orderDeliveryDate(order: Order): string {
+  return order.deliveryDate ?? deliveryDateFor(orderDate(order), order.tier);
+}
+
 /** "4 Nov 2026" from a YYYY-MM-DD key. */
 export function formatDateKey(key: string): string {
   return shortDate.format(new Date(`${key}T12:00:00+07:00`));
@@ -224,9 +244,9 @@ export function nextOrderCode(
   return code;
 }
 
-/** Arrival day (YYYY-MM-DD): two days after the scheduled pickup/delivery day. */
+/** Arrival day (YYYY-MM-DD): the delivery leg's day. */
 export function orderArrivalKey(order: Order): string {
-  return addDaysToKey(orderDate(order), 2);
+  return orderDeliveryDate(order);
 }
 
 export function isToday(iso: string): boolean {
@@ -243,11 +263,18 @@ function scheduledAt(order: Order): Date {
 }
 
 export function isOverdue(order: Order, now: Date = DEMO_NOW): boolean {
-  if (order.status !== "menunggu") return false;
-  return scheduledAt(order).getTime() < now.getTime();
+  if (order.status === "menunggu") {
+    return scheduledAt(order).getTime() < now.getTime();
+  }
+  if (order.status === "siap") {
+    // A ready order is late once its delivery day has passed.
+    return orderDeliveryDate(order) < todayKey(now);
+  }
+  return false;
 }
 
 export function overdueHours(order: Order, now: Date = DEMO_NOW): number {
+  if (order.status !== "menunggu") return 0;
   return Math.max(
     0,
     Math.floor((now.getTime() - scheduledAt(order).getTime()) / 3_600_000),

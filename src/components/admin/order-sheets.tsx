@@ -8,24 +8,45 @@ import { StatusBadge, statusLabels } from "@/components/ui/status-badge";
 import { useToast } from "@/components/ui/toast";
 import { cn } from "@/lib/cn";
 import { appBaseUrl, whatsappLinkTo } from "@/lib/constants";
+import { DEMO_NOW } from "@/lib/demo-date";
 import {
+  addDaysToKey,
   formatDateKey,
   formatDateTime,
   orderDate,
+  orderDeliveryDate,
   scheduleDateLabel,
-  sessionLabel,
-  todayKey,
 } from "@/lib/format";
 import { orderConfirmationMessage } from "@/lib/order-messages";
+import {
+  nextSessionDate,
+  sessionFor,
+  sessionWindowLabel,
+} from "@/lib/sessions";
 import { useAppStore } from "@/lib/store";
-import type { Order, OrderStatus, User, Zone } from "@/lib/types";
+import type {
+  Order,
+  OrderStatus,
+  SessionType,
+  User,
+  Zone,
+} from "@/lib/types";
 
-function DetailRow({ label, value }: { label: string; value: ReactNode }) {
+function DetailRow({
+  label,
+  value,
+  action,
+}: {
+  label: string;
+  value: ReactNode;
+  action?: ReactNode;
+}) {
   return (
     <div className="flex items-start justify-between gap-4 border-b border-rule py-2.5 last:border-0">
       <dt className="shrink-0 text-13 text-muted">{label}</dt>
       <dd className="max-w-[62%] text-right text-sm font-medium text-ink">
         {value}
+        {action ? <div className="mt-1.5">{action}</div> : null}
       </dd>
     </div>
   );
@@ -58,19 +79,91 @@ export function OrderDetailSheet({
   onEditStatus,
   onDelete,
 }: OrderDetailSheetProps) {
+  const sessions = useAppStore((state) => state.sessions);
+  const orders = useAppStore((state) => state.orders);
+  const allocateOrder = useAppStore((state) => state.allocateOrder);
+  const { toast } = useToast();
+
   if (!order) return null;
+  const detailOrder = order;
 
   const zone = zones.find((item) => item.id === order.zoneId);
   const driver = users.find((user) => user.id === order.driverId);
-  const scheduledDay = orderDate(order);
-  const scheduleValue =
-    scheduledDay === todayKey()
-      ? `${order.schedule} WIB`
-      : `${scheduleDateLabel(scheduledDay)} · ${order.schedule} WIB`;
+  const pickupDate = orderDate(order);
+  const deliveryDate = orderDeliveryDate(order);
+  const others = orders.filter(
+    (item) => item.code !== order.code && !item.deletedAt,
+  );
   const wa = whatsappLinkTo(
     order.phone,
-    orderConfirmationMessage(order, appBaseUrl()),
+    orderConfirmationMessage(order, appBaseUrl(), sessions),
   );
+
+  function nextDateFor(type: SessionType): string | null {
+    const current = type === "pickup" ? pickupDate : deliveryDate;
+    return nextSessionDate(
+      type,
+      sessions,
+      others,
+      addDaysToKey(current, 1),
+      DEMO_NOW,
+    );
+  }
+
+  function moveReason(type: SessionType): string | null {
+    if (detailOrder.status === "selesai") return "Pesanan sudah selesai.";
+    const session = sessionFor(type, sessions);
+    if (!session) return "Sesi belum diatur.";
+    if (!session.open) return "Sesi sedang tutup.";
+    if (!nextDateFor(type)) return "Tidak ada tanggal kosong dalam 7 hari.";
+    return null;
+  }
+
+  function handleMove(type: SessionType) {
+    const target = nextDateFor(type);
+    if (!target) return;
+    const result = allocateOrder(
+      detailOrder.code,
+      type === "pickup" ? { pickupDate: target } : { deliveryDate: target },
+    );
+    if (!result.ok) {
+      toast({ title: result.error, tone: "error" });
+      return;
+    }
+    toast({
+      title: `${
+        type === "pickup" ? "Penjemputan" : "Pengantaran"
+      } dipindah ke ${scheduleDateLabel(target)}.`,
+    });
+  }
+
+  function moveButton(type: SessionType) {
+    const reason = moveReason(type);
+    return (
+      <div>
+        <button
+          type="button"
+          disabled={Boolean(reason)}
+          onClick={() => handleMove(type)}
+          className={cn(
+            "inline-flex h-7 items-center border px-2.5 text-13 font-medium transition-colors duration-[var(--dur-micro)]",
+            reason
+              ? "border-rule text-muted"
+              : "border-accent text-accent hover:bg-accent hover:text-accent-ink",
+          )}
+        >
+          Pindahkan
+        </button>
+        {reason ? (
+          <p className="mt-1 text-13 font-normal text-muted">{reason}</p>
+        ) : (
+          <p className="mt-1 text-13 font-normal text-muted">
+            Otomatis ke tanggal kosong berikutnya.
+          </p>
+        )}
+      </div>
+    );
+  }
 
   return (
     <Sheet
@@ -129,8 +222,32 @@ export function OrderDetailSheet({
           label="Zona"
           value={`${order.zoneId}, ${zone?.name ?? ""}`}
         />
-        <DetailRow label="Sesi" value={sessionLabel(order.session)} />
-        <DetailRow label="Jadwal" value={scheduleValue} />
+        <DetailRow
+          label="Penjemputan"
+          value={
+            <>
+              <p>
+                {scheduleDateLabel(pickupDate)} · {order.schedule} WIB
+              </p>
+              <p className="text-13 font-normal text-muted">
+                {sessionWindowLabel("pickup", sessions)}
+              </p>
+            </>
+          }
+          action={moveButton("pickup")}
+        />
+        <DetailRow
+          label="Pengantaran"
+          value={
+            <>
+              <p>{scheduleDateLabel(deliveryDate)}</p>
+              <p className="text-13 font-normal text-muted">
+                {sessionWindowLabel("delivery", sessions)}
+              </p>
+            </>
+          }
+          action={moveButton("delivery")}
+        />
         <DetailRow label="Patokan" value={order.landmark} />
         <DetailRow
           label="Driver"
@@ -141,7 +258,7 @@ export function OrderDetailSheet({
 
       <BlockLabel>Riwayat status</BlockLabel>
       <div className="mt-2">
-        <OrderTimeline order={order} variant="admin" />
+        <OrderTimeline order={order} sessions={sessions} variant="admin" />
       </div>
       <p className="mt-4 border-l-2 border-gold bg-paper-2 px-3 py-2.5 text-13 leading-relaxed text-muted">
         Setiap perubahan status dicatat otomatis: waktu, status baru, dan
@@ -202,6 +319,7 @@ function OrderStatusSheetForm({
 }: OrderStatusSheetFormProps) {
   const updateOrderStatus = useAppStore((state) => state.updateOrderStatus);
   const zones = useAppStore((state) => state.zones);
+  const sessions = useAppStore((state) => state.sessions);
   const { toast } = useToast();
   const [selected, setSelected] = useState<OrderStatus>(order.status);
 
@@ -303,10 +421,14 @@ function OrderStatusSheetForm({
           value={`${order.customerName}, ${order.phone}`}
         />
         <DetailRow
-          label="Jadwal"
-          value={`${formatDateKey(orderDate(order))}, ${order.schedule}, ${sessionLabel(
-            order.session,
-          )}`}
+          label="Penjemputan"
+          value={`${formatDateKey(orderDate(order))}, ${order.schedule} WIB`}
+        />
+        <DetailRow
+          label="Pengantaran"
+          value={`${formatDateKey(
+            orderDeliveryDate(order),
+          )}, ${sessionWindowLabel("delivery", sessions)}`}
         />
         <DetailRow
           label="Driver"

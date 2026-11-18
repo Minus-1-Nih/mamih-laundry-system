@@ -13,7 +13,9 @@ import {
   matchService,
   matchTier,
 } from "@/lib/service-catalog";
-import type { ServiceTier, SessionType, ZoneId } from "@/lib/types";
+import { seedSessions } from "@/lib/seed";
+import { sessionFor } from "@/lib/sessions";
+import type { OperationalSession, ServiceTier, ZoneId } from "@/lib/types";
 
 export interface ParsedOrder {
   customerName: string;
@@ -22,7 +24,6 @@ export interface ParsedOrder {
   tier: ServiceTier | "";
   zoneId: ZoneId | "";
   landmark: string;
-  session: SessionType | "";
   schedule: string;
   /** YYYY-MM-DD, defaulted to today. */
   scheduleDate: string;
@@ -49,7 +50,6 @@ export const requiredFields = [
   "service",
   "zoneId",
   "landmark",
-  "session",
   "schedule",
 ] as const satisfies readonly (keyof ParsedOrder)[];
 
@@ -60,7 +60,6 @@ export const parsedFieldLabels: Record<keyof ParsedOrder, string> = {
   tier: "Paket",
   zoneId: "Zona",
   landmark: "Patokan alamat",
-  session: "Sesi",
   schedule: "Jadwal",
   scheduleDate: "Tanggal jadwal",
   note: "Catatan",
@@ -73,7 +72,6 @@ Layanan: Cuci Kering Setrika
 Paket: Reguler
 Zona: Z2
 Patokan: Kos Melati, Jl. Sukapura No. 18
-Sesi: Penjemputan
 Jadwal: 4 Nov, 14:00
 Catatan: Pisahkan pakaian putih`;
 
@@ -101,8 +99,6 @@ const aliases: Record<string, keyof ParsedOrder> = {
   alamat: "landmark",
   "alamat/patokan": "landmark",
   "alamat patokan": "landmark",
-  sesi: "session",
-  "sesi layanan": "session",
   jadwal: "schedule",
   waktu: "schedule",
   tanggal: "schedule",
@@ -110,6 +106,12 @@ const aliases: Record<string, keyof ParsedOrder> = {
   keterangan: "note",
   note: "note",
 };
+
+/**
+ * Labels the template no longer carries. MNI-5 shipped "Sesi"; MNI-7 retired the
+ * single-leg field, so an old pasted message still parses without a warning.
+ */
+const retiredLabels = new Set(["sesi", "sesi layanan"]);
 
 const MONTHS: Record<string, number> = {
   jan: 1,
@@ -142,14 +144,6 @@ const MONTHS: Record<string, number> = {
   dec: 12,
 };
 
-const sessionWindows: Record<
-  SessionType,
-  { start: number; end: number; label: string }
-> = {
-  pickup: { start: 12 * 60, end: 17 * 60, label: "penjemputan (12.00–17.00)" },
-  delivery: { start: 17 * 60, end: 22 * 60, label: "pengantaran (17.00–22.00)" },
-};
-
 function pad(value: number): string {
   return String(value).padStart(2, "0");
 }
@@ -175,13 +169,6 @@ function parseZone(value: string): ZoneId | "" {
   if (/SUKABIRUS/.test(upper)) return "Z1";
   if (/SUKAPURA/.test(upper)) return "Z2";
   if (/CIGANITRI/.test(upper)) return "Z3";
-  return "";
-}
-
-function parseSession(value: string): SessionType | "" {
-  const lower = value.toLowerCase();
-  if (/penjemputan|pickup|jemput/.test(lower)) return "pickup";
-  if (/pengantaran|delivery|antar/.test(lower)) return "delivery";
   return "";
 }
 
@@ -268,6 +255,7 @@ function parseScheduleValue(
 
 export interface ValidationOptions {
   today?: Date;
+  sessions?: OperationalSession[];
 }
 
 /** Service is a select, so a value that is not a catalogue label is unresolved. */
@@ -311,11 +299,14 @@ export function validateParsedOrder(
     }
   }
 
-  if (data.session && data.schedule && !errors.schedule) {
-    const window = sessionWindows[data.session];
+  if (data.schedule && !errors.schedule) {
+    const pickup = sessionFor("pickup", options.sessions ?? seedSessions);
     const minutes = timeToMinutes(data.schedule);
-    if (minutes < window.start || minutes >= window.end) {
-      warnings.schedule = `Di luar sesi ${window.label}. Tetap simpan?`;
+    if (
+      pickup &&
+      (minutes < timeToMinutes(pickup.start) || minutes >= timeToMinutes(pickup.end))
+    ) {
+      errors.schedule = `Jam penjemputan di luar sesi ${pickup.start}-${pickup.end} WIB.`;
     }
   }
 
@@ -328,7 +319,7 @@ export function countRequired(data: ParsedOrder): number {
 
 export function parseOrderMessage(
   text: string,
-  options: { today?: Date } = {},
+  options: { today?: Date; sessions?: OperationalSession[] } = {},
 ): ParseResult {
   const today = options.today ?? DEMO_NOW;
   const todayIso = todayKey(today);
@@ -357,6 +348,10 @@ export function parseOrderMessage(
       .toLowerCase();
     const field = aliases[key];
     if (!field) {
+      if (retiredLabels.has(key)) {
+        labelCount += 1;
+        continue;
+      }
       unknownLines.push(stripped);
       continue;
     }
@@ -374,7 +369,6 @@ export function parseOrderMessage(
     tier: "",
     zoneId: raw.zoneId ? parseZone(raw.zoneId) : "",
     landmark: raw.landmark ?? "",
-    session: raw.session ? parseSession(raw.session) : "",
     schedule: "",
     scheduleDate: todayIso,
     note: raw.note ?? "",
@@ -413,7 +407,10 @@ export function parseOrderMessage(
     inferred.push("scheduleDate");
   }
 
-  const validation = validateParsedOrder(data, { today });
+  const validation = validateParsedOrder(data, {
+    today,
+    sessions: options.sessions,
+  });
   const formError =
     labelCount < 2
       ? "Pesan tidak mengikuti template. Pastikan minimal Nama dan No HP ada."

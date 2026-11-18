@@ -25,6 +25,7 @@ import {
   sessionLabel,
 } from "@/lib/format";
 import { driverActiveTasks, driverZoneHistory } from "@/lib/selectors";
+import { legFor } from "@/lib/sessions";
 import { useAppStore, useCurrentUser } from "@/lib/store";
 import { whatsappLinkTo } from "@/lib/constants";
 import type { Order, OrderStatus, ZoneId } from "@/lib/types";
@@ -144,7 +145,7 @@ function HistoryCard({ order, onOpen }: { order: Order; onOpen: () => void }) {
             : "-"}
         </span>
         <span className="small-print text-muted">
-          {sessionLabel(order.session)}
+          {sessionLabel(legFor(order))}
         </span>
       </div>
 
@@ -610,7 +611,7 @@ export function DriverClient() {
               <DetailRow
                 label="Jenis layanan & berat"
                 value={detailOrder.service}
-                hint={`${detailOrder.weight}, ${sessionLabel(detailOrder.session)}`}
+                hint={`${detailOrder.weight}, ${sessionLabel(legFor(detailOrder)).toLowerCase()}`}
               />
             </dl>
 
@@ -618,7 +619,7 @@ export function DriverClient() {
               <p className="small-print text-accent">Riwayat penyelesaian</p>
               <p className="mt-1.5 text-sm font-medium text-ink">
                 {detailCompletion
-                  ? `Selesai ${sessionLabel(detailOrder.session).toLowerCase()} oleh ${detailCompletion.by} pada ${formatTime(detailCompletion.at)} WIB`
+                  ? `Selesai ${sessionLabel(legFor(detailOrder)).toLowerCase()} oleh ${detailCompletion.by} pada ${formatTime(detailCompletion.at)} WIB`
                   : "Belum ada catatan penyelesaian."}
               </p>
               {detailCompletion ? (

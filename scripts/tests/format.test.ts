@@ -85,7 +85,6 @@ function order(code: string, overrides: Partial<Order> = {}): Order {
     weight: "3 kg",
     total: 0,
     zoneId: "Z1",
-    session: "pickup",
     schedule: "14.00",
     landmark: "Kos Mawar",
     status: "menunggu",
