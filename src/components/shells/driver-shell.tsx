@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 
 export function DriverShell({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-dvh bg-paper-2 font-driver sm:py-8">
-      <div className="mx-auto min-h-dvh w-full max-w-[412px] border-ink bg-paper sm:min-h-0 sm:border-2 sm:shadow-[10px_10px_0_var(--color-paper-3)]">
+    <div className="min-h-dvh bg-[#FAF9F6] font-driver sm:py-6">
+      <div className="mx-auto min-h-dvh w-full max-w-md bg-[#FAF9F6] sm:min-h-0 sm:border sm:border-[#E2E8E4] sm:shadow-md sm:rounded-3xl overflow-hidden">
         {children}
       </div>
     </div>
