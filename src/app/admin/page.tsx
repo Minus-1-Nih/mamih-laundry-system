@@ -15,18 +15,22 @@ import {
   isSessionActive,
   orderSequence,
   sessionLabel,
+  todayKey,
 } from "@/lib/format";
 import {
-  countSession,
   countStatus,
   countZone,
   overdueOrders,
   readyWithoutDriver,
   todayOrders,
 } from "@/lib/selectors";
+import {
+  legFor,
+  serviceHours,
+  sessionUsed,
+} from "@/lib/sessions";
 import { useAppStore } from "@/lib/store";
-import { SERVICE_HOURS } from "@/lib/constants";
-import type { SessionType } from "@/lib/types";
+import type { OperationalSession } from "@/lib/types";
 
 function Metric({
   label,
@@ -53,19 +57,16 @@ function Metric({
 }
 
 function SessionBlock({
-  type,
-  start,
-  end,
-  count,
+  session,
+  used,
   drivers,
 }: {
-  type: SessionType;
-  start: string;
-  end: string;
-  count: number;
+  session: OperationalSession;
+  used: number;
   drivers: number;
 }) {
-  const active = isSessionActive(start, end);
+  const active = isSessionActive(session.start, session.end) && session.open;
+  const fill = Math.min(100, Math.round((used / session.capacity) * 100));
 
   return (
     <div
@@ -76,7 +77,7 @@ function SessionBlock({
       )}
     >
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-medium text-ink">{sessionLabel(type)}</p>
+        <p className="text-sm font-medium text-ink">{sessionLabel(session.type)}</p>
         <span
           className={cn(
             "small-print flex shrink-0 items-center gap-1.5",
@@ -94,10 +95,21 @@ function SessionBlock({
         </span>
       </div>
       <p className="mt-4 font-display text-3xl leading-none">
-        {count} <span className="text-base">pesanan</span>
+        {used}{" "}
+        <span className="text-base text-muted">/ {session.capacity} pesanan</span>
       </p>
-      <p className="small-print mt-4 border-t border-rule pt-2 text-muted">
-        {start}-{end} WIB, {drivers} driver
+      <div
+        aria-hidden="true"
+        className="mt-3 h-1.5 w-full bg-paper-2"
+      >
+        <div
+          className={cn("h-full", used >= session.capacity ? "bg-danger-fg" : "bg-accent")}
+          style={{ width: `${fill}%` }}
+        />
+      </div>
+      <p className="small-print mt-3 border-t border-rule pt-2 text-muted">
+        {session.start}-{session.end} WIB, konfirmasi sampai {session.cutoff},{" "}
+        {drivers} driver
       </p>
     </div>
   );
@@ -117,6 +129,12 @@ export default function AdminDashboardPage() {
   const done = countStatus(today, "selesai");
   const late = overdueOrders(today);
   const withoutDriver = readyWithoutDriver(today);
+  const hours = serviceHours(sessions);
+  const day = todayKey();
+  const driverCount = users.filter((user) => user.role === "driver").length;
+  const unallocated = orders.filter(
+    (order) => !order.deletedAt && (!order.scheduleDate || !order.deliveryDate),
+  ).length;
   const recent = [...today]
     .sort((a, b) => orderSequence(a.code) - orderSequence(b.code))
     .slice(0, 5);
@@ -126,7 +144,7 @@ export default function AdminDashboardPage() {
     <>
       <AdminPageHeader
         title="Dashboard operasional"
-        subtitle={`${DEMO_DATE_LONG}, sesi operasional ${SERVICE_HOURS}`}
+        subtitle={`${DEMO_DATE_LONG}, sesi operasional ${hours}`}
         action={
           <Link
             href="/admin/pesanan/baru"
@@ -174,7 +192,16 @@ export default function AdminDashboardPage() {
                 Sesi operasional hari ini
               </h2>
               <p className="mt-0.5 text-13 text-muted">
-                Penjemputan 12.00-17.00, pengantaran 17.00-22.00 WIB.
+                {sessions
+                  .map(
+                    (session) =>
+                      `${sessionLabel(session.type)} ${session.start}-${session.end}`,
+                  )
+                  .join(" · ")}
+                .{" "}
+                {unallocated > 0
+                  ? `${unallocated} pesanan belum dialokasikan.`
+                  : "Semua pesanan sudah dialokasikan."}
               </p>
             </div>
             <Link
@@ -188,11 +215,9 @@ export default function AdminDashboardPage() {
             {sessions.map((session) => (
               <SessionBlock
                 key={session.type}
-                type={session.type}
-                start={session.start}
-                end={session.end}
-                count={countSession(today, session.type)}
-                drivers={session.type === "pickup" ? 3 : 2}
+                session={session}
+                used={sessionUsed(orders, session.type, day)}
+                drivers={driverCount}
               />
             ))}
           </div>
@@ -279,7 +304,7 @@ export default function AdminDashboardPage() {
                       {zones.find((zone) => zone.id === order.zoneId)?.name}
                     </TD>
                     <TD className="hidden text-sm text-muted md:table-cell">
-                      {sessionLabel(order.session)}
+                      {sessionLabel(legFor(order))}
                     </TD>
                     <TD>
                       <StatusBadge

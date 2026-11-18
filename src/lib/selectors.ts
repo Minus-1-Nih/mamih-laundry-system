@@ -3,9 +3,10 @@ import {
   isOverdue,
   isToday,
   orderDate,
+  orderDeliveryDate,
   todayKey,
 } from "@/lib/format";
-import type { Order, OrderStatus, SessionType, ZoneId } from "@/lib/types";
+import type { Order, OrderStatus, ZoneId } from "@/lib/types";
 
 export function visibleOrders(orders: Order[]): Order[] {
   return orders.filter((order) => !order.deletedAt);
@@ -24,6 +25,15 @@ export function customerOrders(orders: Order[], customerId: string): Order[] {
     );
 }
 
+/**
+ * A driver's queue splits by leg: pickup tasks are due on the pickup day, and
+ * delivery tasks are due on the delivery day. An order that is still being
+ * washed does not appear as a delivery task yet.
+ */
+function driverTaskDate(order: Order): string {
+  return order.status === "siap" ? orderDeliveryDate(order) : orderDate(order);
+}
+
 export function driverActiveTasks(
   orders: Order[],
   zoneIds: ZoneId[],
@@ -33,12 +43,12 @@ export function driverActiveTasks(
     .filter(
       (order) =>
         zoneIds.includes(order.zoneId) &&
-        orderDate(order) <= today &&
-        (order.status === "menunggu" || order.status === "siap"),
+        (order.status === "menunggu" || order.status === "siap") &&
+        driverTaskDate(order) <= today,
     )
     .sort((a, b) => {
       if (a.status !== b.status) return a.status === "menunggu" ? -1 : 1;
-      const dateOrder = orderDate(a).localeCompare(orderDate(b));
+      const dateOrder = driverTaskDate(a).localeCompare(driverTaskDate(b));
       return dateOrder !== 0 ? dateOrder : a.schedule.localeCompare(b.schedule);
     });
 }
@@ -90,10 +100,6 @@ export function driverZoneHistory(
 
 export function countStatus(orders: Order[], status: OrderStatus): number {
   return orders.filter((order) => order.status === status).length;
-}
-
-export function countSession(orders: Order[], session: SessionType): number {
-  return orders.filter((order) => order.session === session).length;
 }
 
 export function countZone(orders: Order[], zoneId: ZoneId): number {

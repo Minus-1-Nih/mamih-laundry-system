@@ -54,11 +54,11 @@ npm run start
 
 - Data awal: `src/lib/seed.ts` — 6 akun internal, 1 pelanggan, 3 zona, 18 pesanan pada 4 November 2026, dan riwayat pesanan Adinda.
 - Jam demo dipatok pada **Rabu, 4 November 2026, 14.00 WIB** (`src/lib/demo-date.ts`).
-- Perubahan disimpan di `localStorage` dengan kunci `laundria-demo-v1`.
+- Perubahan disimpan di `localStorage` dengan kunci `laundria-demo-v2`.
 - Untuk mengembalikan data awal, jalankan di konsol peramban:
 
 ```js
-localStorage.removeItem("laundria-demo-v1");
+localStorage.removeItem("laundria-demo-v2");
 location.reload();
 ```
 

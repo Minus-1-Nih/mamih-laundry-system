@@ -1,8 +1,14 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { DEMO_NOW_ISO } from "@/lib/demo-date";
-import { nextOrderCode } from "@/lib/format";
+import { DEMO_NOW, DEMO_NOW_ISO } from "@/lib/demo-date";
+import {
+  deliveryDateFor,
+  nextOrderCode,
+  timeToMinutes,
+  todayKey,
+} from "@/lib/format";
 import { seedOrders, seedSessions, seedUsers, seedZones } from "@/lib/seed";
+import { bookable, planAllocation } from "@/lib/sessions";
 import type {
   AdminLevel,
   Order,
@@ -50,14 +56,19 @@ export interface CreateOrderInput {
   weight: string;
   total: number;
   zoneId: ZoneId;
-  session: SessionType;
   schedule: string;
   scheduleDate?: string;
+  deliveryDate?: string;
   serviceId?: string;
   tier?: ServiceTier;
   landmark: string;
   note?: string;
   driverId?: string;
+}
+
+export interface AllocateOrderInput {
+  pickupDate?: string;
+  deliveryDate?: string;
 }
 
 export interface UserPatch {
@@ -92,6 +103,11 @@ interface AppState {
   updateOrderStatus: (code: string, status: OrderStatus, note?: string) => Result;
   deleteOrder: (code: string) => Result;
   toggleSession: (type: SessionType) => void;
+  updateSession: (
+    type: SessionType,
+    patch: Partial<Omit<OperationalSession, "type">>,
+  ) => Result;
+  allocateOrder: (code: string, input: AllocateOrderInput) => Result;
   resetDemo: () => void;
 }
 
@@ -329,10 +345,37 @@ export const useAppStore = create<AppState>()(
 
       createOrder: (input) => {
         const state = get();
+        const pickupDate = input.scheduleDate ?? todayKey();
+        const pickupCheck = bookable(
+          pickupDate,
+          "pickup",
+          state.sessions,
+          state.orders,
+          DEMO_NOW,
+        );
+        if (!pickupCheck.ok) {
+          return { ok: false, error: `Penjemputan: ${pickupCheck.reason}` };
+        }
+
+        const deliveryDate =
+          input.deliveryDate ?? deliveryDateFor(pickupDate, input.tier);
+        const deliveryCheck = bookable(
+          deliveryDate,
+          "delivery",
+          state.sessions,
+          state.orders,
+          DEMO_NOW,
+        );
+        if (!deliveryCheck.ok) {
+          return { ok: false, error: `Pengantaran: ${deliveryCheck.reason}` };
+        }
+
         const code = nextOrderCode(input.zoneId, state.orders);
         const order: Order = {
           ...input,
           code,
+          scheduleDate: pickupDate,
+          deliveryDate,
           weight: input.weight || "Belum ditimbang",
           status: "menunggu",
           createdAt: DEMO_NOW_ISO,
@@ -399,6 +442,72 @@ export const useAppStore = create<AppState>()(
         }));
       },
 
+      updateSession: (type, patch) => {
+        const session = get().sessions.find((item) => item.type === type);
+        if (!session) return { ok: false, error: "Sesi tidak ditemukan." };
+
+        const next = { ...session, ...patch };
+        if (
+          !Number.isFinite(timeToMinutes(next.start)) ||
+          !Number.isFinite(timeToMinutes(next.end)) ||
+          !Number.isFinite(timeToMinutes(next.cutoff))
+        ) {
+          return { ok: false, error: "Jam sesi belum lengkap." };
+        }
+        if (timeToMinutes(next.start) >= timeToMinutes(next.end)) {
+          return { ok: false, error: "Jam mulai harus sebelum jam selesai." };
+        }
+        if (timeToMinutes(next.cutoff) > timeToMinutes(next.end)) {
+          return {
+            ok: false,
+            error: "Batas konfirmasi tidak boleh melewati jam selesai.",
+          };
+        }
+        if (next.capacity < 1) {
+          return { ok: false, error: "Kapasitas minimal 1 pesanan." };
+        }
+
+        set((state) => ({
+          sessions: state.sessions.map((item) =>
+            item.type === type ? next : item,
+          ),
+        }));
+        return { ok: true };
+      },
+
+      allocateOrder: (code, input) => {
+        const state = get();
+        const order = state.orders.find((item) => item.code === code);
+        if (!order) return { ok: false, error: "Pesanan tidak ditemukan." };
+        if (order.status === "selesai") {
+          return { ok: false, error: "Pesanan sudah selesai dan tidak bisa dipindah." };
+        }
+
+        const allocation = planAllocation(
+          order,
+          input,
+          state.sessions,
+          state.orders,
+          DEMO_NOW,
+        );
+        if (!allocation.ok) {
+          return { ok: false, error: allocation.error };
+        }
+
+        set((current) => ({
+          orders: current.orders.map((item) =>
+            item.code === code
+              ? {
+                  ...item,
+                  scheduleDate: allocation.pickupDate,
+                  deliveryDate: allocation.deliveryDate,
+                }
+              : item,
+          ),
+        }));
+        return { ok: true };
+      },
+
       resetDemo: () =>
         set({
           users: seedUsers,
@@ -411,7 +520,9 @@ export const useAppStore = create<AppState>()(
         }),
     }),
     {
-      name: "laundria-demo-v1",
+      // MNI-7 changed the order shape (session -> deliveryDate). A v1 blob
+      // cannot be read safely, so the key moves and the demo reseeds once.
+      name: "laundria-demo-v2",
       storage: createJSONStorage(() => localStorage),
       skipHydration: true,
       partialize: (state) => ({

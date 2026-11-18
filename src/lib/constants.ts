@@ -1,7 +1,6 @@
 export const WHATSAPP_NUMBER = "6285942570627";
 export const WHATSAPP_BASE = `https://wa.me/${WHATSAPP_NUMBER}`;
 export const STORE_NAME = "Laundria Sukabirus";
-export const SERVICE_HOURS = "12.00-22.00 WIB";
 
 /**
  * The prototype is not deployed, so there is no canonical origin to hardcode.

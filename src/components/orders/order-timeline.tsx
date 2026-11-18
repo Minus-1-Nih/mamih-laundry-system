@@ -1,7 +1,8 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { formatDateTime } from "@/lib/format";
-import type { Order, StatusEvent } from "@/lib/types";
+import { formatDateKeyLong, formatDateTime, orderArrivalKey } from "@/lib/format";
+import { sessionWindowLabel } from "@/lib/sessions";
+import type { OperationalSession, Order, StatusEvent } from "@/lib/types";
 
 type TimelineVariant = "admin" | "customer";
 type StepState = "done" | "current" | "pending";
@@ -29,7 +30,11 @@ function eventTime(event?: StatusEvent): string | undefined {
   return event ? `${formatDateTime(event.at)} WIB` : undefined;
 }
 
-function buildSteps(order: Order, variant: TimelineVariant): TimelineStep[] {
+function buildSteps(
+  order: Order,
+  variant: TimelineVariant,
+  sessions: OperationalSession[],
+): TimelineStep[] {
   const created =
     order.history.find(
       (event) =>
@@ -86,7 +91,9 @@ function buildSteps(order: Order, variant: TimelineVariant): TimelineStep[] {
         at: eventTime(ready),
         hint: reachedReady
           ? undefined
-          : "Estimasi 5 November 2026, 17.00-22.00 WIB",
+          : `Estimasi ${formatDateKeyLong(
+              orderArrivalKey(order),
+            )}, ${sessionWindowLabel("delivery", sessions)}`,
         state: reachedDone
           ? "done"
           : order.status === "siap"
@@ -151,16 +158,18 @@ function buildSteps(order: Order, variant: TimelineVariant): TimelineStep[] {
 
 export interface OrderTimelineProps {
   order: Order;
+  sessions: OperationalSession[];
   variant?: TimelineVariant;
   className?: string;
 }
 
 export function OrderTimeline({
   order,
+  sessions,
   variant = "admin",
   className,
 }: OrderTimelineProps) {
-  const steps = buildSteps(order, variant);
+  const steps = buildSteps(order, variant, sessions);
 
   return (
     <ol

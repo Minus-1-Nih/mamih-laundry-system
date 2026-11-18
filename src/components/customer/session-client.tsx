@@ -19,6 +19,7 @@ import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/cn";
 import { DEMO_DATE_LONG, DEMO_TIME } from "@/lib/demo-date";
 import { isSessionActive, isSessionNext, sessionLabel } from "@/lib/format";
+import { closedHours, serviceHours, sessionFor } from "@/lib/sessions";
 import { customerOrders } from "@/lib/selectors";
 import { useAppStore, useCurrentUser } from "@/lib/store";
 import { whatsappLink } from "@/lib/constants";
@@ -33,11 +34,11 @@ const iconMap: Record<string, LucideIcon> = {
 };
 
 function SessionBlock({ session }: { session: OperationalSession }) {
-  const active = isSessionActive(session.start, session.end);
-  const next = isSessionNext(session.start);
+  const active = session.open && isSessionActive(session.start, session.end);
+  const next = session.open && isSessionNext(session.start);
   const Icon = iconMap[session.type] ?? Clock;
   const status = active ? "Berlangsung" : next ? "Berikutnya" : "Tutup";
-  const deadline = session.type === "pickup" ? "16.00 WIB" : "21.00 WIB";
+  const deadline = `${session.cutoff} WIB`;
 
   return (
     <article
@@ -101,11 +102,13 @@ export function SessionClient() {
   const activeOrders = myOrders
     .filter((order) => order.status !== "selesai")
     .slice(0, 3);
-  const pickup = sessions.find((session) => session.type === "pickup");
-  const delivery = sessions.find((session) => session.type === "delivery");
-  const open = sessions.some((session) =>
-    isSessionActive(session.start, session.end),
+  const pickup = sessionFor("pickup", sessions);
+  const delivery = sessionFor("delivery", sessions);
+  const open = sessions.some(
+    (session) => session.open && isSessionActive(session.start, session.end),
   );
+  const closed = closedHours(sessions);
+  const hours = serviceHours(sessions);
 
   return (
     <div>
@@ -181,12 +184,15 @@ export function SessionClient() {
             </span>
           </div>
           <p className="mt-6 font-display text-3xl leading-none">
-            22.00-12.00 <span className="small-print text-muted">WIB</span>
+            {closed.replace(" WIB", "")}{" "}
+            <span className="small-print text-muted">WIB</span>
           </p>
           <div className="mt-6 border-t border-rule pt-3">
             <div className="flex items-center justify-between gap-2 text-sm">
               <span className="text-muted">Pesanan masuk</span>
-              <span className="font-medium text-ink">Dijadwalkan 12.00 WIB</span>
+              <span className="font-medium text-ink">
+                Dijadwalkan {pickup?.start ?? "-"} WIB
+              </span>
             </div>
           </div>
         </article>
@@ -251,7 +257,13 @@ export function SessionClient() {
                             : orderArrivalLabel(order)}
                         </p>
                         <p className="text-muted">
-                          {pickupOrder ? "12.00-17.00 WIB" : "17.00-22.00 WIB"}
+                          {pickupOrder
+                            ? pickup
+                              ? `${pickup.start}-${pickup.end} WIB`
+                              : "-"
+                            : delivery
+                              ? `${delivery.start}-${delivery.end} WIB`
+                              : "-"}
                         </p>
                       </div>
                     </li>
@@ -289,7 +301,7 @@ export function SessionClient() {
                 Jam layanan Laundria
               </p>
               <p className="mt-0.5 text-sm text-muted">
-                Setiap hari 12.00-22.00 WIB.
+                Setiap hari {hours}.
               </p>
               <p className="mt-0.5 text-13 text-muted">
                 Pesanan di luar jam operasional masuk ke sesi berikutnya.
@@ -368,10 +380,10 @@ export function SessionClient() {
           Zona aktif: {zones.map((zone) => `${zone.id} ${zone.name}`).join(", ")}
         </span>
         <span className="border-l border-rule pl-5">
-          Batas konfirmasi penjemputan 16.00 WIB
+          Batas konfirmasi penjemputan {pickup?.cutoff ?? "-"} WIB
         </span>
         <span className="border-l border-rule pl-5">
-          Batas konfirmasi pengantaran 21.00 WIB
+          Batas konfirmasi pengantaran {delivery?.cutoff ?? "-"} WIB
         </span>
       </div>
     </div>

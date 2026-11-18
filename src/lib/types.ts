@@ -43,10 +43,11 @@ export interface Order {
   total: number;
   note?: string;
   zoneId: ZoneId;
-  session: SessionType;
   schedule: string;
-  /** YYYY-MM-DD. Absent on rows created before the date field existed. */
+  /** YYYY-MM-DD pickup date. Absent on rows created before the date field existed. */
   scheduleDate?: string;
+  /** YYYY-MM-DD delivery date. Derived from the pickup date and the tier. */
+  deliveryDate?: string;
   serviceId?: string;
   tier?: ServiceTier;
   landmark: string;
@@ -60,6 +61,10 @@ export interface Order {
 export interface OperationalSession {
   type: SessionType;
   start: string;
+  /** Latest time an order can be confirmed into this day's session. */
+  cutoff: string;
   end: string;
+  /** Orders this session can carry in one day. */
+  capacity: number;
   open: boolean;
 }
