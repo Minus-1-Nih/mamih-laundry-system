@@ -18,6 +18,10 @@ say why it cannot pass. Never report "verified" without the gate output.
 `npm run check:fast` skips the build for the inner loop; it is not the done signal.
 For UI changes, `npm run surfaces` must pass with `npm run dev` running.
 
+**Pull requests.** The body is optional and there is no template. A blank body is
+honest; an unfilled form is not. If a reviewer needs the evidence, they will ask
+for the receipt line — paste it as a comment.
+
 | # | Rule | Enforced by |
 |---|---|---|
 | 1 | Role gating is `RoleGuard`, never nav filtering. Owner-only pages pass `adminLevel="owner"`. | `check: guards`, `check: layout-guard:*` |
