@@ -48,7 +48,9 @@ const notes = [];
 const record = (id, ok, detail = "") => results.push({ id, ok, detail });
 
 function exec(file, args) {
-  const r = spawnSync(file, args, { cwd: ROOT, encoding: "utf8" });
+  // Node refuses to spawn .cmd shims without a shell on Windows (EINVAL).
+  const shell = file.endsWith(".cmd");
+  const r = spawnSync(shell ? `"${file}"` : file, args, { cwd: ROOT, encoding: "utf8", shell });
   const out = `${r.stdout ?? ""}${r.stderr ?? ""}`.trim();
   return { ok: r.status === 0, out };
 }
@@ -116,6 +118,7 @@ record(
 const APP = join(ROOT, "src/app");
 const routeOf = (file) => {
   const rel = relative(APP, file)
+    .replaceAll("\\", "/")
     .replace(/page\.tsx$/, "")
     .replace(/\([^)]+\)\//g, "")
     .replace(/\/$/, "");
