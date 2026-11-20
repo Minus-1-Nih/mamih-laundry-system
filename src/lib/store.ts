@@ -1,3 +1,4 @@
+import { validateFullName, validatePassword } from "@/lib/register-validation";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { DEMO_NOW, DEMO_NOW_ISO } from "@/lib/demo-date";
@@ -198,16 +199,16 @@ export const useAppStore = create<AppState>()(
 
       registerCustomer: ({ name, email, phone, password }) => {
         const cleanEmail = email.trim().toLowerCase();
-        if (!name.trim()) return { ok: false, error: "Nama lengkap wajib diisi." };
+        const nameError = validateFullName(name);
+        if (nameError) return { ok: false, error: nameError };
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
           return { ok: false, error: "Format email belum tepat." };
         }
         if (emailTaken(get().users, cleanEmail)) {
           return { ok: false, error: "Email sudah terdaftar. Coba masuk." };
         }
-        if (password.length < 6) {
-          return { ok: false, error: "Kata sandi minimal 6 karakter." };
-        }
+        const passwordError = validatePassword(password);
+        if (passwordError) return { ok: false, error: passwordError };
 
         let username = cleanEmail.split("@")[0].replace(/[^a-z0-9._-]/g, "");
         if (!username) username = "pelanggan";
