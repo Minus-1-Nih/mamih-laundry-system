@@ -3,12 +3,18 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertCircle, Eye, EyeOff } from "lucide-react";
+import { AlertCircle, Check, Eye, EyeOff, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { formatPhone, isValidPhone } from "@/lib/format";
+import {
+  passwordRules,
+  sanitizeNameInput,
+  validateFullName,
+  validatePassword,
+} from "@/lib/register-validation";
 import { useAppStore } from "@/lib/store";
 
 export function RegisterForm() {
@@ -23,13 +29,15 @@ export function RegisterForm() {
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const rules = passwordRules(password);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
 
-    if (name.trim().length < 2) {
-      setError("Nama lengkap wajib diisi.");
+    const nameError = validateFullName(name);
+    if (nameError) {
+      setError(nameError);
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
@@ -40,8 +48,9 @@ export function RegisterForm() {
       setError("Nomor WhatsApp belum tepat. Contoh: 0812-3456-7890.");
       return;
     }
-    if (password.length < 6) {
-      setError("Kata sandi minimal 6 karakter.");
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
     if (password !== confirm) {
@@ -77,13 +86,13 @@ export function RegisterForm() {
         </div>
       ) : null}
 
-      <Field label="Nama lengkap" htmlFor="name">
+      <Field label="Nama lengkap" htmlFor="name" hint="Hanya huruf, tanpa angka.">
         <Input
           id="name"
           name="name"
           autoComplete="name"
           value={name}
-          onChange={(event) => setName(event.target.value)}
+          onChange={(event) => setName(sanitizeNameInput(event.target.value))}
           placeholder="Nama sesuai panggilan"
           required
         />
@@ -130,7 +139,8 @@ export function RegisterForm() {
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             className="pr-11"
-            placeholder="Minimal 6 karakter"
+            placeholder="Huruf, angka, dan simbol"
+            aria-describedby="password-rules"
             required
           />
           <button
@@ -146,6 +156,27 @@ export function RegisterForm() {
             )}
           </button>
         </div>
+        <ul id="password-rules" className="mt-2 space-y-1 text-13">
+          {[
+            [rules.length, "Minimal 6 karakter"],
+            [rules.letter, "Mengandung huruf"],
+            [rules.digit, "Mengandung angka"],
+            [rules.symbol, "Mengandung simbol, misalnya ! @ # ."],
+          ].map(([met, label]) => (
+            <li
+              key={label as string}
+              className={`flex items-center gap-1.5 ${met ? "text-accent" : "text-muted"}`}
+            >
+              {met ? (
+                <Check className="h-3.5 w-3.5" aria-hidden />
+              ) : (
+                <X className="h-3.5 w-3.5" aria-hidden />
+              )}
+              <span>{label as string}</span>
+              <span className="sr-only">{met ? "terpenuhi" : "belum terpenuhi"}</span>
+            </li>
+          ))}
+        </ul>
       </Field>
 
       <Field label="Konfirmasi kata sandi" htmlFor="confirm">
