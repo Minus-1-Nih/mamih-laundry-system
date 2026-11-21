@@ -34,7 +34,7 @@ What the app does today, verified 2026-11-16 by running the app and logging in a
 | Pengaturan | `/admin/pengaturan` | `/admin` layout | — | "Pengaturan sesi operasional"; "Simpan" |
 | Manajemen akun | `/admin/akun` | `/admin` layout + owner | — | "Manajemen akun"; "Tambah akun" |
 | Riwayat pesanan | `/akun/riwayat` | `/akun` layout | — | "Riwayat Pesanan"; "Halo, Adinda." |
-| Detail pesanan | `/akun/riwayat/detail` | `/akun` layout | `?kode=` | "Detail pesanan"; "Perjalanan pesanan" |
+| Detail pesanan | `/akun/riwayat/detail` | `/akun` layout | `?kode=` | "Detail Pesanan"; "Perjalanan pesanan" |
 | Tugas driver | `/driver` | `/driver` layout | — | "Halo, Rizky"; "Daftar Tugas Aktif (3)" |
 
 ## Gotchas

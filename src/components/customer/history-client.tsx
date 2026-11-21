@@ -130,8 +130,7 @@ export function HistoryClient() {
     <div>
       <div className="flex flex-wrap items-start justify-between gap-4 border-b border-rule pb-5">
         <div className="min-w-0">
-          <p className="small-print text-accent">Akun pelanggan</p>
-          <h1 className="mt-2 font-display text-3xl leading-tight sm:text-4xl">
+          <h1 className="font-display text-3xl leading-tight sm:text-4xl">
             Riwayat Pesanan
           </h1>
           <p className="mt-2 text-sm text-muted">

@@ -24,10 +24,10 @@ export function orderConfirmationMessage(
   sessions: OperationalSession[],
 ): string {
   const service = order.tier
-    ? `${order.service} · ${tierLabel(order.tier)}`
+    ? `${order.service}, ${tierLabel(order.tier)}`
     : order.service;
-  const pickup = `${scheduleDateLabel(orderDate(order))} · ${order.schedule} WIB`;
-  const delivery = `${scheduleDateLabel(orderDeliveryDate(order))} · ${sessionWindowLabel(
+  const pickup = `${scheduleDateLabel(orderDate(order))}, ${order.schedule} WIB`;
+  const delivery = `${scheduleDateLabel(orderDeliveryDate(order))}, ${sessionWindowLabel(
     "delivery",
     sessions,
   )}`;

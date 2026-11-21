@@ -75,8 +75,8 @@ function TaskCard({
         </h3>
         <p className="mt-1 text-13 text-muted">
           {pickup
-            ? `${order.service} · ${order.phone}`
-            : `${order.service} · ${order.weight}`}
+            ? `${order.service}, ${order.phone}`
+            : `${order.service}, ${order.weight}`}
         </p>
 
         {/* Alamat Lengkap & Patokan */}
@@ -144,7 +144,7 @@ function HistoryCard({ order, onOpen }: { order: Order; onOpen: () => void }) {
           {order.customerName}
         </h3>
         <p className="mt-1 text-13 text-muted">
-          {order.service} · {order.weight}
+          {order.service}, {order.weight}
         </p>
         <p className="mt-1 text-13 text-muted">
           Zona {order.zoneId} ({zone?.name ?? "Zona"})
@@ -263,7 +263,7 @@ export function DriverClient() {
   const zoneSummary =
     zoneIds.length === 0
       ? "Belum ada zona tugas"
-      : `Zona ${zoneIds.join(", ")} · ${zoneNames.join(", ")}`;
+      : `Zona ${zoneIds.join(", ")} (${zoneNames.join(", ")})`;
   const zoneNote =
     zoneIds.length === 0
       ? "Hubungi pemilik untuk penugasan zona."

@@ -120,7 +120,7 @@ export function CustomerOrderProgress({
       {showStage ? (
         <div className="mb-3 flex items-center justify-between gap-3 border-b border-rule pb-2">
           <p className="small-print text-muted">Almanak pesanan</p>
-          <p className="small-print text-accent">Tahap {stage} dari 5</p>
+          <p className="small-print text-muted">Tahap {stage} dari 5</p>
         </div>
       ) : null}
 

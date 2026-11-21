@@ -97,7 +97,6 @@ export function OrderDetailClient() {
 
       <div className="mt-4 flex flex-wrap items-start justify-between gap-4 border-b border-rule pb-5">
         <div className="min-w-0">
-          <p className="small-print text-accent">Detail pesanan</p>
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <h1 className="font-display text-3xl leading-tight sm:text-4xl">
               {order.code}

@@ -86,7 +86,9 @@ function SectionHead({
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2.5">
-            <span className="small-print text-accent">{index}</span>
+            <span className="font-display text-4xl leading-none text-accent">
+              {index}
+            </span>
             <span aria-hidden="true" className="h-px w-8 bg-gold" />
           </div>
           <h2 className="mt-4 font-display text-[clamp(2.25rem,3.7vw,52px)] font-normal leading-tight">
@@ -170,17 +172,12 @@ export default function PublicPage() {
       <section className="border-y-2 border-ink bg-paper-2">
         <div className="grid items-center gap-10 px-5 py-10 sm:px-8 sm:py-12 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-12 lg:px-12 lg:py-20">
           <div>
-            <div className="flex items-center gap-2.5">
-              <span className="small-print text-accent">Jemput-antar</span>
-              <span aria-hidden="true" className="h-px w-8 bg-gold" />
-              <span className="small-print text-muted">Bandung</span>
-            </div>
-            <h1 className="mt-5 max-w-[20ch] text-[clamp(2rem,6vw,4.25rem)] leading-[1.02]">
+            <h1 className="max-w-[20ch] text-[clamp(2rem,6vw,4.25rem)] leading-[1.02]">
               Cucian bersih, kembali tanpa repot.
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-relaxed text-ink-2 sm:text-lg">
               Antar jemput laundry di Sukabirus, Sukapura, dan Ciganitri,
-              dipantau tiap tahap.
+              Bandung, dipantau tiap tahap.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -215,7 +212,7 @@ export default function PublicPage() {
               <div className="flex items-start justify-between gap-3 border-b-2 border-ink px-4 py-3">
                 <div className="min-w-0">
                   <p className="small-print text-muted">Pratinjau pelacakan</p>
-                  <p className="mt-1 font-outlier text-lg font-semibold tracking-[0.06em] text-ink">
+                  <p className="mt-1 font-outlier text-lg font-semibold text-ink">
                     {preview.code}
                   </p>
                 </div>
@@ -338,7 +335,7 @@ export default function PublicPage() {
           {steps.map((step, index) => (
             <li key={step.title} className="border-t border-rule pt-4">
               <div className="flex items-center gap-2.5">
-                <span className="small-print text-accent">
+                <span className="text-13 font-medium text-muted">
                   {String(index + 1).padStart(2, "0")}
                 </span>
                 <span aria-hidden="true" className="h-px w-6 bg-gold" />
@@ -361,7 +358,9 @@ export default function PublicPage() {
         <div className="grid gap-10 px-5 py-10 sm:px-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:px-12 lg:py-14">
           <div>
             <div className="flex items-center gap-2.5">
-              <span className="small-print text-paper/60">03</span>
+              <span className="font-display text-4xl leading-none text-paper/60">
+                03
+              </span>
               <span aria-hidden="true" className="h-px w-8 bg-gold" />
             </div>
             <h2 className="mt-4 font-display text-[clamp(2.25rem,3.7vw,52px)] font-normal leading-tight">
@@ -438,7 +437,9 @@ export default function PublicPage() {
         <div className="grid gap-8 border-t-2 border-ink pt-6 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-center lg:gap-16">
           <div>
             <div className="flex items-center gap-2.5">
-              <span className="small-print text-accent">04</span>
+              <span className="font-display text-4xl leading-none text-accent">
+                04
+              </span>
               <span aria-hidden="true" className="h-px w-8 bg-gold" />
             </div>
             <h2 className="mt-4 font-display text-[clamp(2.25rem,3.7vw,52px)] font-normal leading-tight">
