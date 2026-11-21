@@ -17,8 +17,7 @@ export function ComingSoon({
   return (
     <div>
       <div className="border-b border-rule pb-5">
-        <p className="small-print text-accent">Pratinjau modul</p>
-        <h1 className="screen-title mt-2">{title}</h1>
+        <h1 className="screen-title">{title}</h1>
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted">
           {description ??
             "Fitur ini belum termasuk dalam cakupan prototipe. Alur utama tetap bisa dicoba dari menu yang ada."}

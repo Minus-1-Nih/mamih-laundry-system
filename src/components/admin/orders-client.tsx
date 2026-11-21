@@ -345,7 +345,7 @@ export function OrdersClient() {
                       <TD>
                         <Link
                           href={`/admin/pesanan?detail=${encodeURIComponent(order.code)}`}
-                          className="font-outlier text-13 font-semibold tracking-[0.06em] text-ink hover:text-accent"
+                          className="font-outlier text-13 font-semibold text-ink hover:text-accent"
                         >
                           {order.code}
                         </Link>

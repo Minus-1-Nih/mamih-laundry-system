@@ -86,8 +86,8 @@ function fromInputTime(value: string): string {
 
 function dateChipLabel(key: string): string {
   const today = todayKey();
-  if (key === today) return `Hari ini · ${formatDateKeyShort(key)}`;
-  if (key === addDaysToKey(today, 1)) return `Besok · ${formatDateKeyShort(key)}`;
+  if (key === today) return `Hari ini, ${formatDateKeyShort(key)}`;
+  if (key === addDaysToKey(today, 1)) return `Besok, ${formatDateKeyShort(key)}`;
   return formatDateKey(key);
 }
 
@@ -105,7 +105,7 @@ function PanelHead({
   return (
     <div className="flex flex-wrap items-start justify-between gap-3 border-b border-ink pb-3">
       <div className="min-w-0">
-        <p className="small-print text-accent">{index}</p>
+        <p className="text-13 font-semibold text-muted">{index}</p>
         <h2 className="mt-1.5">{title}</h2>
         <p className="mt-0.5 text-13 text-muted">{note}</p>
       </div>
@@ -415,7 +415,7 @@ export default function AdminNewOrderPage() {
               {unknownLines.length ? (
                 <p className="mt-2 text-13 text-muted">
                   {unknownLines.length} baris tidak dikenali:{" "}
-                  {unknownLines.slice(0, 2).join(" · ")}
+                  {unknownLines.slice(0, 2).join(", ")}
                   {unknownLines.length > 2 ? " …" : ""}
                 </p>
               ) : null}
@@ -817,8 +817,9 @@ export default function AdminNewOrderPage() {
                         Pengantaran:{" "}
                         <span className="font-medium">
                           {dateChipLabel(plannedDeliveryDate)}
-                        </span>{" "}
-                        · {sessionWindowLabel("delivery", sessions)} ·{" "}
+                        </span>{", "}
+                        {sessionWindowLabel("delivery", sessions)}
+                        {", "}
                         <span
                           className={cn(
                             "inline-flex border px-1.5 font-medium",
@@ -870,7 +871,7 @@ export default function AdminNewOrderPage() {
                 <p className="small-print text-muted">Kode berikutnya</p>
                 <p
                   className={cn(
-                    "mt-1 font-outlier text-xl font-semibold tracking-[0.06em]",
+                    "mt-1 font-outlier text-xl font-semibold",
                     displayCode ? "text-ink" : "text-muted",
                   )}
                 >
@@ -906,8 +907,8 @@ export default function AdminNewOrderPage() {
               {duplicate ? (
                 <div className="mt-4 border border-waiting-fg bg-waiting-bg px-3 py-2.5 text-13 leading-relaxed text-waiting-fg">
                   <p>
-                    Pesanan serupa sudah ada: {duplicate.code} ·{" "}
-                    {statusLabels[duplicate.status]} · {duplicate.schedule}{" "}
+                    Pesanan serupa sudah ada: {duplicate.code},{" "}
+                    {statusLabels[duplicate.status]}, {duplicate.schedule}{" "}
                     WIB. Simpan tetap?
                   </p>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -994,7 +995,7 @@ export default function AdminNewOrderPage() {
 
           <div className="mt-4 border border-rule bg-paper-2 px-4 py-3">
             <p className="small-print text-muted">Kode pesanan</p>
-            <p className="mt-1 font-outlier text-xl font-semibold tracking-[0.06em] text-ink">
+            <p className="mt-1 font-outlier text-xl font-semibold text-ink">
               {createdOrder.code}
             </p>
           </div>
