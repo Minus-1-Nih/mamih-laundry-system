@@ -2,6 +2,7 @@
 /* Hallmark · pre-emit critique: P5 H4 E5 S5 R4 V4 · weakest: V, the product shells share one system and vary by data, so each surface gets its own list, table or timeline composition */
 /* Hallmark · dropped "/admin/pesanan/baru", "/akun/riwayat" · inventory only: both routes and actions remain, the kept extractor recorded the old JSX source strings */
 /* Hallmark · v2.1 · revision, not a new run · same theme, signature and palette · type roles split (display = page title + numeral, section = sans 15px) · pill retired for square controls · control-spacing spec in tokens.css · status = dot + ink label */
+/* Hallmark · v4.0 · MNI-22 another retheme · restyle depth, project-native · brand-led warm voice · indigo primary, Mamih pink signal, cream paper · mascot mark + Baloo 2 wordmark · display chosen at the Phase 1 gate · rounded 10/14 controls, square data wells */
 @import "tailwindcss";
 @import "./tokens.css";
 @import "./base.css" layer(components);

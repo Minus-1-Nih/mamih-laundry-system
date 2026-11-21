@@ -1,62 +1,52 @@
-/* Laundria tokens · Solstice material, brand-tinted. Every colour and face below. */
+/* Laundria tokens · v4, brand-led. Every colour and face below.
+   Display is Fraunces, the Phase 1 gate winner. */
 @theme static {
   /* Paper and ink */
   --color-paper: oklch(97.8% 0.008 92);
   --color-paper-2: oklch(94.5% 0.014 92);
   --color-paper-3: oklch(89% 0.024 90);
   --color-paper-hi: oklch(99.2% 0.005 92);
-  --color-ink: oklch(25% 0.012 164);
-  --color-ink-2: oklch(34% 0.012 164);
-  --color-muted: oklch(48% 0.020 164);
+  --color-ink: oklch(24% 0.030 285);
+  --color-ink-2: oklch(34% 0.028 285);
+  --color-muted: oklch(48% 0.025 285);
   --color-rule: oklch(84% 0.015 110);
 
   /* Brand signal */
-  --color-accent: oklch(49.04% 0.0808 166.14);
-  --color-accent-hover: oklch(44% 0.0808 166.14);
-  --color-accent-soft: oklch(93% 0.030 166);
+  --color-accent: oklch(42% 0.200 277);
+  --color-accent-hover: oklch(37% 0.185 277);
+  --color-accent-soft: oklch(93% 0.040 285);
   --color-accent-ink: oklch(97.8% 0.008 92);
-  --color-focus: oklch(55% 0.15 166.14);
+  --color-brand: oklch(61% 0.217 8);
+  --color-brand-deep: oklch(54.5% 0.201 9);
+  --color-focus: oklch(52% 0.19 277);
   --color-gold: oklch(74% 0.14 75);
   --color-gold-2: oklch(84% 0.11 80);
-
-  /* Legacy utility names, remapped */
-  --color-canvas: oklch(97.8% 0.008 92);
-  --color-surface: oklch(99.2% 0.005 92);
-  --color-primary: oklch(49.04% 0.0808 166.14);
-  --color-primary-hover: oklch(44% 0.0808 166.14);
-  --color-primary-light: oklch(60% 0.09 166);
-  --color-secondary: oklch(93% 0.030 166);
-  --color-secondary-hover: oklch(89% 0.038 166);
-  --color-secondary-dark: oklch(84% 0.045 166);
-  --color-border: oklch(84% 0.015 110);
-  --color-track: oklch(91% 0.016 95);
-  --color-brand-bg: oklch(97.8% 0.008 92);
-  --color-brand-text: oklch(25% 0.012 164);
 
   /* Map */
   --color-map-ground: oklch(94% 0.020 110);
   --color-map-water: oklch(90% 0.025 220);
   --color-map-park: oklch(91% 0.030 130);
   --color-map-park-soft: oklch(93.5% 0.024 130);
-  --color-map-label: oklch(48% 0.020 164);
-  --color-map-label-soft: oklch(58% 0.018 164);
+  --color-map-label: oklch(48% 0.025 285);
+  --color-map-label-soft: oklch(58% 0.018 285);
 
   /* Status */
   --color-waiting-bg: oklch(94% 0.045 85);
   --color-waiting-fg: oklch(34% 0.05 60);
-  --color-washing-bg: oklch(93% 0.025 166);
-  --color-washing-fg: oklch(40% 0.075 166);
-  --color-ready-bg: oklch(49.04% 0.0808 166.14);
+  --color-washing-bg: oklch(93% 0.040 285);
+  --color-washing-fg: oklch(30% 0.060 285);
+  --color-ready-bg: oklch(42% 0.200 277);
   --color-ready-fg: oklch(97.8% 0.008 92);
-  --color-done-bg: oklch(91% 0.035 150);
-  --color-done-fg: oklch(38% 0.070 166);
+  --color-done-bg: oklch(94.5% 0.014 92);
+  --color-done-fg: oklch(48% 0.025 285);
   --color-danger-bg: oklch(94% 0.030 25);
   --color-danger-hover: oklch(90% 0.040 25);
   --color-danger-fg: oklch(42% 0.15 25);
   --color-danger-strong: oklch(34% 0.14 25);
 
   /* Faces */
-  --font-display: var(--font-yeseva), ui-serif, Georgia, serif;
+  --font-brand: var(--font-baloo), ui-rounded, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
   --font-body: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   --font-outlier: var(--font-archivo-narrow), "Arial Narrow", ui-sans-serif, sans-serif;
   --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
@@ -93,25 +83,28 @@
   --tracking-tighter: -0.02em;
   --tracking-wide: 0.01em;
 
-  /* Square wells, square controls. v2.1 retires the pill: one radius rule. */
-  --radius-xs: 0px;
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --radius-2xl: 0px;
-  --radius-3xl: 0px;
-  --radius-card: 0px;
-  --radius-control: 0px;
+  /* Round controls and cards; data wells stay square. */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 14px;
+  --radius-2xl: 14px;
+  --radius-3xl: 14px;
+  --radius-card: 14px;
+  --radius-control: 10px;
+  --radius-well: 0px;
+  --radius-full: 999px;
 
   /* Hard paper depth */
   --shadow-2xs: none;
   --shadow-xs: none;
   --shadow-sm: none;
   --shadow-md: none;
-  --shadow-lg: 6px 6px 0 oklch(89% 0.024 90);
-  --shadow-xl: 10px 10px 0 oklch(89% 0.024 90);
-  --shadow-2xl: 10px 10px 0 oklch(89% 0.024 90);
+  --shadow-lg: 6px 6px 0 var(--color-paper-3);
+  --shadow-xl: 10px 10px 0 var(--color-paper-3);
+  --shadow-2xl: 10px 10px 0 var(--color-paper-3);
+  --shadow-sticker: 4px 4px 0 var(--color-gold-2);
 
   /* Motion */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -120,13 +113,7 @@
 }
 
 :root {
-/* Control spacing spec (v2.1)
-     bordered icon-only .... 36px box, 16px icon, 10px inset
-     bordered text control .. 14px inline inset (16px leading when it holds an icon)
-     icon + label ........... 14px leading, 8px gap, 14px trailing
-     trailing count badge ... 8px to the border, the badge itself unbordered
-     square corner .......... +2px over the pill it replaces
-     dot on a bordered edge . 2px inside the corner, never across the stroke */
+  /* Control spacing spec (v4): rounded 10px controls, 14px cards. */
   --control-h: 44px;
   --control-h-sm: 36px;
   --control-inset: 14px;

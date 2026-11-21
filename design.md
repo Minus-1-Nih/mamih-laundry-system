@@ -3,7 +3,7 @@
 The locked system. Every screen shares it; change it on purpose.
 
 v4 replaces v3 (editorial / Solstice, green → indigo). Changed: brand-led warm voice, the
-display face moves from Yeseva to the Phase 1 gate winner, the mascot becomes the mark,
+display face moves from Yeseva to Fraunces (Phase 1 gate winner), the mascot becomes the mark,
 rounded controls, `--font-brand`. Kept: cream paper, indigo-black ink, Mamih pink signal,
 Archivo body, hard offset depth, the ruled timeline, square data wells.
 
@@ -22,7 +22,7 @@ not a description of the current CSS. v3 remains in git history; v4 is the singl
 - Asset: `public/brand/laundriamascot.png` — 235×205, transparent, the only copy; served as `/brand/laundriamascot.png`.
 - Lockup: mascot mark + `Laundria` in `--font-brand` (Baloo 2 800, sentence case) + subtitle `by Mamih Laundry` in small-print. The whole lockup links home. The face alone appears only as favicon and tab icon.
 - Two tones, ground-dependent. `onPaper`: indigo fill, 4px gold hard offset, no white outline (invisible on cream). `onInk`: cream fill, 2px indigo stroke behind the fill (`paint-order`), 4px gold offset.
-- The mascot is a mark, not illustration. Four sizes: 24 / 40 / 80 / 120px. Allowed: shell header, favicon, empty states, success and error moments, driver queue header. Never inside tables or forms, never behind text, never more than once per screen, never above 120px (the source is 235×205).
+- The mascot is a mark, not illustration. Five sizes: 24 / 32 / 40 / 80 / 120px. Allowed: shell header, favicon, empty states, success and error moments, driver queue header. Never inside tables or forms, never behind text, never more than once per screen, never above 120px (the source is 235×205).
 - The die-cut edge belongs to raised brand objects only: the lockup, the sticker, one CTA. Not to tables, not to every card.
 - Pink is a signal, not a text colour. `--color-brand` is 4.0:1 on paper — large text and UI shapes only. Body copy on pink uses `--color-brand-deep` (5.2:1) or cream.
 - Destructive actions separate from brand pink by shape, not hue: outline plus a trash icon in `--color-danger-fg`, and brand pink never sits within one card of a delete.
@@ -51,7 +51,7 @@ not a description of the current CSS. v3 remains in git history; v4 is the singl
 Measured on paper: ink 15.6:1, ink-2 11.2:1, muted 6.2:1, accent 8.7:1, brand-deep 5.2:1, brand 4.0:1.
 
 ## Type
-- Display: chosen at the Phase 1 gate — Fraunces (default), Bricolage Grotesque, or Young Serif; one weight, roman, sentence case, line-height 1.0; page h1 and screen titles only. Yeseva retires when the gate confirms.
+- Display: Fraunces 400, the Phase 1 gate winner (tested against Bricolage Grotesque and Young Serif at 1440 and 412). One weight, roman, sentence case, line-height 1.0; page h1 and screen titles only. Yeseva has retired.
 - Brand: Baloo 2 800, sentence case, the lockup only. Never headings, labels, buttons or data.
 - Body/UI: Archivo 400 and 500; 600 only for emphasis in tables and controls.
 - Outlier: Archivo Narrow 600 for dates, captions, small print and axis labels. No mono.

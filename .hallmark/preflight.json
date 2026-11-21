@@ -2,7 +2,7 @@
   "scanned": "2026-11-20",
   "plan": "MNI-22-another-retheme (restyle; project-native, not a Hallmark redesign run)",
   "findings": {
-    "fonts": "Yeseva One (--font-yeseva), Archivo (--font-archivo), Archivo Narrow (--font-archivo-narrow) via next/font/google in src/app/layout.tsx; MNI-22 adds Baloo 2 800 (--font-baloo) for the brand lockup and the Phase 1 display candidate (Fraunces / Bricolage Grotesque / Young Serif)",
+    "fonts": "Fraunces 400 (--font-fraunces) is the Phase 1 gate winner and display face; Baloo 2 800 (--font-baloo) is the brand lockup face; Archivo (--font-archivo) and Archivo Narrow (--font-archivo-narrow) carry body, UI and outlier roles; Yeseva One is retired",
     "palette": "Tailwind 4 @theme static in src/app/tokens.css: cream paper #faf8f2, indigo accent #3b30b6, Mamih pink #e52f6a, indigo-black ink #1e1d2d; the green v2.1 values are replaced in MNI-22 Phase 1a",
     "motion": "CSS transitions only; transform and opacity; reduced-motion override in src/app/globals.css; the driver's animate-pulse is removed in Phase 1b",
     "spacing": "Tailwind default 4pt scale plus the token scale in src/app/tokens.css; rounded controls 10px, cards 14px, data wells 0px",
@@ -20,7 +20,7 @@
   "introduce": [
     "v4 palette and tokens: indigo primary, Mamih pink signal, rounded controls, hard offset depth",
     "the mascot as the brand mark, once per screen and never in tables or forms",
-    "a warm display face chosen at the Phase 1 gate, replacing Yeseva",
+    "a warm display face: Fraunces, chosen at the Phase 1 gate, replacing Yeseva",
     "driver tokenization: no raw hex, no bg-white, no soft shadows, no loop",
     "Hallmark Floor rules as project lint: tokens only, no middle-dot meta strings, no eyebrows, no tracked caps, instant focus-visible"
   ]

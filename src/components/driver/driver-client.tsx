@@ -3,13 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  CheckCircle2,
   LogOut,
   MapPin,
   MessageCircle,
   PackageCheck,
-  User as UserIcon,
 } from "lucide-react";
+import { Brand } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/sheet";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -42,9 +41,9 @@ function nextStatus(action: DriverAction): OrderStatus {
 
 function SectionHeading({ title, count }: { title: string; count: number }) {
   return (
-    <div className="mt-5 flex items-baseline justify-between gap-3 border-b border-[#E2E8E4] pb-2">
-      <h2 className="text-sm font-bold text-[#1F2937]">{title}</h2>
-      <span className="text-xs font-medium text-[#64748B]">{count} pesanan</span>
+    <div className="mt-5 flex items-baseline justify-between gap-3 border-b border-rule pb-2">
+      <h2 className="text-sm font-bold text-ink">{title}</h2>
+      <span className="text-xs font-medium text-muted">{count} pesanan</span>
     </div>
   );
 }
@@ -60,10 +59,10 @@ function TaskCard({
   const actionType: DriverAction = pickup ? "pickup" : "delivery";
 
   return (
-    <article className="rounded-2xl border border-[#E2E8E4] bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+    <article className="rounded-card border border-rule bg-paper-hi p-4">
       {/* Header Kartu: Kode & Badge Status */}
-      <div className="flex items-start justify-between gap-3 border-b border-[#E2E8E4] pb-3">
-        <span className="font-mono text-sm font-bold tracking-tight text-[#1F2937]">
+      <div className="flex items-start justify-between gap-3 border-b border-rule pb-3">
+        <span className="font-outlier text-sm font-bold tracking-tight text-ink">
           {order.code}
         </span>
         <StatusBadge status={order.status} overdue={isOverdue(order)} />
@@ -71,25 +70,25 @@ function TaskCard({
 
       {/* Informasi Pelanggan & Layanan */}
       <div className="py-3">
-        <h3 className="text-base font-semibold leading-snug text-[#1F2937]">
+        <h3 className="text-base font-semibold leading-snug text-ink">
           {order.customerName}
         </h3>
-        <p className="mt-1 text-13 text-[#64748B]">
+        <p className="mt-1 text-13 text-muted">
           {pickup
             ? `${order.service} · ${order.phone}`
             : `${order.service} · ${order.weight}`}
         </p>
 
         {/* Alamat Lengkap & Patokan */}
-        <div className="mt-3 flex items-start gap-2 rounded-xl bg-[#FAF9F6] p-2.5 text-13 text-[#475569]">
-          <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#2A6F56]" />
+        <div className="mt-3 flex items-start gap-2 rounded-md bg-paper-2 p-2.5 text-13 text-ink-2">
+          <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
           <span className="leading-snug">{order.landmark}</span>
         </div>
       </div>
 
       {/* Jadwal & Tombol WhatsApp */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#E2E8E4] pt-3 text-13">
-        <span className="font-medium text-[#1F2937]">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-rule pt-3 text-13">
+        <span className="font-medium text-ink">
           {pickup ? "Jemput" : "Antar"}: {scheduleWindow(order.schedule)}
         </span>
         <a
@@ -101,9 +100,9 @@ function TaskCard({
           )}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#E2E8E4] bg-white px-3 text-xs font-semibold text-[#1F2937] transition-colors hover:border-[#2A6F56] hover:text-[#2A6F56]"
+          className="inline-flex h-9 items-center gap-1.5 rounded-control border border-rule bg-paper-hi px-3 text-xs font-semibold text-ink transition-colors hover:border-accent hover:text-accent"
         >
-          <MessageCircle className="h-4 w-4 text-[#2A6F56]" />
+          <MessageCircle className="h-4 w-4 text-accent" />
           WhatsApp
         </a>
       </div>
@@ -113,7 +112,7 @@ function TaskCard({
         <button
           type="button"
           onClick={() => onConfirm(order, actionType)}
-          className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-[#2A6F56] text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#225844] active:scale-[0.99]"
+          className="inline-flex h-12 w-full items-center justify-center rounded-control bg-accent text-sm font-semibold text-accent-ink transition-colors hover:bg-accent-hover active:scale-[0.99]"
         >
           {pickup ? "Selesaikan Penjemputan" : "Selesaikan Pengantaran"}
         </button>
@@ -133,42 +132,42 @@ function HistoryCard({ order, onOpen }: { order: Order; onOpen: () => void }) {
     );
 
   return (
-    <article className="rounded-2xl border border-[#E2E8E4] bg-white p-4 shadow-sm">
-      <div className="flex items-start justify-between gap-3 border-b border-[#E2E8E4] pb-3">
-        <span className="font-mono text-sm font-bold tracking-tight text-[#1F2937]">
+    <article className="rounded-card border border-rule bg-paper-hi p-4">
+      <div className="flex items-start justify-between gap-3 border-b border-rule pb-3">
+        <span className="font-outlier text-sm font-bold tracking-tight text-ink">
           {order.code}
         </span>
         <StatusBadge status={order.status} />
       </div>
       <div className="py-3">
-        <h3 className="text-sm font-semibold text-[#1F2937]">
+        <h3 className="text-sm font-semibold text-ink">
           {order.customerName}
         </h3>
-        <p className="mt-1 text-13 text-[#64748B]">
+        <p className="mt-1 text-13 text-muted">
           {order.service} · {order.weight}
         </p>
-        <p className="mt-1 text-13 text-[#64748B]">
+        <p className="mt-1 text-13 text-muted">
           Zona {order.zoneId} ({zone?.name ?? "Zona"})
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#E2E8E4] pt-2.5 text-xs text-[#64748B]">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-rule pt-2.5 text-xs text-muted">
         <span>
           {isPickupFinished ? "Jemput Selesai: " : "Antar Selesai: "}
           {completion
             ? `${formatDateShort(completion.at)} ${formatTime(completion.at)} WIB`
             : "-"}
         </span>
-        <span className="font-medium text-[#1F2937]">
+        <span className="font-medium text-ink">
           {isPickupFinished ? "Penjemputan" : "Pengantaran"}
         </span>
       </div>
 
-      <div className="border-t border-[#E2E8E4] pt-3">
+      <div className="border-t border-rule pt-3">
         <button
           type="button"
           onClick={onOpen}
-          className="inline-flex text-xs font-semibold text-[#2A6F56] hover:underline"
+          className="inline-flex text-xs font-semibold text-accent hover:underline"
         >
           Lihat rincian pesanan →
         </button>
@@ -187,10 +186,10 @@ function DetailRow({
   hint?: string;
 }) {
   return (
-    <div className="border-b border-[#E2E8E4] py-3 first:pt-0 last:border-b-0 last:pb-0">
-      <dt className="text-xs font-medium text-[#64748B]">{label}</dt>
-      <dd className="mt-1 text-sm font-semibold text-[#1F2937]">{value}</dd>
-      {hint ? <p className="mt-0.5 text-13 text-[#64748B]">{hint}</p> : null}
+    <div className="border-b border-rule py-3 first:pt-0 last:border-b-0 last:pb-0">
+      <dt className="text-xs font-medium text-muted">{label}</dt>
+      <dd className="mt-1 text-sm font-semibold text-ink">{value}</dd>
+      {hint ? <p className="mt-0.5 text-13 text-muted">{hint}</p> : null}
     </div>
   );
 }
@@ -310,12 +309,12 @@ export function DriverClient() {
   const showDelivery = filter !== "pickup";
 
   return (
-    <div className="font-driver bg-[#FAF9F6]">
+    <div className="font-driver bg-paper">
       {/* Banner Peringatan Mode Offline */}
       {!driverOnline ? (
-        <div className="border-b border-amber-200 bg-amber-50 px-5 py-3 text-13 font-medium text-amber-900">
+        <div className="border-b border-waiting-fg/25 bg-waiting-bg px-5 py-3 text-13 font-medium text-waiting-fg">
           <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+            <span className="h-2 w-2 rounded-full bg-danger-fg" />
             <span>
               Mode offline aktif. Perubahan disimpan di perangkat (LocalStorage)
               dan disinkronkan saat online kembali.
@@ -325,13 +324,11 @@ export function DriverClient() {
       ) : null}
 
       {/* Header Utama Navigasi */}
-      <header className="sticky top-0 z-20 border-b border-[#E2E8E4] bg-white/90 backdrop-blur-sm">
+      <header className="sticky top-0 z-20 border-b border-rule bg-paper-hi">
         <div className="flex items-center justify-between gap-3 px-5 py-3.5">
           <div className="flex items-center gap-2">
-            <span className="text-xl font-bold tracking-tight text-[#1F2937]">
-              Laundria
-            </span>
-            <span className="rounded-md bg-[#2A6F56]/10 px-2 py-0.5 text-xs font-semibold text-[#2A6F56]">
+            <Brand href="/driver" compact />
+            <span className="rounded-control bg-accent-soft px-2 py-0.5 text-xs font-semibold text-accent">
               Kurir
             </span>
           </div>
@@ -349,12 +346,12 @@ export function DriverClient() {
               });
             }}
             aria-pressed={driverOnline}
-            className="inline-flex h-9 items-center gap-2 rounded-full border border-[#E2E8E4] bg-white px-3.5 text-xs font-medium text-[#1F2937] shadow-sm transition-colors hover:border-[#2A6F56]"
+            className="inline-flex h-9 items-center gap-2 rounded-control border border-rule bg-paper-hi px-3.5 text-xs font-medium text-ink transition-colors hover:border-accent"
           >
             <span
               className={cn(
                 "h-2 w-2 shrink-0 rounded-full",
-                driverOnline ? "bg-emerald-500" : "bg-red-500",
+                driverOnline ? "bg-ready-bg" : "bg-danger-fg",
               )}
             />
             {driverOnline ? "Online" : "Offline"}
@@ -367,30 +364,30 @@ export function DriverClient() {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             {/* Badge Wilayah / Zona Aktif */}
-            <span className="inline-flex items-center gap-1 rounded-full bg-[#2A6F56]/10 px-2.5 py-1 text-xs font-semibold text-[#2A6F56]">
+            <span className="inline-flex items-center gap-1 rounded-control bg-accent-soft px-2.5 py-1 text-xs font-semibold text-accent">
               {zoneSummary}
             </span>
-            <h1 className="mt-2 text-2xl font-bold tracking-tight text-[#1F2937]">
+            <h1 className="mt-2 text-2xl font-bold tracking-tight text-ink">
               Halo, {user.name}
             </h1>
-            <p className="mt-1 text-xs text-[#64748B]">{DEMO_DATE_LONG}</p>
+            <p className="mt-1 text-xs text-muted">{DEMO_DATE_LONG}</p>
           </div>
 
-          {/* Avatar Inisial dengan Indikator Titik Status Koneksi (Hijau = Online, Merah = Offline) */}
+          {/* Avatar Inisial dengan Indikator Titik Status Koneksi (Indigo = Online, Merah = Offline) */}
           <div className="relative shrink-0">
             <button
               type="button"
               onClick={() => setAccountOpen(true)}
               aria-label="Buka profil kurir"
-              className="flex h-12 w-12 items-center justify-center rounded-2xl border-2 border-[#E2E8E4] bg-white text-base font-bold text-[#2A6F56] shadow-sm transition-colors hover:border-[#2A6F56]"
+              className="flex h-12 w-12 items-center justify-center rounded-control border-2 border-rule bg-paper-hi text-base font-bold text-accent transition-colors hover:border-accent"
             >
               {initials(user.name)}
             </button>
             <span
               title={driverOnline ? "Status: Online" : "Status: Offline"}
               className={cn(
-                "absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white shadow-sm",
-                driverOnline ? "bg-emerald-500" : "bg-red-500",
+                "absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-paper-hi",
+                driverOnline ? "bg-ready-bg" : "bg-danger-fg",
               )}
             />
           </div>
@@ -398,33 +395,33 @@ export function DriverClient() {
 
         {/* Ringkasan Tugas Harian (Jemput & Antar) */}
         <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="rounded-2xl border border-[#E2E8E4] bg-white p-3.5 shadow-sm">
-            <p className="text-xs font-medium text-[#64748B]">Tugas Penjemputan</p>
-            <p className="mt-1 text-2xl font-bold text-[#1F2937]">
+          <div className="rounded-card border border-rule bg-paper-hi p-3.5">
+            <p className="text-xs font-medium text-muted">Tugas Penjemputan</p>
+            <p className="mt-1 text-2xl font-bold text-ink">
               {pickupTasks.length}
-              <span className="ml-1 text-xs font-normal text-[#64748B]">pesanan</span>
+              <span className="ml-1 text-xs font-normal text-muted">pesanan</span>
             </p>
           </div>
-          <div className="rounded-2xl border border-[#E2E8E4] bg-white p-3.5 shadow-sm">
-            <p className="text-xs font-medium text-[#64748B]">Tugas Pengantaran</p>
-            <p className="mt-1 text-2xl font-bold text-[#1F2937]">
+          <div className="rounded-card border border-rule bg-paper-hi p-3.5">
+            <p className="text-xs font-medium text-muted">Tugas Pengantaran</p>
+            <p className="mt-1 text-2xl font-bold text-ink">
               {deliveryTasks.length}
-              <span className="ml-1 text-xs font-normal text-[#64748B]">pesanan</span>
+              <span className="ml-1 text-xs font-normal text-muted">pesanan</span>
             </p>
           </div>
         </div>
       </section>
 
       {/* Navigasi Tab (Daftar Tugas Aktif & Riwayat Tugas Selesai) */}
-      <div className="mx-5 mt-5 flex rounded-xl border border-[#E2E8E4] bg-white p-1 shadow-sm">
+      <div className="mx-5 mt-5 flex rounded-card border border-rule bg-paper-hi p-1">
         <button
           type="button"
           onClick={() => setTab("active")}
           className={cn(
-            "flex-1 rounded-lg py-2.5 text-xs font-semibold transition-all",
+            "flex-1 rounded-md py-2.5 text-xs font-semibold transition-colors",
             tab === "active"
-              ? "bg-[#2A6F56] text-white shadow-sm"
-              : "text-[#64748B] hover:text-[#1F2937]",
+              ? "bg-accent text-accent-ink"
+              : "text-muted hover:text-ink",
           )}
         >
           Daftar Tugas Aktif ({tasks.length})
@@ -433,10 +430,10 @@ export function DriverClient() {
           type="button"
           onClick={() => setTab("history")}
           className={cn(
-            "flex-1 rounded-lg py-2.5 text-xs font-semibold transition-all",
+            "flex-1 rounded-md py-2.5 text-xs font-semibold transition-colors",
             tab === "history"
-              ? "bg-[#2A6F56] text-white shadow-sm"
-              : "text-[#64748B] hover:text-[#1F2937]",
+              ? "bg-accent text-accent-ink"
+              : "text-muted hover:text-ink",
           )}
         >
           Riwayat Tugas Selesai
@@ -460,10 +457,10 @@ export function DriverClient() {
                 type="button"
                 onClick={() => setFilter(item.key)}
                 className={cn(
-                  "inline-flex h-9 shrink-0 items-center rounded-xl border px-3 text-xs font-medium transition-colors",
+                  "inline-flex h-9 shrink-0 items-center rounded-control border px-3 text-xs font-medium transition-colors",
                   filter === item.key
-                    ? "border-[#2A6F56] bg-[#2A6F56] text-white"
-                    : "border-[#E2E8E4] bg-white text-[#475569] hover:border-[#2A6F56]",
+                    ? "border-accent bg-accent text-accent-ink"
+                    : "border-rule bg-paper-hi text-ink-2 hover:border-accent",
                 )}
               >
                 {item.label}
@@ -505,44 +502,44 @@ export function DriverClient() {
 
           {/* Tampilan Jika Tidak Ada Tugas */}
           {tasks.length === 0 ? (
-            <div className="mt-4 rounded-2xl border border-dashed border-[#E2E8E4] bg-white px-5 py-12 text-center">
-              <PackageCheck className="mx-auto h-8 w-8 text-[#2A6F56]" />
-              <p className="mt-3 text-sm font-semibold text-[#1F2937]">
+            <div className="mt-4 rounded-card border border-dashed border-rule bg-paper-hi px-5 py-12 text-center">
+              <PackageCheck className="mx-auto h-8 w-8 text-accent" />
+              <p className="mt-3 text-sm font-semibold text-ink">
                 Tidak ada tugas aktif
               </p>
-              <p className="mt-1 text-xs text-[#64748B]">
+              <p className="mt-1 text-xs text-muted">
                 Tugas baru akan otomatis tampil sesuai zona tugas Anda.
               </p>
             </div>
           ) : null}
 
-          <p className="mt-6 text-center text-xs text-[#64748B]">{zoneNote}</p>
+          <p className="mt-6 text-center text-xs text-muted">{zoneNote}</p>
         </div>
       ) : (
         /* Konten Tab Riwayat */
         <div className="px-5 pb-8 pt-4">
-          <div className="rounded-2xl border border-[#E2E8E4] bg-white p-4 shadow-sm">
-            <p className="text-xs font-medium text-[#64748B]">
+          <div className="rounded-card border border-rule bg-paper-hi p-4">
+            <p className="text-xs font-medium text-muted">
               Total Tugas Selesai
             </p>
-            <p className="mt-1 text-2xl font-bold text-[#1F2937]">
+            <p className="mt-1 text-2xl font-bold text-ink">
               {history.length}
-              <span className="ml-1.5 text-xs font-normal text-[#64748B]">
+              <span className="ml-1.5 text-xs font-normal text-muted">
                 pesanan
               </span>
             </p>
-            <p className="mt-2 border-t border-[#E2E8E4] pt-2 text-xs text-[#64748B]">
+            <p className="mt-2 border-t border-rule pt-2 text-xs text-muted">
               {zoneSummary}
             </p>
           </div>
 
           {history.length === 0 ? (
-            <div className="mt-4 rounded-2xl border border-dashed border-[#E2E8E4] bg-white px-5 py-12 text-center">
-              <PackageCheck className="mx-auto h-8 w-8 text-[#2A6F56]" />
-              <p className="mt-3 text-sm font-semibold text-[#1F2937]">
+            <div className="mt-4 rounded-card border border-dashed border-rule bg-paper-hi px-5 py-12 text-center">
+              <PackageCheck className="mx-auto h-8 w-8 text-accent" />
+              <p className="mt-3 text-sm font-semibold text-ink">
                 Belum ada riwayat tugas
               </p>
-              <p className="mt-1 text-xs text-[#64748B]">
+              <p className="mt-1 text-xs text-muted">
                 Pesanan yang selesai di zona Anda akan tersimpan di sini.
               </p>
             </div>
@@ -558,7 +555,7 @@ export function DriverClient() {
             </div>
           )}
 
-          <p className="mt-6 text-center text-xs text-[#64748B]">{zoneNote}</p>
+          <p className="mt-6 text-center text-xs text-muted">{zoneNote}</p>
         </div>
       )}
 
@@ -578,7 +575,7 @@ export function DriverClient() {
             <button
               type="button"
               onClick={handleExecuteConfirm}
-              className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-[#2A6F56] text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#225844] active:scale-[0.99]"
+              className="inline-flex h-12 w-full items-center justify-center rounded-control bg-accent text-sm font-semibold text-accent-ink transition-colors hover:bg-accent-hover active:scale-[0.99]"
             >
               {confirmAction === "pickup"
                 ? "Ya, Selesaikan Penjemputan"
@@ -587,7 +584,7 @@ export function DriverClient() {
             <button
               type="button"
               onClick={() => setConfirmingOrder(null)}
-              className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-[#E2E8E4] bg-white text-sm font-medium text-[#475569] hover:bg-[#FAF9F6]"
+              className="inline-flex h-11 w-full items-center justify-center rounded-control border border-rule bg-paper-hi text-sm font-medium text-ink-2 hover:bg-paper"
             >
               Batal
             </button>
@@ -596,22 +593,22 @@ export function DriverClient() {
       >
         {confirmingOrder ? (
           <div className="space-y-4 py-2">
-            <div className="rounded-xl border border-[#E2E8E4] bg-[#FAF9F6] p-3.5">
-              <div className="flex items-center justify-between text-xs text-[#64748B]">
-                <span className="font-mono font-bold text-[#1F2937]">
+            <div className="rounded-md border border-rule bg-paper-2 p-3.5">
+              <div className="flex items-center justify-between text-xs text-muted">
+                <span className="font-outlier font-bold text-ink">
                   {confirmingOrder.code}
                 </span>
                 <span>Zona {confirmingOrder.zoneId}</span>
               </div>
-              <p className="mt-2 text-base font-semibold text-[#1F2937]">
+              <p className="mt-2 text-base font-semibold text-ink">
                 {confirmingOrder.customerName}
               </p>
-              <p className="mt-1 text-xs text-[#475569]">
+              <p className="mt-1 text-xs text-ink-2">
                 {confirmingOrder.landmark}
               </p>
             </div>
 
-            <p className="text-13 leading-relaxed text-[#475569]">
+            <p className="text-13 leading-relaxed text-ink-2">
               {confirmAction === "pickup"
                 ? "Apakah cucian kotor milik pelanggan telah berhasil diambil dan siap diproses di outlet?"
                 : "Apakah cucian bersih telah selesai diantarkan dan diterima dengan baik oleh pelanggan?"}
@@ -634,7 +631,7 @@ export function DriverClient() {
         footer={
           <Button
             variant="secondary"
-            className="h-12 w-full rounded-xl"
+            className="h-12 w-full rounded-control"
             onClick={() => setDetailOrderCode(null)}
           >
             Tutup
@@ -643,7 +640,7 @@ export function DriverClient() {
       >
         {detailOrder ? (
           <div className="py-2">
-            <dl className="divide-y divide-[#E2E8E4]">
+            <dl className="divide-y divide-rule">
               <DetailRow
                 label="Nama pelanggan"
                 value={detailOrder.customerName}
@@ -664,17 +661,17 @@ export function DriverClient() {
               />
             </dl>
 
-            <div className="mt-4 rounded-xl border border-[#E2E8E4] bg-[#FAF9F6] p-3.5">
-              <p className="text-xs font-semibold text-[#2A6F56]">
+            <div className="mt-4 rounded-md border border-rule bg-paper-2 p-3.5">
+              <p className="text-xs font-semibold text-accent">
                 Riwayat Penyelesaian
               </p>
-              <p className="mt-1 text-sm font-medium text-[#1F2937]">
+              <p className="mt-1 text-sm font-medium text-ink">
                 {detailCompletion
                   ? `${detailCompletion.note || (detailCompletion.status === "dicuci" ? "Penjemputan selesai" : "Pengantaran selesai")} oleh ${detailCompletion.by} pada ${formatTime(detailCompletion.at)} WIB`
                   : "Belum ada catatan penyelesaian."}
               </p>
               {detailCompletion ? (
-                <p className="mt-0.5 text-xs text-[#64748B]">
+                <p className="mt-0.5 text-xs text-muted">
                   {formatDateShort(detailCompletion.at)}
                 </p>
               ) : null}
@@ -692,7 +689,7 @@ export function DriverClient() {
         footer={
           <Button
             variant="secondary"
-            className="h-11 w-full rounded-xl"
+            className="h-11 w-full rounded-control"
             onClick={() => setAccountOpen(false)}
           >
             Tutup
@@ -700,7 +697,7 @@ export function DriverClient() {
         }
       >
         <div className="py-2">
-          <dl className="divide-y divide-[#E2E8E4]">
+          <dl className="divide-y divide-rule">
             <DetailRow label="Nama" value={user.name} />
             <DetailRow label="Username" value={`@${user.username}`} />
             <DetailRow label="Peran" value="Kurir / Driver" />
@@ -708,7 +705,7 @@ export function DriverClient() {
           </dl>
           <Button
             variant="danger"
-            className="mt-5 h-12 w-full rounded-xl"
+            className="mt-5 h-12 w-full rounded-control"
             onClick={() => {
               logout();
               router.push("/masuk/driver");
