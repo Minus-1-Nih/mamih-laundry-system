@@ -83,16 +83,16 @@
   --tracking-tighter: -0.02em;
   --tracking-wide: 0.01em;
 
-  /* Round controls and cards; data wells stay square. */
-  --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 14px;
-  --radius-2xl: 14px;
-  --radius-3xl: 14px;
-  --radius-card: 14px;
-  --radius-control: 10px;
+  /* Square controls and cards; only status and avatar dots keep the full radius. */
+  --radius-xs: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-card: 0px;
+  --radius-control: 0px;
   --radius-well: 0px;
   --radius-full: 999px;
 

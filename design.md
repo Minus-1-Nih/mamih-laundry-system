@@ -2,9 +2,13 @@
 
 The locked system. Every screen shares it; change it on purpose.
 
+v4.1 replaces v4 (same palette, type and layout). Changed: every control, field and card is
+square — the editorial register, no rounded corners outside status and avatar dots. Kept:
+everything else exactly as v4 left it.
+
 v4 replaces v3 (editorial / Solstice, green → indigo). Changed: brand-led warm voice, the
 display face moves from Yeseva to Fraunces (Phase 1 gate winner), the mascot becomes the mark,
-rounded controls, `--font-brand`. Kept: cream paper, indigo-black ink, Mamih pink signal,
+square controls, `--font-brand`. Kept: cream paper, indigo-black ink, Mamih pink signal,
 Archivo body, hard offset depth, the ruled timeline, square data wells.
 
 `src/app/tokens.css` carries v2.1 until the MNI-22 Phase 1a run lands. This file is the target,
@@ -44,7 +48,7 @@ not a description of the current CSS. v3 remains in git history; v4 is the singl
   /* Display is the Phase 1 gate winner; Fraunces is the working default. */
   --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
   --font-body: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
-  --radius-control: 10px;  --radius-card: 14px;  --radius-well: 0px;  --radius-full: 999px;
+  --radius-control: 0px;  --radius-card: 0px;  --radius-well: 0px;  --radius-full: 999px;
   --shadow-card: 10px 10px 0 var(--color-paper-3);  --shadow-sticker: 4px 4px 0 var(--color-gold-2);
 }
 ```
@@ -59,13 +63,13 @@ Measured on paper: ink 15.6:1, ink-2 11.2:1, muted 6.2:1, accent 8.7:1, brand-de
 - App screens: h1 32px, h2 24px, h3 18px, body 16px, labels 13px. Fixed 1.125 to 1.2 ratio.
 
 ## Controls
-- Primary: indigo fill, cream text, 10px radius, 48px on public/auth, 40px in app screens.
-- Secondary: 1px indigo outline, same radius and height.
+- Primary: indigo fill, cream text, square corners, 48px on public/auth, 40px in app screens.
+- Secondary: 1px indigo outline, same square corners and height.
 - Destructive: 1px danger outline plus a trash icon, never a pink fill, never the page's primary.
-- Fields: 10px radius, 1px `--color-muted` border on paper, 44 to 48px, focus ring 2px `--color-focus` inset. No border-colour change on focus.
+- Fields: square corners, 1px `--color-muted` border on paper, 44 to 48px, focus ring 2px `--color-focus` inset. No border-colour change on focus.
 - Focus: 2px `--color-focus` with 2px offset, instant. On indigo surfaces use cream.
 - Press: one 1px translate, 120ms; hover changes one colour step, 220ms.
-- Radius: controls and cards round (10 / 14); data wells stay square so tables keep their grid; `--radius-full` only for the mascot and count badges.
+- Radius: every control, field and card is square; data wells are square too, so tables keep their grid; `--radius-full` only for status and avatar dots.
 
 ## Surfaces
 - Paper ground, paper-2 wells, paper-3 hard offset. Die-cut edge on raised brand objects only.

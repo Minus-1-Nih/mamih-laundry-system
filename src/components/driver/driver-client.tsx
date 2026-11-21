@@ -80,7 +80,7 @@ function TaskCard({
         </p>
 
         {/* Alamat Lengkap & Patokan */}
-        <div className="mt-3 flex items-start gap-2 rounded-md bg-paper-2 p-2.5 text-13 text-ink-2">
+        <div className="mt-3 flex items-start gap-2 rounded-control bg-paper-2 p-2.5 text-13 text-ink-2">
           <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
           <span className="leading-snug">{order.landmark}</span>
         </div>
@@ -418,7 +418,7 @@ export function DriverClient() {
           type="button"
           onClick={() => setTab("active")}
           className={cn(
-            "flex-1 rounded-md py-2.5 text-xs font-semibold transition-colors",
+            "flex-1 rounded-control py-2.5 text-xs font-semibold transition-colors",
             tab === "active"
               ? "bg-accent text-accent-ink"
               : "text-muted hover:text-ink",
@@ -430,7 +430,7 @@ export function DriverClient() {
           type="button"
           onClick={() => setTab("history")}
           className={cn(
-            "flex-1 rounded-md py-2.5 text-xs font-semibold transition-colors",
+            "flex-1 rounded-control py-2.5 text-xs font-semibold transition-colors",
             tab === "history"
               ? "bg-accent text-accent-ink"
               : "text-muted hover:text-ink",
@@ -593,7 +593,7 @@ export function DriverClient() {
       >
         {confirmingOrder ? (
           <div className="space-y-4 py-2">
-            <div className="rounded-md border border-rule bg-paper-2 p-3.5">
+            <div className="rounded-control border border-rule bg-paper-2 p-3.5">
               <div className="flex items-center justify-between text-xs text-muted">
                 <span className="font-outlier font-bold text-ink">
                   {confirmingOrder.code}
@@ -661,7 +661,7 @@ export function DriverClient() {
               />
             </dl>
 
-            <div className="mt-4 rounded-md border border-rule bg-paper-2 p-3.5">
+            <div className="mt-4 rounded-control border border-rule bg-paper-2 p-3.5">
               <p className="text-xs font-semibold text-accent">
                 Riwayat Penyelesaian
               </p>
