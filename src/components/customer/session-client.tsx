@@ -353,7 +353,7 @@ export function SessionClient() {
           </ul>
 
           <a
-            href={whatsappLink("Halo Laundria, saya ingin menanyakan jadwal layanan.")}
+            href={whatsappLink("Halo Mamih, saya ingin menanyakan jadwal layanan.")}
             target="_blank"
             rel="noreferrer"
             className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-control border border-ink bg-paper text-sm font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"

@@ -109,7 +109,7 @@ export function OrderDetailClient() {
         </div>
         <a
           href={whatsappLink(
-            `Halo Laundria, saya ingin bertanya tentang pesanan ${order.code}.`,
+            `Halo Mamih, saya ingin bertanya tentang pesanan ${order.code}.`,
           )}
           target="_blank"
           rel="noreferrer"

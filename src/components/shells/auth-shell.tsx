@@ -72,7 +72,7 @@ export function AuthShell({ mode, title, subtitle, children }: AuthShellProps) {
               Lacak pesanan
             </Link>
             <a
-              href={whatsappLink("Halo Laundria, saya butuh bantuan.")}
+              href={whatsappLink("Halo Mamih, saya butuh bantuan.")}
               target="_blank"
               rel="noreferrer"
               className="text-sm font-medium whitespace-nowrap text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"

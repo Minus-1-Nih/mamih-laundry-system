@@ -183,7 +183,7 @@ export default function PublicPage() {
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <a
                 href={whatsappLink(
-                  "Halo Laundria, saya ingin pesan antar-jemput laundry.",
+                  "Halo Mamih, saya ingin pesan antar-jemput laundry.",
                 )}
                 target="_blank"
                 rel="noreferrer"
@@ -313,7 +313,7 @@ export default function PublicPage() {
 
         <a
           href={whatsappLink(
-            "Halo Laundria, saya ingin bertanya tentang layanan laundry.",
+            "Halo Mamih, saya ingin bertanya tentang layanan laundry.",
           )}
           target="_blank"
           rel="noreferrer"
@@ -420,7 +420,7 @@ export default function PublicPage() {
 
             <a
               href={whatsappLink(
-                "Halo Laundria, saya ingin pesan antar-jemput laundry.",
+                "Halo Mamih, saya ingin pesan antar-jemput laundry.",
               )}
               target="_blank"
               rel="noreferrer"

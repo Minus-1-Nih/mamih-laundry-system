@@ -140,7 +140,7 @@ export function HistoryClient() {
         </div>
         <a
           href={whatsappLink(
-            "Halo Laundria, saya ingin memesan layanan laundry.",
+            "Halo Mamih, saya ingin memesan layanan laundry.",
           )}
           target="_blank"
           rel="noreferrer"
@@ -331,7 +331,7 @@ export function HistoryClient() {
           Hanya pesanan yang terhubung dengan akun Anda yang ditampilkan.
         </p>
         <a
-          href={whatsappLink("Halo Laundria, saya butuh bantuan terkait pesanan saya.")}
+          href={whatsappLink("Halo Mamih, saya butuh bantuan terkait pesanan saya.")}
           target="_blank"
           rel="noreferrer"
           className="inline-flex items-center gap-1.5 font-medium text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"
