@@ -88,7 +88,7 @@ function SessionBlock({
             aria-hidden="true"
             className={cn(
               "h-1.5 w-1.5 rounded-full",
-              active ? "bg-done-fg" : "bg-muted/60",
+              active ? "bg-ready-bg" : "bg-muted/60",
             )}
           />
           {active ? "Berlangsung" : "Terjadwal"}
@@ -197,7 +197,7 @@ export default function AdminDashboardPage() {
                     (session) =>
                       `${sessionLabel(session.type)} ${session.start}-${session.end}`,
                   )
-                  .join(" · ")}
+                  .join(", ")}
                 .{" "}
                 {unallocated > 0
                   ? `${unallocated} pesanan belum dialokasikan.`
@@ -286,7 +286,7 @@ export default function AdminDashboardPage() {
                     <TD>
                       <Link
                         href={`/admin/pesanan?detail=${encodeURIComponent(order.code)}`}
-                        className="font-outlier text-13 font-semibold tracking-[0.06em] whitespace-nowrap text-ink hover:text-accent"
+                        className="font-outlier text-13 font-semibold whitespace-nowrap text-ink hover:text-accent"
                       >
                         {order.code}
                       </Link>

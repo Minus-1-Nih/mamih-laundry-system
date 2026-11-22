@@ -1,28 +1,27 @@
 {
-  "scanned": "2026-11-13",
+  "scanned": "2026-11-20",
+  "plan": "MNI-22-another-retheme (restyle; project-native, not a Hallmark redesign run)",
   "findings": {
-    "fonts": "Inter (--font-inter), Plus Jakarta Sans (--font-pjs), JetBrains Mono (--font-jetbrains), all next/font/google in src/app/layout.tsx:2-29; body uses Inter in src/app/globals.css:83",
-    "palette": "Tailwind 4 @theme block in src/app/globals.css:3-68: brand green #2a6f56, canvas #faf9f6, surface #ffffff, ink #1e2421, muted #5a6b63, status families; legacy --brand-bg/--brand-text aliases at lines 17-18",
-    "motion": "No motion library in package.json; CSS transitions only (button transition-colors, src/components/ui/button.tsx:41) plus a reduced-motion override in globals.css:99-107",
-    "spacing": "Tailwind default 4pt scale; no custom spacing extension; radius tokens 6-20px and one 13px text step in @theme",
-    "framework": "Next.js 16.4.6 App Router, React 19.3, Tailwind 4.3.3 via @tailwindcss/turbopack, Zustand 5 with localStorage key laundria-demo-v1, lucide-react icons; static export constraints (customer detail is /akun/riwayat/detail?kode= with Suspense)",
-    "surfaces": "21 page routes: public/auth (public, masuk, masuk/admin, masuk/owner, masuk/driver, daftar), customer (tracking, akun/riwayat, akun/riwayat/detail, lokasi, sesi), admin/owner (admin, admin/pesanan, admin/pesanan/baru, admin/akun, 4 placeholders), driver (/driver); 4 shells (public, auth, admin, driver) and 20 UI primitives in src/components",
-    "brand": "Laundria wordmark + wave mark (src/components/brand.tsx), deep green #2a6f56, warm paper #faf9f6, calm Indonesian-language service tone"
+    "fonts": "Fraunces 400 (--font-fraunces) is the Phase 1 gate winner and display face; Baloo 2 800 (--font-baloo) is the brand lockup face; Archivo (--font-archivo) and Archivo Narrow (--font-archivo-narrow) carry body, UI and outlier roles; Yeseva One is retired",
+    "palette": "Tailwind 4 @theme static in src/app/tokens.css: cream paper #faf8f2, indigo accent #3b30b6, Mamih pink #e52f6a, indigo-black ink #1e1d2d; the green v2.1 values are replaced in MNI-22 Phase 1a",
+    "motion": "CSS transitions only; transform and opacity; reduced-motion override in src/app/globals.css; the driver's animate-pulse is removed in Phase 1b",
+    "spacing": "Tailwind default 4pt scale plus the token scale in src/app/tokens.css; square controls and cards (0px), square data wells, full radius only on status and avatar dots",
+    "framework": "Next.js 16.4.6 App Router, React 19.3, Tailwind 4.3.3 via @tailwindcss/turbopack, Zustand 5 with localStorage key laundria-demo-v2; static export constraints (customer detail is /akun/riwayat/detail?kode= with Suspense)",
+    "surfaces": "21 page routes: public/auth (public, masuk, masuk/admin, masuk/owner, masuk/driver, daftar), customer (tracking, akun/riwayat, akun/riwayat/detail, lokasi, sesi), admin/owner (admin, admin/pesanan, admin/pesanan/baru, admin/akun, admin/pengaturan, 3 placeholders), driver (/driver); 4 shells and the shared UI primitives",
+    "brand": "Laundria by Mamih Laundry, mascot public/brand/laundriamascot.png (235x205, transparent); lockup = mascot + Baloo 2 wordmark + 'by Mamih Laundry'; indigo/cream/pink palette sampled from the mascot"
   },
   "preserve": [
-    "the Laundria wordmark and wave mark",
-    "deep green anchor #2a6f56 and warm paper #faf9f6",
     "every route, role, link, form, field, handler, id and test hook",
-    "Indonesian copy facts: hours 12.00-22.00 WIB, pickup 12-17, delivery 17-22, zones Z1 Sukabirus / Z2 Sukapura / Z3 Ciganitri, four order statuses, 5-step customer timeline",
-    "Zustand store and localStorage key laundria-demo-v1, seed data, role rules",
-    "Next.js 16 App Router, next/font, Tailwind 4 @theme token names"
+    "Indonesian copy facts: zones Z1 Sukabirus / Z2 Sukapura / Z3 Ciganitri, four order statuses, the ruled order timeline",
+    "session hours from the MNI-7 config: pickup 08.00-17.00, delivery 17.00-21.00, cutoff 16.00",
+    "Zustand store and localStorage key laundria-demo-v2, seed data, role rules",
+    "Next.js 16 App Router, next/font, Tailwind 4 @theme token names in src/app/tokens.css"
   ],
   "introduce": [
-    "a dealt Hallmark theme (palette balance, display face, surfaces, radius)",
-    "a locked design.md system across all surfaces",
-    "real display typography instead of Inter as display",
-    "app-scope density for admin, driver and customer account screens",
-    "the order timeline as the product's signature object",
-    "Hallmark gates: tokens, focus, field edges, states, copy punctuation"
+    "v4 palette and tokens: indigo primary, Mamih pink signal, square controls, hard offset depth",
+    "the mascot as the brand mark, once per screen and never in tables or forms",
+    "a warm display face: Fraunces, chosen at the Phase 1 gate, replacing Yeseva",
+    "driver tokenization: no raw hex, no bg-white, no soft shadows, no loop",
+    "Hallmark Floor rules as project lint: tokens only, no middle-dot meta strings, no eyebrows, no tracked caps, instant focus-visible"
   ]
 }

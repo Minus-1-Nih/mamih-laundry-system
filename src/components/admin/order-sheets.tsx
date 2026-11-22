@@ -55,7 +55,7 @@ function DetailRow({
 function BlockLabel({ children }: { children: ReactNode }) {
   return (
     <h3 className="mt-6 flex items-center gap-2.5 border-t-2 border-ink pt-3">
-      <span className="small-print text-accent">{children}</span>
+      <span className="small-print text-ink">{children}</span>
     </h3>
   );
 }
@@ -186,7 +186,7 @@ export function OrderDetailSheet({
         </div>
       }
     >
-      <p className="font-outlier text-lg font-semibold tracking-[0.08em] text-ink">
+      <p className="font-outlier text-lg font-semibold text-ink">
         {order.code}
       </p>
       <div className="mt-2 flex flex-wrap items-center gap-2 border-b border-rule pb-4">
@@ -227,7 +227,7 @@ export function OrderDetailSheet({
           value={
             <>
               <p>
-                {scheduleDateLabel(pickupDate)} · {order.schedule} WIB
+                {scheduleDateLabel(pickupDate)}, {order.schedule} WIB
               </p>
               <p className="text-13 font-normal text-muted">
                 {sessionWindowLabel("pickup", sessions)}

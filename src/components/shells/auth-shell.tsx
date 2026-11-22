@@ -19,7 +19,6 @@ interface AuthCopy {
   body: string;
   checks: string[];
   icon: LucideIcon;
-  label: string;
 }
 
 const copy: Record<AuthMode, AuthCopy> = {
@@ -28,28 +27,24 @@ const copy: Record<AuthMode, AuthCopy> = {
     body: "Dijemput, dirawat, lalu diantar kembali. Nikmati hari tanpa memikirkan tumpukan cucian.",
     checks: ["Antar jemput", "Status transparan", "Dirawat sepenuh hati"],
     icon: WashingMachine,
-    label: "Masuk pelanggan",
   },
   admin: {
     heading: "Operasional rapi. Tim tenang.",
     body: "Satu tempat untuk memantau pesanan, mengatur status, dan menjaga layanan tetap berjalan.",
     checks: ["Pesanan terpusat", "Status akurat", "Laporan siap"],
     icon: ClipboardList,
-    label: "Masuk admin",
   },
   owner: {
     heading: "Kendali penuh. Keputusan cepat.",
     body: "Akses Owner mencakup seluruh operasional, termasuk pengelolaan akun Admin dan Driver.",
     checks: ["Semua zona", "Manajemen akun", "Riwayat lengkap"],
     icon: ShieldCheck,
-    label: "Masuk owner",
   },
   driver: {
     heading: "Setiap antar, sampai dengan aman.",
     body: "Tugas penjemputan dan pengantaran yang jelas, dengan status yang bisa diperbarui langsung.",
     checks: ["Tugas jelas", "Rute teratur", "Status langsung"],
     icon: Truck,
-    label: "Masuk driver",
   },
 };
 
@@ -77,7 +72,7 @@ export function AuthShell({ mode, title, subtitle, children }: AuthShellProps) {
               Lacak pesanan
             </Link>
             <a
-              href={whatsappLink("Halo Laundria, saya butuh bantuan.")}
+              href={whatsappLink("Halo Mamih, saya butuh bantuan.")}
               target="_blank"
               rel="noreferrer"
               className="text-sm font-medium whitespace-nowrap text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"
@@ -90,8 +85,7 @@ export function AuthShell({ mode, title, subtitle, children }: AuthShellProps) {
 
       <main className="mx-auto grid w-full max-w-[1240px] flex-1 gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)] lg:items-start lg:gap-20 lg:px-8 lg:py-16">
         <div className="order-1 w-full max-w-md">
-          <p className="small-print text-accent">{content.label}</p>
-          <h1 className="mt-3 font-display text-4xl leading-[1.04] sm:text-5xl">
+          <h1 className="font-display text-4xl leading-[1.04] sm:text-5xl">
             {title}
           </h1>
           <p className="mt-4 text-base leading-relaxed text-muted">{subtitle}</p>
@@ -129,7 +123,7 @@ export function AuthShell({ mode, title, subtitle, children }: AuthShellProps) {
               ))}
             </ul>
             <p className="small-print mt-6 text-muted">
-              Laundria · Sukabirus, Sukapura, Ciganitri
+              Laundria, Sukabirus, Sukapura, Ciganitri
             </p>
           </div>
         </aside>

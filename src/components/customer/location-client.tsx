@@ -87,11 +87,11 @@ function MapCanvas({
           <div className="absolute left-[10%] top-[6%] h-[86%] w-[80%] rounded-[38%] border-2 border-dashed border-ink/20" />
         </div>
 
-        <p className="small-print absolute left-[34%] top-[34%] tracking-[0.14em] text-map-label">
-          SUKABIRUS
+        <p className="small-print absolute left-[34%] top-[34%] text-map-label">
+          Sukabirus
         </p>
-        <p className="small-print absolute right-[6%] top-[46%] tracking-[0.14em] text-map-label">
-          CITEUREUP
+        <p className="small-print absolute right-[6%] top-[46%] text-map-label">
+          Citeureup
         </p>
         <p className="small-print absolute left-[54%] top-[20%] text-map-label">
           Taman Telkom
@@ -242,8 +242,7 @@ function PageHead({
   return (
     <div className="flex flex-wrap items-start justify-between gap-4 border-b border-rule pb-5">
       <div className="min-w-0">
-        <p className="small-print text-accent">Lokasi dan alamat</p>
-        <h1 className="mt-2 font-display text-3xl leading-tight sm:text-4xl">
+        <h1 className="font-display text-3xl leading-tight sm:text-4xl">
           {title}
         </h1>
         <p className="mt-2 max-w-xl text-sm text-muted">{subtitle}</p>

@@ -28,7 +28,7 @@ for the receipt line — paste it as a comment.
 | 2 | Four order statuses: `menunggu`, `dicuci`, `siap`, `selesai`. No cancelled status. The word may appear in prose ("tidak bisa dibatalkan"). | `check: no-status` |
 | 3 | Order codes are `Z1-YYMMDD-NNN`, from `nextOrderCode`. | review |
 | 4 | No `new Date()` for display time — use `DEMO_NOW` from `src/lib/demo-date.ts`. `Date.now()` is fine for ids and durations. | `check: no-clock` |
-| 5 | Tokens live in `@theme` in `src/app/globals.css`. There is no `tailwind.config.*`. | `check: tailwind-config` |
+| 5 | Tokens live in `@theme static` in `src/app/tokens.css`, imported by `globals.css`. There is no `tailwind.config.*`. | `check: tailwind-config` |
 | 6 | Store actions return `{ ok: false, error }`; never throw for expected failures. | types (`Result<T>`) |
 | 7 | Drawers are URL state (`?detail=`, `?status=`, `?hapus=`, `?kode=`), not routes. | review |
 | 8 | One primary action per screen. Sentence case, no eyebrows, no tracked caps, no decorative dots, no emoji icons. | review |

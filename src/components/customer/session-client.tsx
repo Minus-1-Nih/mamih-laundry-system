@@ -66,7 +66,7 @@ function SessionBlock({ session }: { session: OperationalSession }) {
             aria-hidden="true"
             className={cn(
               "h-1.5 w-1.5 rounded-full",
-              active ? "bg-done-fg" : "bg-muted/60",
+              active ? "bg-ready-bg" : "bg-muted/60",
             )}
           />
           {status}
@@ -114,8 +114,7 @@ export function SessionClient() {
     <div>
       <div className="flex flex-wrap items-start justify-between gap-4 border-b border-rule pb-5">
         <div className="min-w-0">
-          <p className="small-print text-accent">Sesi operasional</p>
-          <h1 className="mt-2 font-display text-3xl leading-tight sm:text-4xl">
+          <h1 className="font-display text-3xl leading-tight sm:text-4xl">
             Informasi sesi operasional
           </h1>
           <p className="mt-2 max-w-xl text-sm text-muted">
@@ -129,7 +128,7 @@ export function SessionClient() {
               aria-hidden="true"
               className={cn(
                 "h-2 w-2 rounded-full",
-                open ? "bg-done-fg" : "bg-muted",
+                open ? "bg-ready-bg" : "bg-muted",
               )}
             />
             {open ? "Layanan buka" : "Layanan tutup"}
@@ -354,7 +353,7 @@ export function SessionClient() {
           </ul>
 
           <a
-            href={whatsappLink("Halo Laundria, saya ingin menanyakan jadwal layanan.")}
+            href={whatsappLink("Halo Mamih, saya ingin menanyakan jadwal layanan.")}
             target="_blank"
             rel="noreferrer"
             className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-control border border-ink bg-paper text-sm font-medium text-ink transition-colors duration-[var(--dur-micro)] hover:bg-paper-2"

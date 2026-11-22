@@ -76,21 +76,21 @@ test("the confirmation greets the customer and carries the code", () => {
 
 test("the confirmation prints both legs of the cycle", () => {
   const text = message();
-  assert.match(text, /^Penjemputan: Besok · 14\.00 WIB$/m);
-  assert.match(text, /^Pengantaran: 6 Nov · 17\.00-21\.00 WIB$/m);
+  assert.match(text, /^Penjemputan: Besok, 14\.00 WIB$/m);
+  assert.match(text, /^Pengantaran: 6 Nov, 17\.00-21\.00 WIB$/m);
 });
 
 test("the delivery leg follows the package turnaround", () => {
   assert.match(
     message({ tier: "reguler" }),
-    /^Pengantaran: 7 Nov · 17\.00-21\.00 WIB$/m,
+    /^Pengantaran: 7 Nov, 17\.00-21\.00 WIB$/m,
   );
 });
 
 test("an explicit delivery date wins over the turnaround", () => {
   assert.match(
     message({ deliveryDate: "2026-11-04" }),
-    /^Pengantaran: Hari ini · 17\.00-21\.00 WIB$/m,
+    /^Pengantaran: Hari ini, 17\.00-21\.00 WIB$/m,
   );
 });
 
@@ -101,7 +101,7 @@ test("the declared session windows are used verbatim", () => {
       : session,
   );
   const text = orderConfirmationMessage(order(), BASE, custom);
-  assert.match(text, /^Pengantaran: 6 Nov · 09\.00-17\.00 WIB$/m);
+  assert.match(text, /^Pengantaran: 6 Nov, 09\.00-17\.00 WIB$/m);
 });
 
 test("the confirmation includes the tracking URL exactly once", () => {
@@ -119,7 +119,7 @@ test("the confirmation asks for a reply", () => {
 test("a tiered service shows its tier", () => {
   assert.match(
     message({ tier: "kilat" }),
-    /^Layanan: Cuci Kering Setrika · Kilat$/m,
+    /^Layanan: Cuci Kering Setrika, Kilat$/m,
   );
 });
 
@@ -140,6 +140,6 @@ test("the confirmation carries no price, phone, or landmark", () => {
 test("a later schedule date is printed instead of the intake day", () => {
   assert.match(
     message({ scheduleDate: "2026-11-09" }),
-    /^Penjemputan: 9 Nov · 14\.00 WIB$/m,
+    /^Penjemputan: 9 Nov, 14\.00 WIB$/m,
   );
 });

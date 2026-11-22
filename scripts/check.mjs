@@ -161,6 +161,21 @@ record(
     : "",
 );
 
+// Colours and faces go through tokens.css.
+const RAW_HEX = /#[0-9a-fA-F]{3,8}\b/;
+const STOCK_PALETTE =
+  /\b(?:bg|text|border|ring|divide|outline|fill|stroke|from|via|to)-(?:white|black)(?:\/\d+)?\b|\b(?:bg|text|border|ring|divide|outline|fill|stroke|from|via|to)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}\b/;
+const rawColors = scanning(
+  (s) => RAW_HEX.test(s) || STOCK_PALETTE.test(s),
+);
+record(
+  "no-raw-colors",
+  rawColors.length === 0,
+  rawColors.length
+    ? `Use tokens from src/app/tokens.css, never raw hex or stock palette classes:\n  ${rawColors.join("\n  ")}`
+    : "",
+);
+
 const akun = join(ROOT, "src/app/admin/akun/page.tsx");
 record(
   "guards",
