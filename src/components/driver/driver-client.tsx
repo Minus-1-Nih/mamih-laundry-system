@@ -3,12 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  CheckCircle2,
+  CloudOff,
   LogOut,
   MapPin,
   MessageCircle,
   PackageCheck,
-  User as UserIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/sheet";
@@ -51,9 +50,11 @@ function SectionHeading({ title, count }: { title: string; count: number }) {
 
 function TaskCard({
   order,
+  isPendingSync,
   onConfirm,
 }: {
   order: Order;
+  isPendingSync?: boolean;
   onConfirm: (order: Order, action: DriverAction) => void;
 }) {
   const pickup = order.status === "menunggu";
@@ -61,15 +62,23 @@ function TaskCard({
 
   return (
     <article className="rounded-2xl border border-[#E2E8E4] bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
-      {/* Header Kartu: Kode & Badge Status */}
-      <div className="flex items-start justify-between gap-3 border-b border-[#E2E8E4] pb-3">
-        <span className="font-mono text-sm font-bold tracking-tight text-[#1F2937]">
-          {order.code}
-        </span>
+      {/* Header Kartu: Kode Pesanan, Status & Indikator Pending Sync */}
+      <div className="flex flex-wrap items-start justify-between gap-2 border-b border-[#E2E8E4] pb-3">
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-sm font-bold tracking-tight text-[#1F2937]">
+            {order.code}
+          </span>
+          {isPendingSync ? (
+            <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800">
+              <CloudOff className="h-3 w-3" />
+              Menunggu Sinkronisasi
+            </span>
+          ) : null}
+        </div>
         <StatusBadge status={order.status} overdue={isOverdue(order)} />
       </div>
 
-      {/* Informasi Pelanggan & Layanan */}
+      {/* Rincian Pelanggan & Layanan */}
       <div className="py-3">
         <h3 className="text-base font-semibold leading-snug text-[#1F2937]">
           {order.customerName}
@@ -108,7 +117,7 @@ function TaskCard({
         </a>
       </div>
 
-      {/* Tombol Aksi Spesifik (Bukan Teks Generik "Perbarui Status") */}
+      {/* Tombol Aksi Spesifik */}
       <div className="pt-3">
         <button
           type="button"
@@ -122,7 +131,15 @@ function TaskCard({
   );
 }
 
-function HistoryCard({ order, onOpen }: { order: Order; onOpen: () => void }) {
+function HistoryCard({
+  order,
+  isPendingSync,
+  onOpen,
+}: {
+  order: Order;
+  isPendingSync?: boolean;
+  onOpen: () => void;
+}) {
   const zones = useAppStore((state) => state.zones);
   const zone = zones.find((item) => item.id === order.zoneId);
   const isPickupFinished = order.status === "dicuci";
@@ -134,10 +151,18 @@ function HistoryCard({ order, onOpen }: { order: Order; onOpen: () => void }) {
 
   return (
     <article className="rounded-2xl border border-[#E2E8E4] bg-white p-4 shadow-sm">
-      <div className="flex items-start justify-between gap-3 border-b border-[#E2E8E4] pb-3">
-        <span className="font-mono text-sm font-bold tracking-tight text-[#1F2937]">
-          {order.code}
-        </span>
+      <div className="flex flex-wrap items-start justify-between gap-2 border-b border-[#E2E8E4] pb-3">
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-sm font-bold tracking-tight text-[#1F2937]">
+            {order.code}
+          </span>
+          {isPendingSync ? (
+            <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800">
+              <CloudOff className="h-3 w-3" />
+              Menunggu Sinkronisasi
+            </span>
+          ) : null}
+        </div>
         <StatusBadge status={order.status} />
       </div>
       <div className="py-3">
@@ -200,6 +225,9 @@ export function DriverClient() {
   const zones = useAppStore((state) => state.zones);
   const driverOnline = useAppStore((state) => state.driverOnline);
   const setDriverOnline = useAppStore((state) => state.setDriverOnline);
+  const offlineSyncQueue = useAppStore((state) => state.offlineSyncQueue);
+  const queueOfflineAction = useAppStore((state) => state.queueOfflineAction);
+  const syncOfflineQueue = useAppStore((state) => state.syncOfflineQueue);
   const updateOrderStatus = useAppStore((state) => state.updateOrderStatus);
   const logout = useAppStore((state) => state.logout);
   const user = useCurrentUser();
@@ -215,20 +243,41 @@ export function DriverClient() {
   const [confirmingOrder, setConfirmingOrder] = useState<Order | null>(null);
   const [confirmAction, setConfirmAction] = useState<DriverAction>("pickup");
 
-  // Pendeteksi status jaringan otomatis (online / offline)
+  // Pendeteksi status jaringan real-time & Registrasi PWA Service Worker
   useEffect(() => {
     if (typeof window !== "undefined") {
+      // 1. Cek status awal jaringan secara aman saat mount (menghindari hydration mismatch)
+      setDriverOnline(navigator.onLine);
+
+      // 2. Daftarkan Service Worker untuk kapabilitas PWA & Offline Caching
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/sw.js").catch(() => {
+          // Abaikan kegagalan SW pada local environment tanpa HTTPS
+        });
+      }
+
+      // 3. Listener saat koneksi online kembali (Auto-Sync)
       const handleOnline = () => {
         setDriverOnline(true);
-        toast({
-          title: "Koneksi terhubung kembali. Sinkronisasi aktif.",
-          tone: "success",
-        });
+        const { syncedCount } = syncOfflineQueue();
+        if (syncedCount > 0) {
+          toast({
+            title: `Koneksi pulih. Berhasil menyinkronkan ${syncedCount} tugas offline ke server.`,
+            tone: "success",
+          });
+        } else {
+          toast({
+            title: "Koneksi terhubung kembali. Sinkronisasi aktif.",
+            tone: "success",
+          });
+        }
       };
+
+      // 4. Listener saat koneksi offline
       const handleOffline = () => {
         setDriverOnline(false);
         toast({
-          title: "Koneksi terputus. Mode offline diaktifkan (disimpan lokal).",
+          title: "Koneksi terputus. Mode offline diaktifkan (perubahan disimpan lokal).",
           tone: "error",
         });
       };
@@ -240,7 +289,7 @@ export function DriverClient() {
         window.removeEventListener("offline", handleOffline);
       };
     }
-  }, [setDriverOnline, toast]);
+  }, [setDriverOnline, syncOfflineQueue, toast]);
 
   const zoneIds = user?.zoneIds ?? NO_ZONES;
   const tasks = useMemo(
@@ -270,6 +319,10 @@ export function DriverClient() {
       ? "Hubungi pemilik untuk penugasan zona."
       : `Menampilkan pesanan Zona ${zoneIds.join(" dan ")}.`;
 
+  function isOrderPendingSync(code: string): boolean {
+    return (offlineSyncQueue ?? []).some((item) => item.orderCode === code);
+  }
+
   function openConfirm(order: Order, action: DriverAction) {
     setConfirmingOrder(order);
     setConfirmAction(action);
@@ -277,10 +330,15 @@ export function DriverClient() {
 
   function handleExecuteConfirm() {
     if (!confirmingOrder) return;
+    const targetStatus = nextStatus(confirmAction);
+    const actionNote =
+      confirmAction === "pickup" ? "Penjemputan selesai" : "Pengantaran selesai";
+
+    // Update optimis ke state lokal (tetap responsif instan)
     const result = updateOrderStatus(
       confirmingOrder.code,
-      nextStatus(confirmAction),
-      confirmAction === "pickup" ? "Penjemputan selesai" : "Pengantaran selesai",
+      targetStatus,
+      actionNote,
     );
 
     if (!result.ok) {
@@ -288,12 +346,24 @@ export function DriverClient() {
       return;
     }
 
-    toast({
-      title: driverOnline
-        ? "Status pesanan berhasil diperbarui."
-        : "Status disimpan sementara (offline). Otomatis disinkronkan saat terhubung kembali.",
-      tone: "success",
-    });
+    // Jika sedang offline, masukkan ke antrean sinkronisasi
+    if (!driverOnline) {
+      queueOfflineAction({
+        orderCode: confirmingOrder.code,
+        status: targetStatus,
+        note: actionNote,
+      });
+
+      toast({
+        title: "Tersimpan di antrean offline (LocalStorage). Otomatis disinkronkan saat terhubung kembali.",
+        tone: "info",
+      });
+    } else {
+      toast({
+        title: "Status pesanan berhasil diperbarui.",
+        tone: "success",
+      });
+    }
 
     setConfirmingOrder(null);
   }
@@ -314,12 +384,16 @@ export function DriverClient() {
       {/* Banner Peringatan Mode Offline */}
       {!driverOnline ? (
         <div className="border-b border-amber-200 bg-amber-50 px-5 py-3 text-13 font-medium text-amber-900">
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-            <span>
-              Mode offline aktif. Perubahan disimpan di perangkat (LocalStorage)
-              dan disinkronkan saat online kembali.
-            </span>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+              <span>
+                Mode offline aktif.{" "}
+                {(offlineSyncQueue ?? []).length > 0
+                  ? `${(offlineSyncQueue ?? []).length} tugas tersimpan dalam antrean lokal.`
+                  : "Perubahan disimpan di perangkat (LocalStorage)."}
+              </span>
+            </div>
           </div>
         </div>
       ) : null}
@@ -342,11 +416,25 @@ export function DriverClient() {
             onClick={() => {
               const nextState = !driverOnline;
               setDriverOnline(nextState);
-              toast({
-                title: nextState
-                  ? "Kembali online. Sinkronisasi aktif."
-                  : "Mode offline diaktifkan secara manual.",
-              });
+              if (nextState) {
+                const { syncedCount } = syncOfflineQueue();
+                if (syncedCount > 0) {
+                  toast({
+                    title: `Kembali online. ${syncedCount} tugas offline berhasil disinkronkan.`,
+                    tone: "success",
+                  });
+                } else {
+                  toast({
+                    title: "Kembali online. Sinkronisasi aktif.",
+                    tone: "success",
+                  });
+                }
+              } else {
+                toast({
+                  title: "Mode offline diaktifkan secara manual.",
+                  tone: "info",
+                });
+              }
             }}
             aria-pressed={driverOnline}
             className="inline-flex h-9 items-center gap-2 rounded-full border border-[#E2E8E4] bg-white px-3.5 text-xs font-medium text-[#1F2937] shadow-sm transition-colors hover:border-[#2A6F56]"
@@ -376,7 +464,7 @@ export function DriverClient() {
             <p className="mt-1 text-xs text-[#64748B]">{DEMO_DATE_LONG}</p>
           </div>
 
-          {/* Avatar Inisial dengan Indikator Titik Status Koneksi (Hijau = Online, Merah = Offline) */}
+          {/* Avatar Inisial dengan Indikator Titik Status Koneksi */}
           <div className="relative shrink-0">
             <button
               type="button"
@@ -415,7 +503,7 @@ export function DriverClient() {
         </div>
       </section>
 
-      {/* Navigasi Tab (Daftar Tugas Aktif & Riwayat Tugas Selesai) */}
+      {/* Navigasi Tab */}
       <div className="mx-5 mt-5 flex rounded-xl border border-[#E2E8E4] bg-white p-1 shadow-sm">
         <button
           type="button"
@@ -446,7 +534,7 @@ export function DriverClient() {
       {/* Konten Tab Aktif */}
       {tab === "active" ? (
         <div className="px-5 pb-8 pt-4">
-          {/* Filter Chips Interaktif (Semua, Penjemputan, Pengantaran) */}
+          {/* Filter Chips Interaktif */}
           <div className="flex gap-2 overflow-x-auto pb-2">
             {(
               [
@@ -480,6 +568,7 @@ export function DriverClient() {
                   <TaskCard
                     key={order.code}
                     order={order}
+                    isPendingSync={isOrderPendingSync(order.code)}
                     onConfirm={openConfirm}
                   />
                 ))}
@@ -496,6 +585,7 @@ export function DriverClient() {
                   <TaskCard
                     key={order.code}
                     order={order}
+                    isPendingSync={isOrderPendingSync(order.code)}
                     onConfirm={openConfirm}
                   />
                 ))}
@@ -552,6 +642,7 @@ export function DriverClient() {
                 <HistoryCard
                   key={order.code}
                   order={order}
+                  isPendingSync={isOrderPendingSync(order.code)}
                   onOpen={() => setDetailOrderCode(order.code)}
                 />
               ))}
@@ -562,7 +653,7 @@ export function DriverClient() {
         </div>
       )}
 
-      {/* Modal Konfirmasi 1-Klik Langsung (Tanpa Radio Button Berbelit) */}
+      {/* Modal Konfirmasi 1-Klik Langsung */}
       <Sheet
         open={Boolean(confirmingOrder)}
         onClose={() => setConfirmingOrder(null)}

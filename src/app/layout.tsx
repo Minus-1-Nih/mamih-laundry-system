@@ -33,6 +33,7 @@ export const metadata: Metadata = {
   title: "Laundria, Laundry Jemput-Antar",
   description:
     "Sistem informasi layanan jemput-antar Mamih Laundry: admin, driver, dan pelacakan pelanggan.",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({

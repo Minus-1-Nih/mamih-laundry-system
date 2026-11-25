@@ -33,6 +33,14 @@ export interface StatusEvent {
   note?: string;
 }
 
+export interface OfflineSyncItem {
+  id: string;
+  orderCode: string;
+  status: OrderStatus;
+  note?: string;
+  timestamp: string;
+}
+
 export interface Order {
   code: string;
   customerId?: string;

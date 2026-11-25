@@ -11,6 +11,7 @@ import { seedOrders, seedSessions, seedUsers, seedZones } from "@/lib/seed";
 import { bookable, planAllocation } from "@/lib/sessions";
 import type {
   AdminLevel,
+  OfflineSyncItem,
   Order,
   OrderStatus,
   OperationalSession,
@@ -88,9 +89,13 @@ interface AppState {
   currentUserId: string | null;
   hydrated: boolean;
   driverOnline: boolean;
+  offlineSyncQueue: OfflineSyncItem[];
 
   setHydrated: (value: boolean) => void;
   setDriverOnline: (value: boolean) => void;
+  queueOfflineAction: (item: Omit<OfflineSyncItem, "id" | "timestamp">) => void;
+  syncOfflineQueue: () => { syncedCount: number };
+  clearOfflineQueue: () => void;
   login: (input: LoginInput) => Result<{ user: User }>;
   logout: () => void;
   registerCustomer: (input: RegisterCustomerInput) => Result<{ user: User }>;
@@ -100,7 +105,12 @@ interface AppState {
   activateUser: (id: string) => Result;
   resetPassword: (id: string, password: string) => Result;
   createOrder: (input: CreateOrderInput) => Result<{ order: Order }>;
-  updateOrderStatus: (code: string, status: OrderStatus, note?: string) => Result;
+  updateOrderStatus: (
+    code: string,
+    status: OrderStatus,
+    note?: string,
+    timestamp?: string,
+  ) => Result;
   deleteOrder: (code: string) => Result;
   toggleSession: (type: SessionType) => void;
   updateSession: (
@@ -146,9 +156,27 @@ export const useAppStore = create<AppState>()(
       currentUserId: null,
       hydrated: false,
       driverOnline: true,
+      offlineSyncQueue: [],
 
       setHydrated: (value) => set({ hydrated: value }),
       setDriverOnline: (value) => set({ driverOnline: value }),
+      queueOfflineAction: (item) => {
+        const queueItem: OfflineSyncItem = {
+          ...item,
+          id: `sync-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          timestamp: new Date(Date.now()).toISOString(),
+        };
+        set((state) => ({
+          offlineSyncQueue: [...(state.offlineSyncQueue ?? []), queueItem],
+        }));
+      },
+      syncOfflineQueue: () => {
+        const queue = get().offlineSyncQueue ?? [];
+        const count = queue.length;
+        set({ offlineSyncQueue: [] });
+        return { syncedCount: count };
+      },
+      clearOfflineQueue: () => set({ offlineSyncQueue: [] }),
 
       login: ({ identifier, password, expectedRole, expectedLevel }) => {
         const needle = identifier.trim().toLowerCase();
@@ -392,12 +420,13 @@ export const useAppStore = create<AppState>()(
         return { ok: true, order };
       },
 
-      updateOrderStatus: (code, status, note) => {
+      updateOrderStatus: (code, status, note, timestamp) => {
         const state = get();
         const order = state.orders.find((item) => item.code === code);
         if (!order) return { ok: false, error: "Pesanan tidak ditemukan." };
         const actor = state.users.find((user) => user.id === state.currentUserId);
         const by = actor?.name ?? "Sistem";
+        const nowIso = timestamp || new Date(Date.now()).toISOString();
 
         set((current) => ({
           orders: current.orders.map((item) =>
@@ -411,7 +440,7 @@ export const useAppStore = create<AppState>()(
                     ...item.history,
                     {
                       status,
-                      at: DEMO_NOW_ISO,
+                      at: nowIso,
                       by,
                       note: note?.trim() || "Status diperbarui",
                     },
@@ -516,6 +545,7 @@ export const useAppStore = create<AppState>()(
           sessions: seedSessions,
           currentUserId: null,
           driverOnline: true,
+          offlineSyncQueue: [],
           hydrated: true,
         }),
     }),
@@ -532,6 +562,7 @@ export const useAppStore = create<AppState>()(
         sessions: state.sessions,
         currentUserId: state.currentUserId,
         driverOnline: state.driverOnline,
+        offlineSyncQueue: state.offlineSyncQueue ?? [],
       }),
     },
   ),
