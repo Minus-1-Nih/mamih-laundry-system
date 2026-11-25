@@ -16,6 +16,16 @@ export function todayOrders(orders: Order[]): Order[] {
   return visibleOrders(orders).filter((order) => isToday(order.createdAt));
 }
 
+/**
+ * The admin order list keeps today's orders plus any unfinished order from an
+ * earlier day, so outlet work cannot fall off the screen.
+ */
+export function workingOrders(orders: Order[]): Order[] {
+  return visibleOrders(orders).filter(
+    (order) => isToday(order.createdAt) || order.status !== "selesai",
+  );
+}
+
 export function customerOrders(orders: Order[], customerId: string): Order[] {
   return visibleOrders(orders)
     .filter((order) => order.customerId === customerId)

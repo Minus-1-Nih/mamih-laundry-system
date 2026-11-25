@@ -10,6 +10,7 @@ import {
 } from "@/lib/format";
 import { seedOrders, seedSessions, seedUsers, seedZones } from "@/lib/seed";
 import { bookable, planAllocation } from "@/lib/sessions";
+import { canAdvance, statusNotes } from "@/lib/status-flow";
 import type {
   AdminLevel,
   Order,
@@ -398,7 +399,14 @@ export const useAppStore = create<AppState>()(
         const order = state.orders.find((item) => item.code === code);
         if (!order) return { ok: false, error: "Pesanan tidak ditemukan." };
         const actor = state.users.find((user) => user.id === state.currentUserId);
-        const by = actor?.name ?? "Sistem";
+        if (!actor) {
+          return { ok: false, error: "Sesi pengguna tidak ditemukan." };
+        }
+
+        const gate = canAdvance(actor.role, order.status, status);
+        if (!gate.ok) return gate;
+
+        const by = actor.name;
 
         set((current) => ({
           orders: current.orders.map((item) =>
@@ -406,15 +414,14 @@ export const useAppStore = create<AppState>()(
               ? {
                   ...item,
                   status,
-                  driverId:
-                    actor?.role === "driver" ? actor.id : item.driverId,
+                  driverId: actor.role === "driver" ? actor.id : item.driverId,
                   history: [
                     ...item.history,
                     {
                       status,
                       at: DEMO_NOW_ISO,
                       by,
-                      note: note?.trim() || "Status diperbarui",
+                      note: note?.trim() || statusNotes[status],
                     },
                   ],
                 }

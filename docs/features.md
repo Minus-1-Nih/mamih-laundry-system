@@ -26,7 +26,7 @@ What the app does today, verified 2026-11-16 by running the app and logging in a
 | Masuk owner | `/masuk/owner` | none | `?next=` | "Masuk sebagai Owner." |
 | Masuk driver | `/masuk/driver` | none | `?next=` | "Masuk sebagai Driver." |
 | Dashboard | `/admin` | `/admin` layout | — | "Dashboard operasional"; "Rabu, 4 November 2026" |
-| Kelola pesanan | `/admin/pesanan` | `/admin` layout | `?detail=`, `?status=`, `?hapus=` | "Menampilkan 11 dari 18 pesanan" |
+| Kelola pesanan | `/admin/pesanan` | `/admin` layout | `?detail=`, `?status=`, `?hapus=` | "Menampilkan 11 dari 20 pesanan" |
 | Input pesanan | `/admin/pesanan/baru` | `/admin` layout | — | "Tempel pesan WhatsApp" |
 | Zona & Driver | `/admin/zona-driver` | `/admin` layout | — | "Belum termasuk cakupan prototipe" |
 | Pelanggan | `/admin/pelanggan` | `/admin` layout | — | "Belum termasuk cakupan prototipe" |
@@ -46,3 +46,4 @@ What the app does today, verified 2026-11-16 by running the app and logging in a
 - `?next=` is honoured only when it starts with `/` and not `//`; `//evil.example` falls back to the role's landing page.
 - `/` redirects to `/public` (307), so the landing page is not at the root.
 - Drawers are URL state on `/admin/pesanan` (`?detail=`, `?status=`, `?hapus=`) and `/akun/riwayat/detail` / `/tracking` (`?kode=`). Verification opened them by URL; destructive confirm buttons were not executed.
+- Status moves forward one stage at a time: the outlet (admin/owner) records Sedang Dicuci and Siap Diantar, the driver records pickup and delivery, and `selesai` is terminal. The admin list also keeps unfinished orders from earlier days.

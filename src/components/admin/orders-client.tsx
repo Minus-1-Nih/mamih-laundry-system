@@ -37,6 +37,7 @@ import {
   overdueOrders,
   todayOrders,
   visibleOrders,
+  workingOrders,
 } from "@/lib/selectors";
 import { useAppStore } from "@/lib/store";
 import type { Order, OrderStatus, SessionType, ZoneId } from "@/lib/types";
@@ -66,8 +67,9 @@ export function OrdersClient() {
   const [page, setPage] = useState(1);
 
   const today = todayOrders(orders);
+  const working = workingOrders(orders);
   const allVisible = visibleOrders(orders);
-  const late = overdueOrders(today);
+  const late = overdueOrders(working);
 
   const detailCode = searchParams.get("detail");
   const statusCode = searchParams.get("status");
@@ -78,7 +80,7 @@ export function OrdersClient() {
   const deleteOrder = allVisible.find((order) => order.code === deleteCode) ?? null;
 
   const needle = search.trim().toLowerCase();
-  const filtered = today
+  const filtered = working
     .filter((order) => {
       if (attention && !isOverdue(order)) return false;
       if (zone !== "all" && order.zoneId !== zone) return false;
@@ -187,9 +189,9 @@ export function OrdersClient() {
       <AdminPageHeader
         title="Kelola pesanan"
         subtitle={`${today.length} pesanan hari ini, ${countStatus(
-          today,
-          "menunggu",
-        )} menunggu penjemputan, sesi ${serviceHours(sessions)}`}
+          working,
+          "dicuci",
+        )} sedang dicuci, ${countStatus(working, "siap")} siap diantar, sesi ${serviceHours(sessions)}`}
         action={
           <Link
             href="/admin/pesanan/baru"
@@ -306,7 +308,7 @@ export function OrdersClient() {
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-rule px-4 py-3.5">
           <div className="flex items-baseline gap-2.5">
             <span className="small-print text-muted">Daftar</span>
-            <h2>Pesanan hari ini</h2>
+            <h2>Pesanan operasional</h2>
             <span className="small-print border border-rule px-2 py-0.5 text-muted">
               {filtered.length} pesanan
             </span>
