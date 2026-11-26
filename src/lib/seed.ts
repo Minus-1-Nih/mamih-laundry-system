@@ -1,6 +1,7 @@
 import { isoAt } from "@/lib/demo-date";
 import { dateKeyWib, deliveryDateFor } from "@/lib/format";
 import type {
+  CustomerAddress,
   Order,
   OrderStatus,
   OperationalSession,
@@ -15,6 +16,36 @@ export const seedZones: Zone[] = [
   { id: "Z1", name: "Sukabirus", area: "Bojongsoang, Kabupaten Bandung" },
   { id: "Z2", name: "Sukapura", area: "Dayeuhkolot, Kabupaten Bandung" },
   { id: "Z3", name: "Ciganitri", area: "Bojongsoang, Kabupaten Bandung" },
+];
+
+export const seedAddresses: CustomerAddress[] = [
+  {
+    id: "addr-adinda-rumah",
+    customerId: "u-adinda",
+    label: "Rumah",
+    address: "Jl. Sukabirus No. 12, Kos Mawar",
+    note: "Patokan: dekat gerbang utama",
+    zoneId: "Z1",
+    primary: true,
+  },
+  {
+    id: "addr-adinda-kos",
+    customerId: "u-adinda",
+    label: "Kos",
+    address: "Jl. Sukabirus No. 24, Kos Anggrek",
+    note: "Pagar hijau, sebelah warung kopi",
+    zoneId: "Z1",
+    primary: false,
+  },
+  {
+    id: "addr-adinda-kantor",
+    customerId: "u-adinda",
+    label: "Kantor",
+    address: "Jl. Sukapura No. 8, Ruko Dayeuhkolot",
+    note: "Lantai 2, titip ke resepsionis",
+    zoneId: "Z2",
+    primary: false,
+  },
 ];
 
 export const seedSessions: OperationalSession[] = [
