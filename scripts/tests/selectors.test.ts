@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { driverActiveTasks } from "@/lib/selectors";
+import { driverActiveTasks, workingOrders } from "@/lib/selectors";
 import type { Order } from "@/lib/types";
 
 function order(overrides: Partial<Order> = {}): Order {
@@ -56,5 +56,26 @@ test("driver queue respects zones and ignores deleted orders", () => {
   assert.deepEqual(
     tasks.map((item) => item.code),
     ["Z1-261104-001"],
+  );
+});
+
+test("the admin list keeps today's orders and every unfinished older order", () => {
+  const rows = workingOrders([
+    order({ code: "Z1-261104-001", status: "selesai" }),
+    order({ code: "Z1-261104-002", status: "dicuci" }),
+    order({ code: "Z1-261103-003", status: "dicuci", createdAt: "2026-11-03T07:00:00.000Z" }),
+    order({ code: "Z1-261103-004", status: "siap", createdAt: "2026-11-03T08:00:00.000Z" }),
+    order({ code: "Z1-261030-005", status: "selesai", createdAt: "2026-10-30T08:00:00.000Z" }),
+    order({
+      code: "Z1-261102-006",
+      status: "dicuci",
+      createdAt: "2026-11-02T08:00:00.000Z",
+      deletedAt: "2026-11-03T08:00:00.000Z",
+    }),
+  ]);
+
+  assert.deepEqual(
+    rows.map((item) => item.code),
+    ["Z1-261104-001", "Z1-261104-002", "Z1-261103-003", "Z1-261103-004"],
   );
 });

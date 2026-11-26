@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { OrderTimeline } from "@/components/orders/order-timeline";
 import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/sheet";
@@ -23,14 +23,13 @@ import {
   sessionFor,
   sessionWindowLabel,
 } from "@/lib/sessions";
-import { useAppStore } from "@/lib/store";
-import type {
-  Order,
-  OrderStatus,
-  SessionType,
-  User,
-  Zone,
-} from "@/lib/types";
+import {
+  ORDER_STATUSES,
+  nextStatusFor,
+  statusDescriptions,
+} from "@/lib/status-flow";
+import { useAppStore, useCurrentUser } from "@/lib/store";
+import type { Order, SessionType, User, Zone } from "@/lib/types";
 
 function DetailRow({
   label,
@@ -268,16 +267,6 @@ export function OrderDetailSheet({
   );
 }
 
-const statusOptions: {
-  status: OrderStatus;
-  description: string;
-}[] = [
-  { status: "menunggu", description: "Belum dijemput driver." },
-  { status: "dicuci", description: "Sudah dijemput, sedang diproses." },
-  { status: "siap", description: "Selesai dicuci, menunggu driver." },
-  { status: "selesai", description: "Pesanan diterima pelanggan." },
-];
-
 export interface OrderStatusSheetProps {
   order: Order | null;
   users: User[];
@@ -320,19 +309,22 @@ function OrderStatusSheetForm({
   const updateOrderStatus = useAppStore((state) => state.updateOrderStatus);
   const zones = useAppStore((state) => state.zones);
   const sessions = useAppStore((state) => state.sessions);
+  const user = useCurrentUser();
   const { toast } = useToast();
-  const [selected, setSelected] = useState<OrderStatus>(order.status);
 
-  const driver = users.find((user) => user.id === order.driverId);
+  const driver = users.find((item) => item.id === order.driverId);
   const zone = zones.find((item) => item.id === order.zoneId);
+  const next = user ? nextStatusFor(user.role, order.status) : null;
+  const currentIndex = ORDER_STATUSES.indexOf(order.status);
 
-  function handleSave() {
-    const result = updateOrderStatus(order.code, selected);
+  function handleAdvance() {
+    if (!next) return;
+    const result = updateOrderStatus(order.code, next);
     if (!result.ok) {
       toast({ title: result.error, tone: "error" });
       return;
     }
-    toast({ title: "Status pesanan diperbarui." });
+    toast({ title: `Status diperbarui: ${statusLabels[next]}.` });
     onSaved();
   }
 
@@ -340,7 +332,7 @@ function OrderStatusSheetForm({
     <Sheet
       open={open}
       onClose={onClose}
-      title="Ubah status pesanan"
+      title="Perbarui status pesanan"
       description={`${order.code}, ${order.customerName}, ${order.zoneId} ${
         zone?.name ?? ""
       }`}
@@ -352,66 +344,83 @@ function OrderStatusSheetForm({
             className="flex-1 border border-rule"
             onClick={onClose}
           >
-            Batal
+            Tutup
           </Button>
-          <Button className="flex-1" onClick={handleSave}>
-            Simpan status
-          </Button>
+          {next ? (
+            <Button className="flex-1" onClick={handleAdvance}>
+              {next === "dicuci"
+                ? "Tandai Sedang Dicuci"
+                : "Tandai Siap Diantar"}
+            </Button>
+          ) : null}
         </div>
       }
     >
       <ol className="border-t border-ink">
-        {statusOptions.map((option, index) => {
-          const active = selected === option.status;
+        {ORDER_STATUSES.map((status, index) => {
+          const current = status === order.status;
+          const reached = index < currentIndex;
+          const upcoming = next === status;
           return (
-            <li key={option.status}>
-              <button
-                type="button"
-                onClick={() => setSelected(option.status)}
-                aria-pressed={active}
+            <li
+              key={status}
+              className={cn(
+                "flex items-start gap-3 border-b border-rule px-3.5 py-3.5",
+                current &&
+                  "bg-accent-soft shadow-[inset_2px_0_0_var(--color-accent)]",
+              )}
+            >
+              <span className="small-print w-6 shrink-0 pt-0.5 text-muted">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <span
                 className={cn(
-                  "flex w-full items-start gap-3 border-b border-rule px-3.5 py-3.5 text-left transition-colors duration-[var(--dur-micro)]",
-                  active
-                    ? "bg-accent-soft shadow-[inset_2px_0_0_var(--color-accent)]"
-                    : "hover:bg-paper-2",
+                  "mt-0.5 flex h-3 w-3 shrink-0 items-center justify-center border-2",
+                  reached
+                    ? "border-accent bg-accent"
+                    : current
+                      ? "border-accent bg-paper"
+                      : "border-rule bg-paper",
                 )}
+                aria-hidden="true"
               >
-                <span className="small-print w-6 shrink-0 pt-0.5 text-muted">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <span
-                  className={cn(
-                    "mt-0.5 flex h-3 w-3 shrink-0 items-center justify-center border-2",
-                    active ? "border-accent bg-accent" : "border-rule bg-paper",
-                  )}
-                  aria-hidden="true"
-                >
-                  {active ? (
-                    <span className="h-1 w-1 bg-accent-ink" />
-                  ) : null}
-                </span>
-                <span className="min-w-0">
+                {reached ? <span className="h-1 w-1 bg-accent-ink" /> : null}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                   <span
                     className={cn(
                       "text-sm font-medium",
-                      active ? "text-accent" : "text-ink",
+                      current ? "text-accent" : "text-ink",
                     )}
                   >
-                    {statusLabels[option.status]}
+                    {statusLabels[status]}
                   </span>
-                  <span className="mt-0.5 block text-13 text-muted">
-                    {option.description}
-                  </span>
+                  {current ? (
+                    <span className="text-13 font-medium text-accent">
+                      Saat ini
+                    </span>
+                  ) : upcoming ? (
+                    <span className="text-13 font-medium text-ink-2">
+                      Berikutnya
+                    </span>
+                  ) : null}
                 </span>
-              </button>
+                <span className="mt-0.5 block text-13 text-muted">
+                  {statusDescriptions[status]}
+                </span>
+              </span>
             </li>
           );
         })}
       </ol>
 
-      <p className="mt-4 text-13 leading-relaxed text-muted">
-        Status baru ikut terkirim ke pelanggan lewat WhatsApp. Hanya admin dan
-        driver terkait yang dapat mengubah status.
+      <p className="mt-4 border-l-2 border-gold bg-paper-2 px-3 py-2.5 text-13 leading-relaxed text-muted">
+        {order.status === "selesai"
+          ? "Pesanan sudah selesai dan terkunci. Riwayatnya tetap tersimpan."
+          : order.status === "siap"
+            ? "Siap diantar. Pengantaran dan penyelesaian dicatat oleh driver."
+            : "Status hanya bisa maju satu tahap, dan setiap perubahan tercatat di riwayat. Pelanggan melihat tahap terbaru di halaman pelacakan."}
       </p>
 
       <BlockLabel>Ringkasan pesanan</BlockLabel>
