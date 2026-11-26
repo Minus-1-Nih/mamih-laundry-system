@@ -90,6 +90,8 @@ run("lint", "eslint", ["."]);
 // Unit tests run through Node's own runner. The alias resolver has to be
 // registered with --import before the test files load.
 const tests = exec(process.execPath, [
+  // Node < 22.18 does not strip TypeScript by default; newer Node accepts the flag as a no-op.
+  "--experimental-strip-types",
   "--import",
   "./scripts/alias-register.mjs",
   "--test",

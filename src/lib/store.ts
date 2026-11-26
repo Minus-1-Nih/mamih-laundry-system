@@ -8,6 +8,7 @@ import {
   timeToMinutes,
   todayKey,
 } from "@/lib/format";
+import { findCustomerForReset } from "@/lib/password-reset";
 import { seedOrders, seedSessions, seedUsers, seedZones } from "@/lib/seed";
 import { bookable, planAllocation } from "@/lib/sessions";
 import type {
@@ -100,6 +101,7 @@ interface AppState {
   deactivateUser: (id: string) => Result;
   activateUser: (id: string) => Result;
   resetPassword: (id: string, password: string) => Result;
+  resetCustomerPassword: (input: { email: string; phone: string; password: string }) => Result;
   createOrder: (input: CreateOrderInput) => Result<{ order: Order }>;
   updateOrderStatus: (code: string, status: OrderStatus, note?: string) => Result;
   deleteOrder: (code: string) => Result;
@@ -339,6 +341,19 @@ export const useAppStore = create<AppState>()(
         set((state) => ({
           users: state.users.map((user) =>
             user.id === id ? { ...user, password } : user,
+          ),
+        }));
+        return { ok: true };
+      },
+
+      resetCustomerPassword: ({ email, phone, password }) => {
+        const found = findCustomerForReset(get().users, email, phone);
+        if (!found.ok) return found;
+        const passwordError = validatePassword(password);
+        if (passwordError) return { ok: false, error: passwordError };
+        set((state) => ({
+          users: state.users.map((user) =>
+            user.id === found.user.id ? { ...user, password } : user,
           ),
         }));
         return { ok: true };
