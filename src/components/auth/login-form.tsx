@@ -154,18 +154,27 @@ export function LoginForm({ mode, next }: LoginFormProps) {
           />
           Ingat saya
         </label>
-        <button
-          type="button"
-          onClick={handleForgot}
-          aria-expanded={showForgot}
-          aria-controls="forgot-help"
-          className="-my-3 inline-flex min-h-11 items-center font-medium text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"
-        >
-          Lupa kata sandi?
-        </button>
+        {mode === "customer" ? (
+          <Link
+            href="/lupa-password"
+            className="-my-3 inline-flex min-h-11 items-center font-medium text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"
+          >
+            Lupa password?
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={handleForgot}
+            aria-expanded={showForgot}
+            aria-controls="forgot-help"
+            className="-my-3 inline-flex min-h-11 items-center font-medium text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"
+          >
+            Lupa kata sandi?
+          </button>
+        )}
       </div>
 
-      {showForgot ? (
+      {showForgot && mode !== "customer" ? (
         <div
           id="forgot-help"
           className="space-y-3 border border-rule bg-paper-2 px-4 py-3.5"

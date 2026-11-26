@@ -22,6 +22,7 @@ What the app does today, verified 2026-11-16 by running the app and logging in a
 | Sesi operasional | `/sesi` | none | — | "Informasi sesi operasional" |
 | Daftar | `/daftar` | none | — | "Buat akun Laundria." |
 | Masuk pelanggan | `/masuk` | none | `?next=` | "Senang melihat Anda lagi." |
+| Lupa password | `/lupa-password` | none | — | "Lupa password?" |
 | Masuk admin | `/masuk/admin` | none | `?next=` | "Masuk sebagai Admin." |
 | Masuk owner | `/masuk/owner` | none | `?next=` | "Masuk sebagai Owner." |
 | Masuk driver | `/masuk/driver` | none | `?next=` | "Masuk sebagai Driver." |
