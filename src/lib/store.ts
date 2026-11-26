@@ -9,10 +9,24 @@ import {
   todayKey,
 } from "@/lib/format";
 import { findCustomerForReset } from "@/lib/password-reset";
-import { seedOrders, seedSessions, seedUsers, seedZones } from "@/lib/seed";
+import {
+  addAddress,
+  removeAddress,
+  setPrimaryAddress,
+  updateAddress,
+  type AddressDraft,
+} from "@/lib/addresses";
+import {
+  seedAddresses,
+  seedOrders,
+  seedSessions,
+  seedUsers,
+  seedZones,
+} from "@/lib/seed";
 import { bookable, planAllocation } from "@/lib/sessions";
 import type {
   AdminLevel,
+  CustomerAddress,
   Order,
   OrderStatus,
   OperationalSession,
@@ -85,6 +99,11 @@ export interface UserPatch {
 interface AppState {
   users: User[];
   zones: typeof seedZones;
+  addresses: CustomerAddress[];
+  addAddress: (draft: AddressDraft) => Result<{ address: CustomerAddress }>;
+  updateAddress: (id: string, draft: AddressDraft) => Result;
+  removeAddress: (id: string) => Result;
+  setPrimaryAddress: (id: string) => Result;
   orders: Order[];
   sessions: OperationalSession[];
   currentUserId: string | null;
@@ -144,6 +163,44 @@ export const useAppStore = create<AppState>()(
     (set, get) => ({
       users: seedUsers,
       zones: seedZones,
+      addresses: seedAddresses,
+
+      addAddress: (draft) => {
+        const customerId = get().currentUserId;
+        if (!customerId) return { ok: false, error: "Masuk dulu untuk menyimpan alamat." };
+        const result = addAddress(get().addresses, customerId, draft, `addr-${Date.now()}`);
+        if (!result.ok) return result;
+        set({ addresses: result.addresses });
+        return { ok: true, address: result.address };
+      },
+
+      updateAddress: (id, draft) => {
+        const customerId = get().currentUserId;
+        if (!customerId) return { ok: false, error: "Masuk dulu untuk mengubah alamat." };
+        const result = updateAddress(get().addresses, customerId, id, draft);
+        if (!result.ok) return result;
+        set({ addresses: result.addresses });
+        return { ok: true };
+      },
+
+      removeAddress: (id) => {
+        const customerId = get().currentUserId;
+        if (!customerId) return { ok: false, error: "Masuk dulu untuk menghapus alamat." };
+        const result = removeAddress(get().addresses, customerId, id);
+        if (!result.ok) return result;
+        set({ addresses: result.addresses });
+        return { ok: true };
+      },
+
+      setPrimaryAddress: (id) => {
+        const customerId = get().currentUserId;
+        if (!customerId) return { ok: false, error: "Masuk dulu untuk mengatur alamat." };
+        const result = setPrimaryAddress(get().addresses, customerId, id);
+        if (!result.ok) return result;
+        set({ addresses: result.addresses });
+        return { ok: true };
+      },
+
       orders: seedOrders,
       sessions: seedSessions,
       currentUserId: null,
@@ -528,6 +585,7 @@ export const useAppStore = create<AppState>()(
         set({
           users: seedUsers,
           zones: seedZones,
+          addresses: seedAddresses,
           orders: seedOrders,
           sessions: seedSessions,
           currentUserId: null,
@@ -544,6 +602,7 @@ export const useAppStore = create<AppState>()(
       partialize: (state) => ({
         users: state.users,
         zones: state.zones,
+        addresses: state.addresses,
         orders: state.orders,
         sessions: state.sessions,
         currentUserId: state.currentUserId,

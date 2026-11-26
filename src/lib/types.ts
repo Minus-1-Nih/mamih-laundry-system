@@ -20,6 +20,18 @@ export interface User {
   lastLoginAt?: string;
 }
 
+export type AddressLabel = "Rumah" | "Kos" | "Kantor";
+
+export interface CustomerAddress {
+  id: string;
+  customerId: string;
+  label: AddressLabel;
+  address: string;
+  note: string;
+  zoneId: ZoneId;
+  primary: boolean;
+}
+
 export interface Zone {
   id: ZoneId;
   name: string;
