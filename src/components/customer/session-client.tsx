@@ -17,8 +17,9 @@ import {
 } from "lucide-react";
 import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/cn";
-import { DEMO_DATE_LONG, DEMO_TIME } from "@/lib/demo-date";
+import { DEMO_MINUTES } from "@/lib/demo-date";
 import { isSessionActive, isSessionNext, sessionLabel } from "@/lib/format";
+import { useWibClock } from "@/lib/live-clock";
 import { closedHours, serviceHours, sessionFor } from "@/lib/sessions";
 import { customerOrders } from "@/lib/selectors";
 import { useAppStore, useCurrentUser } from "@/lib/store";
@@ -33,9 +34,15 @@ const iconMap: Record<string, LucideIcon> = {
   closed: Clock,
 };
 
-function SessionBlock({ session }: { session: OperationalSession }) {
-  const active = session.open && isSessionActive(session.start, session.end);
-  const next = session.open && isSessionNext(session.start);
+function SessionBlock({
+  session,
+  nowMinutes,
+}: {
+  session: OperationalSession;
+  nowMinutes: number;
+}) {
+  const active = session.open && isSessionActive(session.start, session.end, nowMinutes);
+  const next = session.open && isSessionNext(session.start, nowMinutes);
   const Icon = iconMap[session.type] ?? Clock;
   const status = active ? "Berlangsung" : next ? "Berikutnya" : "Tutup";
   const deadline = `${session.cutoff} WIB`;
@@ -97,6 +104,8 @@ export function SessionClient() {
   const orders = useAppStore((state) => state.orders);
   const zones = useAppStore((state) => state.zones);
   const user = useCurrentUser();
+  const clock = useWibClock();
+  const nowMinutes = clock?.minutes ?? DEMO_MINUTES;
 
   const myOrders = user ? customerOrders(orders, user.id) : [];
   const activeOrders = myOrders
@@ -105,7 +114,7 @@ export function SessionClient() {
   const pickup = sessionFor("pickup", sessions);
   const delivery = sessionFor("delivery", sessions);
   const open = sessions.some(
-    (session) => session.open && isSessionActive(session.start, session.end),
+    (session) => session.open && isSessionActive(session.start, session.end, nowMinutes),
   );
   const closed = closedHours(sessions);
   const hours = serviceHours(sessions);
@@ -140,11 +149,15 @@ export function SessionClient() {
       <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-y border-ink bg-paper-2 px-4 py-3.5">
         <div className="flex flex-wrap items-center gap-2.5">
           <Calendar className="h-4 w-4 text-accent" />
-          <span className="text-sm font-medium text-ink">{DEMO_DATE_LONG}</span>
+          <span className="text-sm font-medium text-ink" suppressHydrationWarning>
+            {clock?.dateLong ?? "Memuat tanggal…"}
+          </span>
           <span className="small-print border border-rule bg-paper px-2 py-0.5 text-accent">
             Hari ini
           </span>
-          <span className="small-print text-muted">{DEMO_TIME}</span>
+          <time className="small-print text-muted" aria-live="off">
+            {clock?.time ?? "--.-- WIB"}
+          </time>
         </div>
         <div className="flex items-center gap-2">
           <MapPin className="h-4 w-4 text-accent" />
@@ -163,8 +176,8 @@ export function SessionClient() {
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-3">
-        {pickup ? <SessionBlock session={pickup} /> : null}
-        {delivery ? <SessionBlock session={delivery} /> : null}
+        {pickup ? <SessionBlock session={pickup} nowMinutes={nowMinutes} /> : null}
+        {delivery ? <SessionBlock session={delivery} nowMinutes={nowMinutes} /> : null}
 
         <article className="border-t-2 border-ink bg-paper px-5 pb-5 pt-4">
           <div className="flex items-start justify-between gap-2">
