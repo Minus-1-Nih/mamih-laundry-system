@@ -180,7 +180,7 @@ export default function AdminDashboardPage() {
         <Metric
           label="Siap diantar"
           value={ready}
-          caption={`${withoutDriver.length} belum ada driver`}
+          caption={`${withoutDriver.length} belum diambil kurir`}
         />
       </div>
 

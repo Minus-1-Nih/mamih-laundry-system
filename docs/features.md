@@ -36,7 +36,7 @@ What the app does today, verified 2026-11-16 by running the app and logging in a
 | Manajemen akun | `/admin/akun` | `/admin` layout + owner | — | "Manajemen akun"; "Tambah akun" |
 | Riwayat pesanan | `/akun/riwayat` | `/akun` layout | — | "Riwayat Pesanan"; "Halo, Adinda." |
 | Detail pesanan | `/akun/riwayat/detail` | `/akun` layout | `?kode=` | "Detail Pesanan"; "Perjalanan pesanan" |
-| Tugas driver | `/driver` | `/driver` layout | — | "Halo, Rizky"; "Daftar Tugas Aktif (3)" |
+| Tugas driver | `/driver` | `/driver` layout | — | "Halo, Rizky"; "Daftar Tugas Aktif (2)" |
 
 ## Gotchas
 
@@ -48,3 +48,8 @@ What the app does today, verified 2026-11-16 by running the app and logging in a
 - `/` redirects to `/public` (307), so the landing page is not at the root.
 - Drawers are URL state on `/admin/pesanan` (`?detail=`, `?status=`, `?hapus=`) and `/akun/riwayat/detail` / `/tracking` (`?kode=`). Verification opened them by URL; destructive confirm buttons were not executed.
 - Status moves forward one stage at a time: the outlet (admin/owner) records Sedang Dicuci and Siap Diantar, the driver records pickup and delivery, and `selesai` is terminal. The admin list also keeps unfinished orders from earlier days.
+- Courier tasks are pushed to every driver in the order's zone, but only for the session that is currently running. A driver claims a task before executing it; claimed tasks leave the other drivers' lists, and an overdue task bypasses the session window.
+- A claim is tracked by `assignedAt` plus `driverId`. A bare `driverId` on old rows is only the last actor, not a claim. Only the holder (or an admin) can complete a leg, and releasing is possible until the leg is done.
+- Admin/owner can reassign or release a courier from the order detail drawer; every claim, release, and reassignment is recorded in the order's assignment log. Pickup and delivery credits are stored per leg (`pickupDriverId` / `deliveryDriverId`), so a different delivery courier does not erase the pickup credit.
+- The driver tab badge counts tasks not yet seen in this browser (`seenTaskCodes`). The first `/driver` load seeds the list, so the badge only appears for tasks that arrive later.
+- The driver profile sheet has a demo session switch (Penjemputan 14.00 / Pengantaran 18.00) because the demo clock is frozen mid-pickup; the switch only changes `demoMinutes`, not real time.

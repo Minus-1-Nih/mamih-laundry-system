@@ -3,8 +3,6 @@ import {
   isOverdue,
   isToday,
   orderDate,
-  orderDeliveryDate,
-  todayKey,
 } from "@/lib/format";
 import type { Order, OrderStatus, ZoneId } from "@/lib/types";
 
@@ -36,31 +34,31 @@ export function customerOrders(orders: Order[], customerId: string): Order[] {
 }
 
 /**
- * A driver's queue splits by leg: pickup tasks are due on the pickup day, and
- * delivery tasks are due on the delivery day. An order that is still being
- * washed does not appear as a delivery task yet.
+ * A driver's completed legs. Per-leg attribution keeps the pickup credit even
+ * when another driver takes the delivery.
  */
-function driverTaskDate(order: Order): string {
-  return order.status === "siap" ? orderDeliveryDate(order) : orderDate(order);
-}
-
-export function driverActiveTasks(
+export function driverHistory(
   orders: Order[],
-  zoneIds: ZoneId[],
+  driverId: string,
 ): Order[] {
-  const today = todayKey();
   return visibleOrders(orders)
-    .filter(
-      (order) =>
-        zoneIds.includes(order.zoneId) &&
-        (order.status === "menunggu" || order.status === "siap") &&
-        driverTaskDate(order) <= today,
-    )
-    .sort((a, b) => {
-      if (a.status !== b.status) return a.status === "menunggu" ? -1 : 1;
-      const dateOrder = driverTaskDate(a).localeCompare(driverTaskDate(b));
-      return dateOrder !== 0 ? dateOrder : a.schedule.localeCompare(b.schedule);
-    });
+    .filter((order) => {
+      const pickupBy =
+        order.pickupDriverId ??
+        (order.status !== "menunggu" ? order.driverId : undefined);
+      const deliveryBy =
+        order.deliveryDriverId ??
+        (order.status === "selesai" ? order.driverId : undefined);
+      return (
+        (order.status === "dicuci" && pickupBy === driverId) ||
+        (order.status === "selesai" &&
+          (deliveryBy === driverId || pickupBy === driverId))
+      );
+    })
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
 }
 
 /** Normalised phone + schedule date + schedule time, the duplicate key. */
@@ -76,22 +74,6 @@ export function findSimilarOrder(
       orderDate(order) === key.scheduleDate &&
       order.schedule === key.schedule,
   );
-}
-
-export function driverHistory(
-  orders: Order[],
-  driverId: string,
-): Order[] {
-  return visibleOrders(orders)
-    .filter(
-      (order) =>
-        (order.status === "selesai" || order.status === "dicuci") &&
-        order.driverId === driverId,
-    )
-    .sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
 }
 
 function completedAt(order: Order): number {
@@ -126,8 +108,9 @@ export function overdueOrders(orders: Order[]): Order[] {
   return orders.filter((order) => isOverdue(order));
 }
 
+/** Ready orders that no courier has claimed for the delivery leg yet. */
 export function readyWithoutDriver(orders: Order[]): Order[] {
   return orders.filter(
-    (order) => order.status === "siap" && !order.driverId,
+    (order) => order.status === "siap" && !order.assignedAt,
   );
 }
