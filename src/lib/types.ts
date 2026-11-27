@@ -45,6 +45,17 @@ export interface StatusEvent {
   note?: string;
 }
 
+export type AssignmentAction = "claim" | "release" | "assign";
+
+export interface AssignmentEvent {
+  action: AssignmentAction;
+  leg: SessionType;
+  driverId?: string;
+  driverName?: string;
+  at: string;
+  by: string;
+}
+
 export interface Order {
   code: string;
   customerId?: string;
@@ -66,7 +77,15 @@ export interface Order {
   status: OrderStatus;
   createdAt: string;
   history: StatusEvent[];
+  /** Driver who holds the current leg, set when the task is claimed or assigned. */
   driverId?: string;
+  /** Claim marker. `driverId` alone is a legacy "last actor" value, not a claim. */
+  assignedAt?: string;
+  assignedBy?: string;
+  /** Per-leg attribution, so a delivery by another driver keeps the pickup credit. */
+  pickupDriverId?: string;
+  deliveryDriverId?: string;
+  assignments?: AssignmentEvent[];
   deletedAt?: string;
 }
 

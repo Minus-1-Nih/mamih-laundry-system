@@ -132,7 +132,20 @@ export function OrdersClient() {
   }
 
   function driverName(order: Order): string {
-    return users.find((user) => user.id === order.driverId)?.name ?? "Belum ditugaskan";
+    if (order.status === "menunggu" || order.status === "siap") {
+      if (!order.assignedAt || !order.driverId) return "Belum diambil";
+      return (
+        users.find((user) => user.id === order.driverId)?.name ??
+        "Belum diambil"
+      );
+    }
+    const driverId =
+      order.status === "dicuci"
+        ? (order.pickupDriverId ?? order.driverId)
+        : (order.deliveryDriverId ?? order.driverId);
+    return (
+      users.find((user) => user.id === driverId)?.name ?? "Belum ditugaskan"
+    );
   }
 
   function zoneName(order: Order): string {

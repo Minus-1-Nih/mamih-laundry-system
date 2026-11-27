@@ -23,9 +23,15 @@ import {
   scheduleWindow,
   sessionLabel,
 } from "@/lib/format";
-import { driverActiveTasks, driverZoneHistory } from "@/lib/selectors";
+import { driverZoneHistory } from "@/lib/selectors";
 import { legFor } from "@/lib/sessions";
 import { useAppStore, useCurrentUser } from "@/lib/store";
+import {
+  DEMO_SESSION_MINUTES,
+  demoNowAt,
+  driverTasks,
+  type DriverTaskList,
+} from "@/lib/tasks";
 import { whatsappLinkTo } from "@/lib/constants";
 import type { Order, OrderStatus, ZoneId } from "@/lib/types";
 
@@ -34,6 +40,12 @@ type TaskFilter = "all" | "pickup" | "delivery";
 type DriverAction = "pickup" | "delivery";
 
 const NO_ZONES: ZoneId[] = [];
+
+const EMPTY_TASKS: DriverTaskList = {
+  pickup: [],
+  delivery: [],
+  heldByOthers: 0,
+};
 
 function nextStatus(action: DriverAction): OrderStatus {
   return action === "pickup" ? "dicuci" : "selesai";
@@ -50,9 +62,15 @@ function SectionHeading({ title, count }: { title: string; count: number }) {
 
 function TaskCard({
   order,
+  mine,
+  now,
+  onClaim,
   onConfirm,
 }: {
   order: Order;
+  mine: boolean;
+  now: Date;
+  onClaim: (order: Order) => void;
   onConfirm: (order: Order, action: DriverAction) => void;
 }) {
   const pickup = order.status === "menunggu";
@@ -62,10 +80,17 @@ function TaskCard({
     <article className="rounded-card border border-rule bg-paper-hi p-4">
       {/* Header Kartu: Kode & Badge Status */}
       <div className="flex items-start justify-between gap-3 border-b border-rule pb-3">
-        <span className="font-outlier text-sm font-bold tracking-tight text-ink">
-          {order.code}
-        </span>
-        <StatusBadge status={order.status} overdue={isOverdue(order)} />
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-outlier text-sm font-bold tracking-tight text-ink">
+            {order.code}
+          </span>
+          {mine ? (
+            <span className="border border-accent bg-accent-soft px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent">
+              Tugas saya
+            </span>
+          ) : null}
+        </div>
+        <StatusBadge status={order.status} overdue={isOverdue(order, now)} />
       </div>
 
       {/* Informasi Pelanggan & Layanan */}
@@ -109,13 +134,23 @@ function TaskCard({
 
       {/* Tombol Aksi Spesifik (Bukan Teks Generik "Perbarui Status") */}
       <div className="pt-3">
-        <button
-          type="button"
-          onClick={() => onConfirm(order, actionType)}
-          className="inline-flex h-12 w-full items-center justify-center rounded-control bg-accent text-sm font-semibold text-accent-ink transition-colors hover:bg-accent-hover active:scale-[0.99]"
-        >
-          {pickup ? "Selesaikan Penjemputan" : "Selesaikan Pengantaran"}
-        </button>
+        {mine ? (
+          <button
+            type="button"
+            onClick={() => onConfirm(order, actionType)}
+            className="inline-flex h-12 w-full items-center justify-center rounded-control bg-accent text-sm font-semibold text-accent-ink transition-colors hover:bg-accent-hover active:scale-[0.99]"
+          >
+            {pickup ? "Selesaikan Penjemputan" : "Selesaikan Pengantaran"}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => onClaim(order)}
+            className="inline-flex h-12 w-full items-center justify-center rounded-control bg-accent text-sm font-semibold text-accent-ink transition-colors hover:bg-accent-hover active:scale-[0.99]"
+          >
+            Ambil Tugas
+          </button>
+        )}
       </div>
     </article>
   );
@@ -197,11 +232,19 @@ function DetailRow({
 export function DriverClient() {
   const orders = useAppStore((state) => state.orders);
   const zones = useAppStore((state) => state.zones);
+  const sessions = useAppStore((state) => state.sessions);
   const driverOnline = useAppStore((state) => state.driverOnline);
   const setDriverOnline = useAppStore((state) => state.setDriverOnline);
   const updateOrderStatus = useAppStore((state) => state.updateOrderStatus);
   const logout = useAppStore((state) => state.logout);
+  const demoMinutes = useAppStore((state) => state.demoMinutes);
+  const setDemoMinutes = useAppStore((state) => state.setDemoMinutes);
+  const claimOrder = useAppStore((state) => state.claimOrder);
+  const markTasksSeen = useAppStore((state) => state.markTasksSeen);
   const user = useCurrentUser();
+  const seenTaskCodes = useAppStore((state) =>
+    user ? state.seenTaskCodes[user.id] : undefined,
+  );
   const { toast } = useToast();
   const router = useRouter();
 
@@ -242,17 +285,35 @@ export function DriverClient() {
   }, [setDriverOnline, toast]);
 
   const zoneIds = user?.zoneIds ?? NO_ZONES;
-  const tasks = useMemo(
-    () => (zoneIds.length > 0 ? driverActiveTasks(orders, zoneIds) : []),
-    [orders, zoneIds],
+  const taskList = useMemo<DriverTaskList>(
+    () =>
+      user && zoneIds.length > 0
+        ? driverTasks(orders, user, sessions, demoMinutes)
+        : EMPTY_TASKS,
+    [orders, user, sessions, demoMinutes, zoneIds],
   );
   const history = useMemo(
     () => (zoneIds.length > 0 ? driverZoneHistory(orders, zoneIds) : []),
     [orders, zoneIds],
   );
 
-  const pickupTasks = tasks.filter((order) => order.status === "menunggu");
-  const deliveryTasks = tasks.filter((order) => order.status === "siap");
+  const pickupTasks = taskList.pickup;
+  const deliveryTasks = taskList.delivery;
+  const tasks = [...pickupTasks, ...deliveryTasks];
+  const now = demoNowAt(demoMinutes);
+  const taskCodes = tasks.map((order) => order.code);
+  const taskCodeKey = taskCodes.join("|");
+  const unseen =
+    seenTaskCodes === undefined
+      ? 0
+      : taskCodes.filter((code) => !seenTaskCodes.includes(code)).length;
+
+  // First visit seeds the seen list, so only genuinely new tasks badge.
+  useEffect(() => {
+    if (user && seenTaskCodes === undefined) {
+      markTasksSeen(taskCodeKey ? taskCodeKey.split("|") : []);
+    }
+  }, [user, seenTaskCodes, taskCodeKey, markTasksSeen]);
 
   const detailOrder =
     orders.find((order) => order.code === detailOrderCode) ?? null;
@@ -272,6 +333,24 @@ export function DriverClient() {
   function openConfirm(order: Order, action: DriverAction) {
     setConfirmingOrder(order);
     setConfirmAction(action);
+  }
+
+  function handleClaim(order: Order) {
+    const result = claimOrder(order.code);
+    if (!result.ok) {
+      toast({ title: result.error, tone: "error" });
+      return;
+    }
+    toast({
+      title: "Tugas diambil. Selesaikan saat sudah di lokasi.",
+      tone: "success",
+    });
+    markTasksSeen(taskCodes);
+  }
+
+  function openActiveTab() {
+    setTab("active");
+    markTasksSeen(taskCodes);
   }
 
   function handleExecuteConfirm() {
@@ -410,21 +489,63 @@ export function DriverClient() {
             </p>
           </div>
         </div>
+
+        {/* Sesi operasional yang sedang berjalan */}
+        {taskList.activeSession || taskList.nextSession ? (
+          <div className="mt-3 border border-rule bg-accent-soft px-3.5 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-xs font-semibold text-accent">
+                {taskList.activeSession
+                  ? `Sesi ${sessionLabel(taskList.activeSession.type).toLowerCase()} aktif`
+                  : "Tidak ada sesi aktif"}
+              </p>
+              <span className="text-xs font-medium text-ink-2">
+                {taskList.activeSession
+                  ? `${taskList.activeSession.start}–${taskList.activeSession.end} WIB`
+                  : taskList.nextSession
+                    ? `${sessionLabel(taskList.nextSession.type)} ${taskList.nextSession.start} WIB`
+                    : ""}
+              </span>
+            </div>
+            <p className="mt-0.5 text-13 text-ink-2">
+              {taskList.activeSession
+                ? `Konfirmasi sampai ${taskList.activeSession.cutoff}.`
+                : "Tugas sesi ini muncul saat sesi dimulai."}
+            </p>
+          </div>
+        ) : null}
+        {taskList.heldByOthers > 0 ? (
+          <p className="mt-2 text-xs text-muted">
+            {taskList.heldByOthers} tugas dipegang kurir lain.
+          </p>
+        ) : null}
       </section>
 
       {/* Navigasi Tab (Daftar Tugas Aktif & Riwayat Tugas Selesai) */}
       <div className="mx-5 mt-5 flex rounded-card border border-rule bg-paper-hi p-1">
         <button
           type="button"
-          onClick={() => setTab("active")}
+          onClick={openActiveTab}
           className={cn(
-            "flex-1 rounded-control py-2.5 text-xs font-semibold transition-colors",
+            "inline-flex flex-1 items-center justify-center gap-1.5 rounded-control py-2.5 text-xs font-semibold transition-colors",
             tab === "active"
               ? "bg-accent text-accent-ink"
               : "text-muted hover:text-ink",
           )}
         >
           Daftar Tugas Aktif ({tasks.length})
+          {unseen > 0 ? (
+            <span
+              className={cn(
+                "inline-flex h-5 min-w-5 items-center justify-center border px-1 text-[10px] font-bold",
+                tab === "active"
+                  ? "border-accent-ink bg-accent-ink text-accent"
+                  : "border-accent bg-accent text-accent-ink",
+              )}
+            >
+              {unseen}
+            </span>
+          ) : null}
         </button>
         <button
           type="button"
@@ -477,6 +598,9 @@ export function DriverClient() {
                   <TaskCard
                     key={order.code}
                     order={order}
+                    mine={Boolean(order.assignedAt) && order.driverId === user.id}
+                    now={now}
+                    onClaim={handleClaim}
                     onConfirm={openConfirm}
                   />
                 ))}
@@ -493,6 +617,9 @@ export function DriverClient() {
                   <TaskCard
                     key={order.code}
                     order={order}
+                    mine={Boolean(order.assignedAt) && order.driverId === user.id}
+                    now={now}
+                    onClaim={handleClaim}
                     onConfirm={openConfirm}
                   />
                 ))}
@@ -505,10 +632,15 @@ export function DriverClient() {
             <div className="mt-4 rounded-card border border-dashed border-rule bg-paper-hi px-5 py-12 text-center">
               <PackageCheck className="mx-auto h-8 w-8 text-accent" />
               <p className="mt-3 text-sm font-semibold text-ink">
-                Tidak ada tugas aktif
+                Tidak ada tugas di sesi ini
               </p>
               <p className="mt-1 text-xs text-muted">
-                Tugas baru akan otomatis tampil sesuai zona tugas Anda.
+                {taskList.nextSession
+                  ? `Sesi ${sessionLabel(taskList.nextSession.type).toLowerCase()} berikutnya ${taskList.nextSession.start} WIB.`
+                  : "Tugas baru otomatis tampil saat sesi aktif."}
+                {taskList.heldByOthers > 0
+                  ? ` ${taskList.heldByOthers} tugas dipegang kurir lain.`
+                  : ""}
               </p>
             </div>
           ) : null}
@@ -703,6 +835,45 @@ export function DriverClient() {
             <DetailRow label="Peran" value="Kurir / Driver" />
             <DetailRow label="Zona tugas" value={zoneSummary} />
           </dl>
+
+          {/* Pemilih sesi untuk meninjau alur penjemputan dan pengantaran */}
+          <div className="mt-4 border border-rule bg-paper-2 p-3.5">
+            <p className="text-xs font-semibold text-ink">Sesi demo</p>
+            <p className="mt-1 text-xs leading-relaxed text-muted">
+              Tugas hanya tampil pada sesi yang aktif. Pilih sesi untuk
+              meninjau alur penjemputan atau pengantaran.
+            </p>
+            <div className="mt-2.5 grid grid-cols-2 gap-2">
+              {(
+                [
+                  { key: "pickup", label: "Penjemputan 14.00" },
+                  { key: "delivery", label: "Pengantaran 18.00" },
+                ] as const
+              ).map((option) => {
+                const active =
+                  demoMinutes === DEMO_SESSION_MINUTES[option.key];
+                return (
+                  <button
+                    key={option.key}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() =>
+                      setDemoMinutes(DEMO_SESSION_MINUTES[option.key])
+                    }
+                    className={cn(
+                      "inline-flex h-10 items-center justify-center rounded-control border px-2 text-xs font-semibold transition-colors",
+                      active
+                        ? "border-accent bg-accent text-accent-ink"
+                        : "border-rule bg-paper-hi text-ink-2 hover:border-accent",
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           <Button
             variant="danger"
             className="mt-5 h-12 w-full rounded-control"
