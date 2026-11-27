@@ -29,6 +29,7 @@ type SheetState =
   | { kind: "edit"; user: User }
   | { kind: "reset"; user: User }
   | { kind: "deactivate"; user: User }
+  | { kind: "activate"; user: User }
   | null;
 
 const roleOrder: Record<string, number> = { owner: 0, admin: 1, store: 1, driver: 2 };
@@ -398,13 +399,15 @@ export function AccountsClient() {
     ).length;
   }
 
-  function handleActivate(user: User) {
-    const result = activateUser(user.id);
+  function handleActivate() {
+    if (sheet?.kind !== "activate") return;
+    const result = activateUser(sheet.user.id);
     if (!result.ok) {
       toast({ title: result.error, tone: "error" });
       return;
     }
-    toast({ title: `Akun ${user.name} diaktifkan kembali.` });
+    toast({ title: `Akun ${sheet.user.name} diaktifkan kembali.` });
+    setSheet(null);
   }
 
   function handleDeactivate() {
@@ -626,7 +629,7 @@ export function AccountsClient() {
                             onClick={() =>
                               user.active
                                 ? setSheet({ kind: "deactivate", user })
-                                : handleActivate(user)
+                                : setSheet({ kind: "activate", user })
                             }
                             aria-label={
                               user.active
@@ -744,6 +747,30 @@ export function AccountsClient() {
               </p>
             ) : null}
             <p>Riwayat pesanan dan jejak status tidak dihapus.</p>
+          </div>
+        ) : null}
+      </Sheet>
+
+      <Sheet
+        open={sheet?.kind === "activate"}
+        onClose={() => setSheet(null)}
+        title="Aktifkan kembali akun"
+        description="Akun dapat masuk lagi dengan kata sandi yang terakhir disimpan."
+        footer={
+          <div className="flex items-center justify-end gap-2">
+            <Button variant="ghost" onClick={() => setSheet(null)}>
+              Batal
+            </Button>
+            <Button onClick={handleActivate}>Aktifkan</Button>
+          </div>
+        }
+      >
+        {sheet?.kind === "activate" ? (
+          <div className="space-y-3 text-sm text-muted">
+            <p>
+              Akun <span className="font-medium text-ink">{sheet.user.name}</span>{" "}
+              (@{sheet.user.username}) akan diaktifkan kembali.
+            </p>
           </div>
         ) : null}
       </Sheet>

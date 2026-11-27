@@ -27,14 +27,13 @@ test.describe("TC.DRV.001 - Tampilan beranda dan daftar tugas aktif kurir per zo
     page,
   }) => {
     // --- Step 1: Buka & periksa Header Profil ---
-    // Memastikan sapaan nama kurir tampil dengan tepat
-    const greeting = page.locator("h1");
+    // Memastikan sapaan nama kurir tampil dengan tepat (menggunakan role-based locator sesuai best practice)
+    const greeting = page.getByRole("heading", { name: /Halo, Rizky/i });
     await expect(greeting).toBeVisible();
-    await expect(greeting).toContainText("Halo, Rizky");
 
     // --- Step 2: Periksa Lencana Wilayah Zona Aktif ---
     // Memastikan lencana wilayah/zona aktif (Zona Z1 · Sukabirus) tampil
-    const zoneBadge = page.locator("section span:has-text('Zona Z1')");
+    const zoneBadge = page.locator("span", { hasText: /Zona Z1/i }).first();
     await expect(zoneBadge).toBeVisible();
     await expect(zoneBadge).toContainText("Sukabirus");
 
@@ -44,27 +43,27 @@ test.describe("TC.DRV.001 - Tampilan beranda dan daftar tugas aktif kurir per zo
     await expect(onlineAvatarDot).toBeVisible();
     await expect(onlineAvatarDot).toHaveClass(/bg-emerald-500/);
 
-    const onlineButton = page.locator("button:has-text('Online')");
+    const onlineButton = page.getByRole("button", { name: /Online/i });
     await expect(onlineButton).toBeVisible();
     await expect(onlineButton.locator(".bg-emerald-500")).toBeVisible();
 
     // --- Step 4: Periksa Ringkasan Jumlah Tugas Harian (Jemput & Antar) ---
-    // Memastikan terdapat counter ringkasan Tugas Penjemputan dan Tugas Pengantaran
-    const pickupSummary = page.locator("text=Tugas Penjemputan");
+    // Memastikan terdapat counter ringkasan Tugas Penjemputan dan Tugas Pengantaran ({ exact: true } untuk menghindari strict mode violation)
+    const pickupSummary = page.getByText("Tugas Penjemputan", { exact: true });
     await expect(pickupSummary).toBeVisible();
 
-    const deliverySummary = page.locator("text=Tugas Pengantaran");
+    const deliverySummary = page.getByText("Tugas Pengantaran", { exact: true });
     await expect(deliverySummary).toBeVisible();
 
     // --- Step 5: Periksa Navigasi Tab & Daftar Kartu Tugas Aktif ---
     // Memastikan tab 'Daftar Tugas Aktif' terpilih secara default
-    const activeTasksTab = page.locator("button:has-text('Daftar Tugas Aktif')");
+    const activeTasksTab = page.getByRole("button", { name: /Daftar Tugas Aktif/i });
     await expect(activeTasksTab).toBeVisible();
 
-    // Memastikan filter chips tersedia
-    await expect(page.locator("button:has-text('Semua')")).toBeVisible();
-    await expect(page.locator("button:has-text('Penjemputan')")).toBeVisible();
-    await expect(page.locator("button:has-text('Pengantaran')")).toBeVisible();
+    // Memastikan filter chips tersedia (menggunakan regex awalan agar tidak ambigu dengan tombol aksi di kartu)
+    await expect(page.getByRole("button", { name: /^Semua/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^Penjemputan \(/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^Pengantaran \(/ })).toBeVisible();
 
     // Memastikan daftar kartu tugas aktif tampil sesuai zona kurir (Zona Z1)
     const taskCards = page.locator("article");
@@ -84,14 +83,14 @@ test.describe("TC.DRV.001 - Tampilan beranda dan daftar tugas aktif kurir per zo
     await expect(firstCard.locator("svg.lucide-map-pin")).toBeVisible();
 
     // Tombol WhatsApp kurir
-    const waButton = firstCard.locator("a:has-text('WhatsApp')");
+    const waButton = firstCard.getByRole("link", { name: /WhatsApp/i });
     await expect(waButton).toBeVisible();
     await expect(waButton).toHaveAttribute("href", /https:\/\/wa\.me\//);
 
     // Tombol aksi spesifik kurir ("Selesaikan Penjemputan" atau "Selesaikan Pengantaran")
-    const actionButton = firstCard.locator(
-      "button:has-text('Selesaikan Penjemputan'), button:has-text('Selesaikan Pengantaran')",
-    );
+    const actionButton = firstCard.getByRole("button", {
+      name: /Selesaikan (Penjemputan|Pengantaran)/,
+    });
     await expect(actionButton).toBeVisible();
   });
 });
