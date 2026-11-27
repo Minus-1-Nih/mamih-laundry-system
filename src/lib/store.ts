@@ -33,8 +33,7 @@ import {
 } from "@/lib/tasks";
 import type {
   AdminLevel,
-  AssignmentEvent,
-  CustomerAddress,
+  OfflineSyncItem,
   Order,
   OrderStatus,
   OperationalSession,
@@ -117,18 +116,13 @@ interface AppState {
   currentUserId: string | null;
   hydrated: boolean;
   driverOnline: boolean;
-  /** WIB minutes used by the driver task pool; 14.00 by default, 18.00 for delivery. */
-  demoMinutes: number;
-  /** Task codes each driver has already seen, for the "new task" badge. */
-  seenTaskCodes: Record<string, string[]>;
+  offlineSyncQueue: OfflineSyncItem[];
 
   setHydrated: (value: boolean) => void;
   setDriverOnline: (value: boolean) => void;
-  setDemoMinutes: (minutes: number) => void;
-  markTasksSeen: (codes: string[]) => void;
-  claimOrder: (code: string) => Result;
-  releaseOrder: (code: string) => Result;
-  reassignOrder: (code: string, driverId: string) => Result;
+  queueOfflineAction: (item: Omit<OfflineSyncItem, "id" | "timestamp">) => void;
+  syncOfflineQueue: () => { syncedCount: number };
+  clearOfflineQueue: () => void;
   login: (input: LoginInput) => Result<{ user: User }>;
   logout: () => void;
   registerCustomer: (input: RegisterCustomerInput) => Result<{ user: User }>;
@@ -139,7 +133,12 @@ interface AppState {
   resetPassword: (id: string, password: string) => Result;
   resetCustomerPassword: (input: { email: string; phone: string; password: string }) => Result;
   createOrder: (input: CreateOrderInput) => Result<{ order: Order }>;
-  updateOrderStatus: (code: string, status: OrderStatus, note?: string) => Result;
+  updateOrderStatus: (
+    code: string,
+    status: OrderStatus,
+    note?: string,
+    timestamp?: string,
+  ) => Result;
   deleteOrder: (code: string) => Result;
   toggleSession: (type: SessionType) => void;
   updateSession: (
@@ -223,192 +222,27 @@ export const useAppStore = create<AppState>()(
       currentUserId: null,
       hydrated: false,
       driverOnline: true,
-      demoMinutes: DEMO_MINUTES,
-      seenTaskCodes: {},
+      offlineSyncQueue: [],
 
       setHydrated: (value) => set({ hydrated: value }),
       setDriverOnline: (value) => set({ driverOnline: value }),
-      setDemoMinutes: (minutes) =>
-        set({
-          demoMinutes: Math.max(0, Math.min(1439, Math.round(minutes))),
-        }),
-      markTasksSeen: (codes) => {
-        const userId = get().currentUserId;
-        if (!userId) return;
+      queueOfflineAction: (item) => {
+        const queueItem: OfflineSyncItem = {
+          ...item,
+          id: `sync-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          timestamp: new Date(Date.now()).toISOString(),
+        };
         set((state) => ({
-          seenTaskCodes: {
-            ...state.seenTaskCodes,
-            [userId]: [...new Set(codes)],
-          },
+          offlineSyncQueue: [...(state.offlineSyncQueue ?? []), queueItem],
         }));
       },
-
-      claimOrder: (code) => {
-        const state = get();
-        const order = state.orders.find(
-          (item) => item.code === code && !item.deletedAt,
-        );
-        if (!order) return { ok: false, error: "Pesanan tidak ditemukan." };
-        const actor = state.users.find(
-          (user) => user.id === state.currentUserId,
-        );
-        if (!actor || actor.role !== "driver") {
-          return {
-            ok: false,
-            error: "Hanya kurir yang dapat mengambil tugas.",
-          };
-        }
-        if (order.assignedAt && order.driverId === actor.id) {
-          return { ok: true };
-        }
-        if (order.assignedAt && order.driverId) {
-          const holder = state.users.find(
-            (user) => user.id === order.driverId,
-          );
-          return {
-            ok: false,
-            error: `Tugas ini sudah diambil ${holder?.name ?? "kurir lain"}.`,
-          };
-        }
-
-        const gate = canClaim(
-          order,
-          actor,
-          state.sessions,
-          state.demoMinutes,
-        );
-        if (!gate.ok) return gate;
-
-        const leg = taskLeg(order);
-        const event: AssignmentEvent = {
-          action: "claim",
-          leg,
-          driverId: actor.id,
-          driverName: actor.name,
-          at: DEMO_NOW_ISO,
-          by: actor.name,
-        };
-
-        set((current) => ({
-          orders: current.orders.map((item) =>
-            item.code === code
-              ? {
-                  ...item,
-                  driverId: actor.id,
-                  assignedAt: DEMO_NOW_ISO,
-                  assignedBy: actor.name,
-                  pickupDriverId:
-                    leg === "pickup" ? actor.id : item.pickupDriverId,
-                  deliveryDriverId:
-                    leg === "delivery" ? actor.id : item.deliveryDriverId,
-                  assignments: [...(item.assignments ?? []), event],
-                }
-              : item,
-          ),
-        }));
-        return { ok: true };
+      syncOfflineQueue: () => {
+        const queue = get().offlineSyncQueue ?? [];
+        const count = queue.length;
+        set({ offlineSyncQueue: [] });
+        return { syncedCount: count };
       },
-
-      releaseOrder: (code) => {
-        const state = get();
-        const order = state.orders.find(
-          (item) => item.code === code && !item.deletedAt,
-        );
-        if (!order) return { ok: false, error: "Pesanan tidak ditemukan." };
-        const actor = state.users.find(
-          (user) => user.id === state.currentUserId,
-        );
-        if (!actor) {
-          return { ok: false, error: "Sesi pengguna tidak ditemukan." };
-        }
-
-        const gate = canRelease(order, actor);
-        if (!gate.ok) return gate;
-
-        const leg = taskLeg(order);
-        const holderName =
-          state.users.find((user) => user.id === order.driverId)?.name ??
-          "Kurir";
-        const event: AssignmentEvent = {
-          action: "release",
-          leg,
-          driverId: undefined,
-          driverName: holderName,
-          at: DEMO_NOW_ISO,
-          by: actor.name,
-        };
-
-        set((current) => ({
-          orders: current.orders.map((item) =>
-            item.code === code
-              ? {
-                  ...item,
-                  driverId: undefined,
-                  assignedAt: undefined,
-                  assignedBy: undefined,
-                  pickupDriverId:
-                    leg === "pickup" ? undefined : item.pickupDriverId,
-                  deliveryDriverId:
-                    leg === "delivery" ? undefined : item.deliveryDriverId,
-                  assignments: [...(item.assignments ?? []), event],
-                }
-              : item,
-          ),
-        }));
-        return { ok: true };
-      },
-
-      reassignOrder: (code, driverId) => {
-        const state = get();
-        const order = state.orders.find(
-          (item) => item.code === code && !item.deletedAt,
-        );
-        if (!order) return { ok: false, error: "Pesanan tidak ditemukan." };
-        const actor = state.users.find(
-          (user) => user.id === state.currentUserId,
-        );
-        if (!actor || actor.role !== "admin") {
-          return {
-            ok: false,
-            error: "Hanya admin outlet yang dapat menugaskan kurir.",
-          };
-        }
-        const target = state.users.find((user) => user.id === driverId);
-        if (!target) return { ok: false, error: "Kurir tidak ditemukan." };
-
-        const gate = canReassign(order, target);
-        if (!gate.ok) return gate;
-
-        const leg = taskLeg(order);
-        const event: AssignmentEvent = {
-          action: "assign",
-          leg,
-          driverId: target.id,
-          driverName: target.name,
-          at: DEMO_NOW_ISO,
-          by: actor.name,
-        };
-
-        set((current) => ({
-          orders: current.orders.map((item) =>
-            item.code === code
-              ? {
-                  ...item,
-                  driverId: target.id,
-                  assignedAt: DEMO_NOW_ISO,
-                  assignedBy: actor.name,
-                  pickupDriverId:
-                    leg === "pickup" ? target.id : item.pickupDriverId,
-                  deliveryDriverId:
-                    leg === "delivery" ? target.id : item.deliveryDriverId,
-                  assignments: [...(item.assignments ?? []), event],
-                }
-              : item,
-          ),
-        }));
-        return { ok: true };
-      },
-
+      clearOfflineQueue: () => set({ offlineSyncQueue: [] }),
 
       login: ({ identifier, password, expectedRole, expectedLevel }) => {
         const needle = identifier.trim().toLowerCase();
@@ -665,36 +499,13 @@ export const useAppStore = create<AppState>()(
         return { ok: true, order };
       },
 
-      updateOrderStatus: (code, status, note) => {
+      updateOrderStatus: (code, status, note, timestamp) => {
         const state = get();
         const order = state.orders.find((item) => item.code === code);
         if (!order) return { ok: false, error: "Pesanan tidak ditemukan." };
         const actor = state.users.find((user) => user.id === state.currentUserId);
-        if (!actor) {
-          return { ok: false, error: "Sesi pengguna tidak ditemukan." };
-        }
-
-        const gate = canAdvance(actor.role, order.status, status);
-        if (!gate.ok) return gate;
-
-        if (actor.role === "driver") {
-          if (!order.assignedAt || order.driverId !== actor.id) {
-            const holder = state.users.find(
-              (user) => user.id === order.driverId,
-            );
-            return {
-              ok: false,
-              error: holder
-                ? `Tugas ini dipegang ${holder.name}.`
-                : "Ambil tugas ini dulu sebelum menyelesaikan.",
-            };
-          }
-        }
-
-        const by = actor.name;
-        const completedPickup = status === "dicuci";
-        const completedDelivery = status === "selesai";
-        const released = completedPickup || completedDelivery;
+        const by = actor?.name ?? "Sistem";
+        const nowIso = timestamp || new Date(Date.now()).toISOString();
 
         set((current) => ({
           orders: current.orders.map((item) =>
@@ -722,7 +533,7 @@ export const useAppStore = create<AppState>()(
                     ...item.history,
                     {
                       status,
-                      at: DEMO_NOW_ISO,
+                      at: nowIso,
                       by,
                       note: note?.trim() || statusNotes[status],
                     },
@@ -828,8 +639,7 @@ export const useAppStore = create<AppState>()(
           sessions: seedSessions,
           currentUserId: null,
           driverOnline: true,
-          demoMinutes: DEMO_MINUTES,
-          seenTaskCodes: {},
+          offlineSyncQueue: [],
           hydrated: true,
         }),
     }),
@@ -847,8 +657,7 @@ export const useAppStore = create<AppState>()(
         sessions: state.sessions,
         currentUserId: state.currentUserId,
         driverOnline: state.driverOnline,
-        demoMinutes: state.demoMinutes,
-        seenTaskCodes: state.seenTaskCodes,
+        offlineSyncQueue: state.offlineSyncQueue ?? [],
       }),
     },
   ),

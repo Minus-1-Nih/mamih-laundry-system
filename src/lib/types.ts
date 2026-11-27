@@ -45,15 +45,12 @@ export interface StatusEvent {
   note?: string;
 }
 
-export type AssignmentAction = "claim" | "release" | "assign";
-
-export interface AssignmentEvent {
-  action: AssignmentAction;
-  leg: SessionType;
-  driverId?: string;
-  driverName?: string;
-  at: string;
-  by: string;
+export interface OfflineSyncItem {
+  id: string;
+  orderCode: string;
+  status: OrderStatus;
+  note?: string;
+  timestamp: string;
 }
 
 export interface Order {
