@@ -124,13 +124,7 @@ function Landing({ onSearch }: { onSearch: (code: string) => void }) {
     <div>
       <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-16">
         <div className="max-w-xl">
-          <div className="flex items-center gap-2.5">
-            <span className="small-print text-accent">Pelacakan publik</span>
-            <span aria-hidden="true" className="h-px w-8 bg-gold" />
-            <span className="small-print text-muted">Tanpa masuk akun</span>
-          </div>
-
-          <h1 className="mt-5 max-w-[14ch] font-display text-4xl leading-[1.03] sm:text-5xl">
+          <h1 className="max-w-[14ch] font-display text-4xl leading-[1.03] sm:text-5xl">
             Cucian Anda sampai di tahap mana?
           </h1>
           <p className="mt-4 max-w-lg text-base leading-relaxed text-muted">
@@ -184,7 +178,9 @@ function Landing({ onSearch }: { onSearch: (code: string) => void }) {
           <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
             <div>
               <div className="flex items-center gap-2.5">
-                <span className="small-print text-accent">01</span>
+                <span className="font-display text-4xl leading-none text-accent">
+                  01
+                </span>
                 <span aria-hidden="true" className="h-px w-8 bg-gold" />
               </div>
               <h2 className="mt-3">
@@ -206,7 +202,7 @@ function Landing({ onSearch }: { onSearch: (code: string) => void }) {
             return (
               <li key={step.title} className="border-t border-rule pt-4">
                 <div className="flex items-center justify-between gap-4">
-                  <span className="small-print text-accent">
+                  <span className="text-13 font-medium text-muted">
                     {String(index + 1).padStart(2, "0")}
                   </span>
                   <Icon className="h-5 w-5 text-ink-2" aria-hidden="true" />
@@ -241,8 +237,7 @@ function Result({ order, onSearch }: { order: Order; onSearch: (code: string) =>
     <div>
       <div className="flex flex-wrap items-end justify-between gap-4 border-b border-rule pb-5">
         <div className="min-w-0">
-          <p className="small-print text-accent">Pelacakan pesanan</p>
-          <h1 className="mt-2 font-display text-3xl leading-tight sm:text-4xl">
+          <h1 className="font-display text-3xl leading-tight sm:text-4xl">
             Kabar terbaru cucian Anda.
           </h1>
         </div>
@@ -286,7 +281,9 @@ function Result({ order, onSearch }: { order: Order; onSearch: (code: string) =>
           </div>
         </div>
         <div className="border-t border-rule pt-3 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0 sm:text-right">
-          <p className="small-print text-accent">Estimasi tiba di alamat</p>
+          <p className="text-13 font-medium text-muted">
+            Estimasi tiba di alamat
+          </p>
           <p className="mt-1 font-display text-2xl leading-tight">
             {orderArrivalLabel(order)}
           </p>
@@ -319,7 +316,7 @@ function Result({ order, onSearch }: { order: Order; onSearch: (code: string) =>
                 ["Pelanggan", maskName(order.customerName)],
                 [
                   "Jadwal",
-                  `${scheduleDateLabel(orderDate(order))} · ${order.schedule}`,
+                  `${scheduleDateLabel(orderDate(order))}, ${order.schedule}`,
                 ],
                 ["Layanan", order.service],
                 [
@@ -399,11 +396,7 @@ function NotFound({ code, onSearch }: { code: string; onSearch: (code: string) =
   const [value, setValue] = useState(code);
   return (
     <div className="mx-auto max-w-xl py-10">
-      <div className="flex items-center gap-2.5">
-        <span className="small-print text-accent">Pelacakan publik</span>
-        <span aria-hidden="true" className="h-px w-8 bg-gold" />
-      </div>
-      <h1 className="mt-4 font-display text-4xl leading-tight">
+      <h1 className="font-display text-4xl leading-tight">
         Kode pesanan tidak ditemukan.
       </h1>
       <p className="mt-3 text-sm leading-relaxed text-muted">

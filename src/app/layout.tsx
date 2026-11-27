@@ -1,17 +1,20 @@
 import type { Metadata } from "next";
-import {
-  Archivo,
-  Archivo_Narrow,
-  Yeseva_One,
-} from "next/font/google";
+import { Archivo, Archivo_Narrow, Baloo_2, Fraunces } from "next/font/google";
 import { StoreProvider } from "@/components/providers/store-provider";
 import { ToastProvider } from "@/components/ui/toast";
 import "./globals.css";
 
-const yeseva = Yeseva_One({
+const fraunces = Fraunces({
   subsets: ["latin"],
   weight: "400",
-  variable: "--font-yeseva",
+  variable: "--font-fraunces",
+  display: "swap",
+});
+
+const baloo = Baloo_2({
+  subsets: ["latin"],
+  weight: "800",
+  variable: "--font-baloo",
   display: "swap",
 });
 
@@ -44,7 +47,7 @@ export default function RootLayout({
   return (
     <html
       lang="id"
-      className={`${yeseva.variable} ${archivo.variable} ${archivoNarrow.variable}`}
+      className={`${fraunces.variable} ${baloo.variable} ${archivo.variable} ${archivoNarrow.variable}`}
     >
       <body className="min-h-screen bg-paper text-ink antialiased">
         <StoreProvider>

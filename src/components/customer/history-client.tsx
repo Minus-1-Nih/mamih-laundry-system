@@ -130,8 +130,7 @@ export function HistoryClient() {
     <div>
       <div className="flex flex-wrap items-start justify-between gap-4 border-b border-rule pb-5">
         <div className="min-w-0">
-          <p className="small-print text-accent">Akun pelanggan</p>
-          <h1 className="mt-2 font-display text-3xl leading-tight sm:text-4xl">
+          <h1 className="font-display text-3xl leading-tight sm:text-4xl">
             Riwayat Pesanan
           </h1>
           <p className="mt-2 text-sm text-muted">
@@ -141,7 +140,7 @@ export function HistoryClient() {
         </div>
         <a
           href={whatsappLink(
-            "Halo Laundria, saya ingin memesan layanan laundry.",
+            "Halo Mamih, saya ingin memesan layanan laundry.",
           )}
           target="_blank"
           rel="noreferrer"
@@ -332,7 +331,7 @@ export function HistoryClient() {
           Hanya pesanan yang terhubung dengan akun Anda yang ditampilkan.
         </p>
         <a
-          href={whatsappLink("Halo Laundria, saya butuh bantuan terkait pesanan saya.")}
+          href={whatsappLink("Halo Mamih, saya butuh bantuan terkait pesanan saya.")}
           target="_blank"
           rel="noreferrer"
           className="inline-flex items-center gap-1.5 font-medium text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"

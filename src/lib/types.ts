@@ -20,6 +20,18 @@ export interface User {
   lastLoginAt?: string;
 }
 
+export type AddressLabel = "Rumah" | "Kos" | "Kantor";
+
+export interface CustomerAddress {
+  id: string;
+  customerId: string;
+  label: AddressLabel;
+  address: string;
+  note: string;
+  zoneId: ZoneId;
+  primary: boolean;
+}
+
 export interface Zone {
   id: ZoneId;
   name: string;
@@ -62,7 +74,15 @@ export interface Order {
   status: OrderStatus;
   createdAt: string;
   history: StatusEvent[];
+  /** Driver who holds the current leg, set when the task is claimed or assigned. */
   driverId?: string;
+  /** Claim marker. `driverId` alone is a legacy "last actor" value, not a claim. */
+  assignedAt?: string;
+  assignedBy?: string;
+  /** Per-leg attribution, so a delivery by another driver keeps the pickup credit. */
+  pickupDriverId?: string;
+  deliveryDriverId?: string;
+  assignments?: AssignmentEvent[];
   deletedAt?: string;
 }
 

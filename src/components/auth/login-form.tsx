@@ -14,6 +14,11 @@ import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import type { AuthMode } from "@/components/shells/auth-shell";
+import {
+  passwordResetHelp,
+  passwordResetMessage,
+} from "@/lib/auth-messages";
+import { whatsappLink } from "@/lib/constants";
 import { useAppStore } from "@/lib/store";
 import type { AdminLevel, Role } from "@/lib/types";
 
@@ -46,6 +51,8 @@ export function LoginForm({ mode, next }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showForgot, setShowForgot] = useState(false);
+  const forgotHelp = passwordResetHelp(mode);
 
   const expectedRole: Role =
     mode === "customer" ? "customer" : mode === "driver" ? "driver" : "admin";
@@ -77,12 +84,7 @@ export function LoginForm({ mode, next }: LoginFormProps) {
   }
 
   function handleForgot() {
-    toast({
-      title:
-        mode === "customer"
-          ? "Hubungi Admin Laundria melalui WhatsApp untuk reset kata sandi."
-          : "Hubungi Owner untuk reset kata sandi.",
-    });
+    setShowForgot((open) => !open);
   }
 
   return (
@@ -152,14 +154,45 @@ export function LoginForm({ mode, next }: LoginFormProps) {
           />
           Ingat saya
         </label>
-        <button
-          type="button"
-          onClick={handleForgot}
-          className="-my-3 inline-flex min-h-11 items-center font-medium text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"
-        >
-          Lupa kata sandi?
-        </button>
+        {mode === "customer" ? (
+          <Link
+            href="/lupa-password"
+            className="-my-3 inline-flex min-h-11 items-center font-medium text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"
+          >
+            Lupa password?
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={handleForgot}
+            aria-expanded={showForgot}
+            aria-controls="forgot-help"
+            className="-my-3 inline-flex min-h-11 items-center font-medium text-accent underline decoration-gold underline-offset-4 hover:text-accent-hover"
+          >
+            Lupa kata sandi?
+          </button>
+        )}
       </div>
+
+      {showForgot && mode !== "customer" ? (
+        <div
+          id="forgot-help"
+          className="space-y-3 border border-rule bg-paper-2 px-4 py-3.5"
+        >
+          <p className="text-sm font-medium text-ink">{forgotHelp.heading}</p>
+          <p className="text-13 leading-relaxed text-muted">{forgotHelp.body}</p>
+          {forgotHelp.channel === "whatsapp" && mode !== "owner" ? (
+            <a
+              href={whatsappLink(passwordResetMessage(mode, identifier))}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex h-11 w-full items-center justify-center rounded-control border border-ink bg-transparent px-3.5 text-sm font-medium text-ink transition-[background-color,border-color] duration-[var(--dur-micro)] hover:bg-paper"
+            >
+              {forgotHelp.cta}
+            </a>
+          ) : null}
+        </div>
+      ) : null}
 
       <Button type="submit" size="lg" className="w-full">
         Masuk

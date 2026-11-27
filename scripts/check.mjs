@@ -48,7 +48,9 @@ const notes = [];
 const record = (id, ok, detail = "") => results.push({ id, ok, detail });
 
 function exec(file, args) {
-  const r = spawnSync(file, args, { cwd: ROOT, encoding: "utf8" });
+  // Node refuses to spawn .cmd shims without a shell on Windows (EINVAL).
+  const shell = file.endsWith(".cmd");
+  const r = spawnSync(shell ? `"${file}"` : file, args, { cwd: ROOT, encoding: "utf8", shell });
   const out = `${r.stdout ?? ""}${r.stderr ?? ""}`.trim();
   return { ok: r.status === 0, out };
 }
@@ -88,6 +90,8 @@ run("lint", "eslint", ["."]);
 // Unit tests run through Node's own runner. The alias resolver has to be
 // registered with --import before the test files load.
 const tests = exec(process.execPath, [
+  // Node < 22.18 does not strip TypeScript by default; newer Node accepts the flag as a no-op.
+  "--experimental-strip-types",
   "--import",
   "./scripts/alias-register.mjs",
   "--test",
@@ -116,6 +120,7 @@ record(
 const APP = join(ROOT, "src/app");
 const routeOf = (file) => {
   const rel = relative(APP, file)
+    .replaceAll("\\", "/")
     .replace(/page\.tsx$/, "")
     .replace(/\([^)]+\)\//g, "")
     .replace(/\/$/, "");
@@ -155,6 +160,21 @@ record(
   cancelled.length === 0,
   cancelled.length
     ? `The app has four statuses (menunggu, dicuci, siap, selesai) and no cancelled state:\n  ${cancelled.join("\n  ")}`
+    : "",
+);
+
+// Colours and faces go through tokens.css.
+const RAW_HEX = /#[0-9a-fA-F]{3,8}\b/;
+const STOCK_PALETTE =
+  /\b(?:bg|text|border|ring|divide|outline|fill|stroke|from|via|to)-(?:white|black)(?:\/\d+)?\b|\b(?:bg|text|border|ring|divide|outline|fill|stroke|from|via|to)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}\b/;
+const rawColors = scanning(
+  (s) => RAW_HEX.test(s) || STOCK_PALETTE.test(s),
+);
+record(
+  "no-raw-colors",
+  rawColors.length === 0,
+  rawColors.length
+    ? `Use tokens from src/app/tokens.css, never raw hex or stock palette classes:\n  ${rawColors.join("\n  ")}`
     : "",
 );
 

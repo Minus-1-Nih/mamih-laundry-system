@@ -2,13 +2,14 @@
 // about tsconfig paths. Only needed by `node --test`; Next handles the alias
 // itself at build time.
 import { existsSync } from "node:fs";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 export async function resolve(specifier, context, next) {
   if (!specifier.startsWith("@/")) return next(specifier, context);
 
-  const base = decodeURIComponent(
-    new URL(`../src/${specifier.slice(2)}`, import.meta.url).pathname,
+  // fileURLToPath, not URL#pathname: pathname is "/C:/..." on Windows.
+  const base = fileURLToPath(
+    new URL(`../src/${specifier.slice(2)}`, import.meta.url),
   );
 
   for (const candidate of [`${base}.ts`, `${base}/index.ts`]) {

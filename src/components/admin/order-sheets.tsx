@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { OrderTimeline } from "@/components/orders/order-timeline";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 import { Sheet } from "@/components/ui/sheet";
 import { StatusBadge, statusLabels } from "@/components/ui/status-badge";
 import { useToast } from "@/components/ui/toast";
@@ -13,6 +14,7 @@ import {
   addDaysToKey,
   formatDateKey,
   formatDateTime,
+  formatTime,
   orderDate,
   orderDeliveryDate,
   scheduleDateLabel,
@@ -23,14 +25,13 @@ import {
   sessionFor,
   sessionWindowLabel,
 } from "@/lib/sessions";
-import { useAppStore } from "@/lib/store";
-import type {
-  Order,
-  OrderStatus,
-  SessionType,
-  User,
-  Zone,
-} from "@/lib/types";
+import {
+  ORDER_STATUSES,
+  nextStatusFor,
+  statusDescriptions,
+} from "@/lib/status-flow";
+import { useAppStore, useCurrentUser } from "@/lib/store";
+import type { Order, SessionType, User, Zone } from "@/lib/types";
 
 function DetailRow({
   label,
@@ -55,7 +56,7 @@ function DetailRow({
 function BlockLabel({ children }: { children: ReactNode }) {
   return (
     <h3 className="mt-6 flex items-center gap-2.5 border-t-2 border-ink pt-3">
-      <span className="small-print text-accent">{children}</span>
+      <span className="small-print text-ink">{children}</span>
     </h3>
   );
 }
@@ -82,13 +83,46 @@ export function OrderDetailSheet({
   const sessions = useAppStore((state) => state.sessions);
   const orders = useAppStore((state) => state.orders);
   const allocateOrder = useAppStore((state) => state.allocateOrder);
+  const releaseOrder = useAppStore((state) => state.releaseOrder);
+  const reassignOrder = useAppStore((state) => state.reassignOrder);
   const { toast } = useToast();
+  // Keyed by order code so opening another order never carries a stale choice.
+  const [assign, setAssign] = useState({ code: "", driverId: "" });
 
   if (!order) return null;
   const detailOrder = order;
+  const assignDriverId = assign.code === order.code ? assign.driverId : "";
 
   const zone = zones.find((item) => item.id === order.zoneId);
-  const driver = users.find((user) => user.id === order.driverId);
+  const currentLeg =
+    order.status === "menunggu"
+      ? "pickup"
+      : order.status === "siap"
+        ? "delivery"
+        : null;
+  const holder =
+    order.assignedAt && order.driverId
+      ? users.find((user) => user.id === order.driverId)
+      : undefined;
+  const pickupEvent =
+    [...order.history].find((event) =>
+      event.note?.toLowerCase().includes("penjemputan selesai"),
+    ) ?? [...order.history].find((event) => event.status === "dicuci");
+  const deliveryEvent = [...order.history]
+    .reverse()
+    .find((event) => event.status === "selesai");
+  const pickupDriverName =
+    users.find((user) => user.id === order.pickupDriverId)?.name ??
+    (order.status !== "menunggu" ? pickupEvent?.by : undefined);
+  const deliveryDriverName =
+    users.find((user) => user.id === order.deliveryDriverId)?.name ??
+    (order.status === "selesai" ? deliveryEvent?.by : undefined);
+  const eligibleDrivers = users.filter(
+    (user) =>
+      user.role === "driver" &&
+      user.active &&
+      (user.zoneIds ?? []).includes(order.zoneId),
+  );
   const pickupDate = orderDate(order);
   const deliveryDate = orderDeliveryDate(order);
   const others = orders.filter(
@@ -165,6 +199,30 @@ export function OrderDetailSheet({
     );
   }
 
+  function handleAssign() {
+    if (!assignDriverId) return;
+    const result = reassignOrder(detailOrder.code, assignDriverId);
+    if (!result.ok) {
+      toast({ title: result.error, tone: "error" });
+      return;
+    }
+    toast({ title: "Kurir ditugaskan." });
+    setAssign({ code: detailOrder.code, driverId: "" });
+  }
+
+  function handleRelease() {
+    const result = releaseOrder(detailOrder.code);
+    if (!result.ok) {
+      toast({ title: result.error, tone: "error" });
+      return;
+    }
+    toast({ title: "Tugas dikembalikan ke pool kurir." });
+  }
+
+  function legLabel(type: SessionType): string {
+    return type === "pickup" ? "penjemputan" : "pengantaran";
+  }
+
   return (
     <Sheet
       open={open}
@@ -186,7 +244,7 @@ export function OrderDetailSheet({
         </div>
       }
     >
-      <p className="font-outlier text-lg font-semibold tracking-[0.08em] text-ink">
+      <p className="font-outlier text-lg font-semibold text-ink">
         {order.code}
       </p>
       <div className="mt-2 flex flex-wrap items-center gap-2 border-b border-rule pb-4">
@@ -227,7 +285,7 @@ export function OrderDetailSheet({
           value={
             <>
               <p>
-                {scheduleDateLabel(pickupDate)} · {order.schedule} WIB
+                {scheduleDateLabel(pickupDate)}, {order.schedule} WIB
               </p>
               <p className="text-13 font-normal text-muted">
                 {sessionWindowLabel("pickup", sessions)}
@@ -250,11 +308,114 @@ export function OrderDetailSheet({
         />
         <DetailRow label="Patokan" value={order.landmark} />
         <DetailRow
-          label="Driver"
-          value={driver?.name ?? "Belum ditugaskan"}
+          label="Kurir penjemputan"
+          value={pickupDriverName ?? "Belum diambil"}
+        />
+        <DetailRow
+          label="Kurir pengantaran"
+          value={
+            deliveryDriverName ??
+            (currentLeg === "delivery" && holder
+              ? holder.name
+              : "Belum diambil")
+          }
         />
         {order.note ? <DetailRow label="Catatan" value={order.note} /> : null}
       </dl>
+
+      {currentLeg ? (
+        <>
+          <BlockLabel>Penugasan kurir</BlockLabel>
+          <div className="mt-2 border border-rule">
+            <div className="flex flex-wrap items-center justify-between gap-2 px-3.5 py-3">
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-muted">
+                  Tugas {legLabel(currentLeg)}
+                </p>
+                <p className="mt-0.5 text-sm font-semibold text-ink">
+                  {holder?.name ?? "Belum diambil kurir"}
+                </p>
+              </div>
+              {holder ? (
+                <Button
+                  variant="ghost"
+                  className="h-8 border border-danger-fg px-2.5 text-13 text-danger-fg hover:bg-danger-bg"
+                  onClick={handleRelease}
+                >
+                  Lepas tugas
+                </Button>
+              ) : null}
+            </div>
+            <div className="border-t border-rule p-3.5">
+              <label
+                className="text-xs font-medium text-muted"
+                htmlFor="assign-driver"
+              >
+                Tugaskan ke kurir zona {order.zoneId}
+              </label>
+              <div className="mt-1.5 flex flex-col gap-2 sm:flex-row">
+                <Select
+                  id="assign-driver"
+                  value={assignDriverId}
+                  onChange={(event) =>
+                    setAssign({ code: detailOrder.code, driverId: event.target.value })
+                  }
+                >
+                  <option value="">Pilih kurir</option>
+                  {eligibleDrivers.map((user) => (
+                    <option key={user.id} value={user.id}>
+                      {user.name}
+                      {holder?.id === user.id ? " (saat ini)" : ""}
+                    </option>
+                  ))}
+                </Select>
+                <Button
+                  className="h-11 shrink-0"
+                  disabled={!assignDriverId || assignDriverId === holder?.id}
+                  onClick={handleAssign}
+                >
+                  Tugaskan
+                </Button>
+              </div>
+              {eligibleDrivers.length === 0 ? (
+                <p className="mt-1.5 text-13 text-muted">
+                  Tidak ada kurir aktif di zona ini.
+                </p>
+              ) : null}
+            </div>
+          </div>
+        </>
+      ) : null}
+
+      {(order.assignments ?? []).length > 0 ? (
+        <>
+          <BlockLabel>Riwayat penugasan</BlockLabel>
+          <ul className="mt-2 divide-y divide-rule border-y border-rule">
+            {[...(order.assignments ?? [])]
+              .reverse()
+              .slice(0, 4)
+              .map((event, index) => (
+                <li
+                  key={`${event.at}-${event.action}-${index}`}
+                  className="flex items-baseline justify-between gap-3 py-2 text-13"
+                >
+                  <span className="text-ink-2">
+                    {event.action === "claim"
+                      ? `${event.driverName} mengambil tugas ${legLabel(event.leg)}`
+                      : event.action === "release"
+                        ? event.by === event.driverName
+                          ? `${event.driverName} melepas tugas ${legLabel(event.leg)}`
+                          : `${event.by} melepas tugas ${event.driverName} (${legLabel(event.leg)})`
+                        : `${event.by} menugaskan ${event.driverName} (${legLabel(event.leg)})`}
+                  </span>
+                  <span className="shrink-0 text-muted">
+                    {formatTime(event.at)}
+                  </span>
+                </li>
+              ))}
+          </ul>
+        </>
+      ) : null}
 
       <BlockLabel>Riwayat status</BlockLabel>
       <div className="mt-2">
@@ -267,16 +428,6 @@ export function OrderDetailSheet({
     </Sheet>
   );
 }
-
-const statusOptions: {
-  status: OrderStatus;
-  description: string;
-}[] = [
-  { status: "menunggu", description: "Belum dijemput driver." },
-  { status: "dicuci", description: "Sudah dijemput, sedang diproses." },
-  { status: "siap", description: "Selesai dicuci, menunggu driver." },
-  { status: "selesai", description: "Pesanan diterima pelanggan." },
-];
 
 export interface OrderStatusSheetProps {
   order: Order | null;
@@ -320,19 +471,22 @@ function OrderStatusSheetForm({
   const updateOrderStatus = useAppStore((state) => state.updateOrderStatus);
   const zones = useAppStore((state) => state.zones);
   const sessions = useAppStore((state) => state.sessions);
+  const user = useCurrentUser();
   const { toast } = useToast();
-  const [selected, setSelected] = useState<OrderStatus>(order.status);
 
-  const driver = users.find((user) => user.id === order.driverId);
+  const driver = users.find((item) => item.id === order.driverId);
   const zone = zones.find((item) => item.id === order.zoneId);
+  const next = user ? nextStatusFor(user.role, order.status) : null;
+  const currentIndex = ORDER_STATUSES.indexOf(order.status);
 
-  function handleSave() {
-    const result = updateOrderStatus(order.code, selected);
+  function handleAdvance() {
+    if (!next) return;
+    const result = updateOrderStatus(order.code, next);
     if (!result.ok) {
       toast({ title: result.error, tone: "error" });
       return;
     }
-    toast({ title: "Status pesanan diperbarui." });
+    toast({ title: `Status diperbarui: ${statusLabels[next]}.` });
     onSaved();
   }
 
@@ -340,7 +494,7 @@ function OrderStatusSheetForm({
     <Sheet
       open={open}
       onClose={onClose}
-      title="Ubah status pesanan"
+      title="Perbarui status pesanan"
       description={`${order.code}, ${order.customerName}, ${order.zoneId} ${
         zone?.name ?? ""
       }`}
@@ -352,66 +506,83 @@ function OrderStatusSheetForm({
             className="flex-1 border border-rule"
             onClick={onClose}
           >
-            Batal
+            Tutup
           </Button>
-          <Button className="flex-1" onClick={handleSave}>
-            Simpan status
-          </Button>
+          {next ? (
+            <Button className="flex-1" onClick={handleAdvance}>
+              {next === "dicuci"
+                ? "Tandai Sedang Dicuci"
+                : "Tandai Siap Diantar"}
+            </Button>
+          ) : null}
         </div>
       }
     >
       <ol className="border-t border-ink">
-        {statusOptions.map((option, index) => {
-          const active = selected === option.status;
+        {ORDER_STATUSES.map((status, index) => {
+          const current = status === order.status;
+          const reached = index < currentIndex;
+          const upcoming = next === status;
           return (
-            <li key={option.status}>
-              <button
-                type="button"
-                onClick={() => setSelected(option.status)}
-                aria-pressed={active}
+            <li
+              key={status}
+              className={cn(
+                "flex items-start gap-3 border-b border-rule px-3.5 py-3.5",
+                current &&
+                  "bg-accent-soft shadow-[inset_2px_0_0_var(--color-accent)]",
+              )}
+            >
+              <span className="small-print w-6 shrink-0 pt-0.5 text-muted">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <span
                 className={cn(
-                  "flex w-full items-start gap-3 border-b border-rule px-3.5 py-3.5 text-left transition-colors duration-[var(--dur-micro)]",
-                  active
-                    ? "bg-accent-soft shadow-[inset_2px_0_0_var(--color-accent)]"
-                    : "hover:bg-paper-2",
+                  "mt-0.5 flex h-3 w-3 shrink-0 items-center justify-center border-2",
+                  reached
+                    ? "border-accent bg-accent"
+                    : current
+                      ? "border-accent bg-paper"
+                      : "border-rule bg-paper",
                 )}
+                aria-hidden="true"
               >
-                <span className="small-print w-6 shrink-0 pt-0.5 text-muted">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <span
-                  className={cn(
-                    "mt-0.5 flex h-3 w-3 shrink-0 items-center justify-center border-2",
-                    active ? "border-accent bg-accent" : "border-rule bg-paper",
-                  )}
-                  aria-hidden="true"
-                >
-                  {active ? (
-                    <span className="h-1 w-1 bg-accent-ink" />
-                  ) : null}
-                </span>
-                <span className="min-w-0">
+                {reached ? <span className="h-1 w-1 bg-accent-ink" /> : null}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                   <span
                     className={cn(
                       "text-sm font-medium",
-                      active ? "text-accent" : "text-ink",
+                      current ? "text-accent" : "text-ink",
                     )}
                   >
-                    {statusLabels[option.status]}
+                    {statusLabels[status]}
                   </span>
-                  <span className="mt-0.5 block text-13 text-muted">
-                    {option.description}
-                  </span>
+                  {current ? (
+                    <span className="text-13 font-medium text-accent">
+                      Saat ini
+                    </span>
+                  ) : upcoming ? (
+                    <span className="text-13 font-medium text-ink-2">
+                      Berikutnya
+                    </span>
+                  ) : null}
                 </span>
-              </button>
+                <span className="mt-0.5 block text-13 text-muted">
+                  {statusDescriptions[status]}
+                </span>
+              </span>
             </li>
           );
         })}
       </ol>
 
-      <p className="mt-4 text-13 leading-relaxed text-muted">
-        Status baru ikut terkirim ke pelanggan lewat WhatsApp. Hanya admin dan
-        driver terkait yang dapat mengubah status.
+      <p className="mt-4 border-l-2 border-gold bg-paper-2 px-3 py-2.5 text-13 leading-relaxed text-muted">
+        {order.status === "selesai"
+          ? "Pesanan sudah selesai dan terkunci. Riwayatnya tetap tersimpan."
+          : order.status === "siap"
+            ? "Siap diantar. Pengantaran dan penyelesaian dicatat oleh driver."
+            : "Status hanya bisa maju satu tahap, dan setiap perubahan tercatat di riwayat. Pelanggan melihat tahap terbaru di halaman pelacakan."}
       </p>
 
       <BlockLabel>Ringkasan pesanan</BlockLabel>

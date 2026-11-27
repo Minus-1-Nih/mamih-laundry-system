@@ -1,12 +1,8 @@
 import type { OrderStatus } from "@/lib/types";
 import { cn } from "@/lib/cn";
+import { statusLabels } from "@/lib/status-flow";
 
-export const statusLabels: Record<OrderStatus, string> = {
-  menunggu: "Menunggu Penjemputan",
-  dicuci: "Sedang Dicuci",
-  siap: "Siap Diantar",
-  selesai: "Selesai",
-};
+export { statusLabels };
 
 /* Status is a dot plus an ink label. Colour never carries the meaning alone:
    the label sits beside it, and overdue adds a spoken word for screen readers. */

@@ -1,14 +1,36 @@
+import { validateFullName, validatePassword } from "@/lib/register-validation";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { DEMO_NOW, DEMO_NOW_ISO } from "@/lib/demo-date";
+import { DEMO_MINUTES, DEMO_NOW, DEMO_NOW_ISO } from "@/lib/demo-date";
 import {
   deliveryDateFor,
   nextOrderCode,
   timeToMinutes,
   todayKey,
 } from "@/lib/format";
-import { seedOrders, seedSessions, seedUsers, seedZones } from "@/lib/seed";
+import { findCustomerForReset } from "@/lib/password-reset";
+import {
+  addAddress,
+  removeAddress,
+  setPrimaryAddress,
+  updateAddress,
+  type AddressDraft,
+} from "@/lib/addresses";
+import {
+  seedAddresses,
+  seedOrders,
+  seedSessions,
+  seedUsers,
+  seedZones,
+} from "@/lib/seed";
 import { bookable, planAllocation } from "@/lib/sessions";
+import { canAdvance, statusNotes } from "@/lib/status-flow";
+import {
+  canClaim,
+  canReassign,
+  canRelease,
+  taskLeg,
+} from "@/lib/tasks";
 import type {
   AdminLevel,
   OfflineSyncItem,
@@ -84,6 +106,11 @@ export interface UserPatch {
 interface AppState {
   users: User[];
   zones: typeof seedZones;
+  addresses: CustomerAddress[];
+  addAddress: (draft: AddressDraft) => Result<{ address: CustomerAddress }>;
+  updateAddress: (id: string, draft: AddressDraft) => Result;
+  removeAddress: (id: string) => Result;
+  setPrimaryAddress: (id: string) => Result;
   orders: Order[];
   sessions: OperationalSession[];
   currentUserId: string | null;
@@ -104,6 +131,7 @@ interface AppState {
   deactivateUser: (id: string) => Result;
   activateUser: (id: string) => Result;
   resetPassword: (id: string, password: string) => Result;
+  resetCustomerPassword: (input: { email: string; phone: string; password: string }) => Result;
   createOrder: (input: CreateOrderInput) => Result<{ order: Order }>;
   updateOrderStatus: (
     code: string,
@@ -151,6 +179,44 @@ export const useAppStore = create<AppState>()(
     (set, get) => ({
       users: seedUsers,
       zones: seedZones,
+      addresses: seedAddresses,
+
+      addAddress: (draft) => {
+        const customerId = get().currentUserId;
+        if (!customerId) return { ok: false, error: "Masuk dulu untuk menyimpan alamat." };
+        const result = addAddress(get().addresses, customerId, draft, `addr-${Date.now()}`);
+        if (!result.ok) return result;
+        set({ addresses: result.addresses });
+        return { ok: true, address: result.address };
+      },
+
+      updateAddress: (id, draft) => {
+        const customerId = get().currentUserId;
+        if (!customerId) return { ok: false, error: "Masuk dulu untuk mengubah alamat." };
+        const result = updateAddress(get().addresses, customerId, id, draft);
+        if (!result.ok) return result;
+        set({ addresses: result.addresses });
+        return { ok: true };
+      },
+
+      removeAddress: (id) => {
+        const customerId = get().currentUserId;
+        if (!customerId) return { ok: false, error: "Masuk dulu untuk menghapus alamat." };
+        const result = removeAddress(get().addresses, customerId, id);
+        if (!result.ok) return result;
+        set({ addresses: result.addresses });
+        return { ok: true };
+      },
+
+      setPrimaryAddress: (id) => {
+        const customerId = get().currentUserId;
+        if (!customerId) return { ok: false, error: "Masuk dulu untuk mengatur alamat." };
+        const result = setPrimaryAddress(get().addresses, customerId, id);
+        if (!result.ok) return result;
+        set({ addresses: result.addresses });
+        return { ok: true };
+      },
+
       orders: seedOrders,
       sessions: seedSessions,
       currentUserId: null,
@@ -226,16 +292,16 @@ export const useAppStore = create<AppState>()(
 
       registerCustomer: ({ name, email, phone, password }) => {
         const cleanEmail = email.trim().toLowerCase();
-        if (!name.trim()) return { ok: false, error: "Nama lengkap wajib diisi." };
+        const nameError = validateFullName(name);
+        if (nameError) return { ok: false, error: nameError };
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
           return { ok: false, error: "Format email belum tepat." };
         }
         if (emailTaken(get().users, cleanEmail)) {
           return { ok: false, error: "Email sudah terdaftar. Coba masuk." };
         }
-        if (password.length < 6) {
-          return { ok: false, error: "Kata sandi minimal 6 karakter." };
-        }
+        const passwordError = validatePassword(password);
+        if (passwordError) return { ok: false, error: passwordError };
 
         let username = cleanEmail.split("@")[0].replace(/[^a-z0-9._-]/g, "");
         if (!username) username = "pelanggan";
@@ -371,6 +437,19 @@ export const useAppStore = create<AppState>()(
         return { ok: true };
       },
 
+      resetCustomerPassword: ({ email, phone, password }) => {
+        const found = findCustomerForReset(get().users, email, phone);
+        if (!found.ok) return found;
+        const passwordError = validatePassword(password);
+        if (passwordError) return { ok: false, error: passwordError };
+        set((state) => ({
+          users: state.users.map((user) =>
+            user.id === found.user.id ? { ...user, password } : user,
+          ),
+        }));
+        return { ok: true };
+      },
+
       createOrder: (input) => {
         const state = get();
         const pickupDate = input.scheduleDate ?? todayKey();
@@ -434,15 +513,29 @@ export const useAppStore = create<AppState>()(
               ? {
                   ...item,
                   status,
-                  driverId:
-                    actor?.role === "driver" ? actor.id : item.driverId,
+                  driverId: completedPickup
+                    ? undefined
+                    : actor.role === "driver"
+                      ? actor.id
+                      : item.driverId,
+                  assignedAt: released ? undefined : item.assignedAt,
+                  assignedBy: released ? undefined : item.assignedBy,
+                  pickupDriverId: completedPickup
+                    ? (item.pickupDriverId ??
+                      (actor.role === "driver" ? actor.id : item.driverId))
+                    : item.pickupDriverId,
+                  deliveryDriverId: completedDelivery
+                    ? (item.deliveryDriverId ??
+                      item.driverId ??
+                      (actor.role === "driver" ? actor.id : undefined))
+                    : item.deliveryDriverId,
                   history: [
                     ...item.history,
                     {
                       status,
                       at: nowIso,
                       by,
-                      note: note?.trim() || "Status diperbarui",
+                      note: note?.trim() || statusNotes[status],
                     },
                   ],
                 }
@@ -541,6 +634,7 @@ export const useAppStore = create<AppState>()(
         set({
           users: seedUsers,
           zones: seedZones,
+          addresses: seedAddresses,
           orders: seedOrders,
           sessions: seedSessions,
           currentUserId: null,
@@ -558,6 +652,7 @@ export const useAppStore = create<AppState>()(
       partialize: (state) => ({
         users: state.users,
         zones: state.zones,
+        addresses: state.addresses,
         orders: state.orders,
         sessions: state.sessions,
         currentUserId: state.currentUserId,
